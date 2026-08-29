@@ -1,0 +1,47 @@
+﻿import 'package:flutter/material.dart';
+
+import 'package:my_guide/core/custom_widgets/custom_button/custom_button.dart';
+import 'package:my_guide/core/custom_widgets/custom_text/custom_text.dart';
+import 'package:my_guide/main.dart';
+
+class CustomDialog {
+  static Future dialog({
+    required Widget child,
+    bool barrierDismissible = true,
+  }) {
+    return showDialog(
+      context: navigatorKey.currentContext!,
+      barrierDismissible: barrierDismissible,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              content: child,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  static Future loginAgainDialog(String? message) async {
+    await dialog(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomText(text: message ?? ''),
+          CustomText(text: 'Your session has expired. Please log in again.'),
+          CustomButton(
+            text: 'Login Again',
+            onTap: () {
+              // Get.offAllNamed(AppRoutes.login);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
