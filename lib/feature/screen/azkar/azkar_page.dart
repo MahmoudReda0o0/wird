@@ -13,8 +13,8 @@ class AzkarPageArguments {
   AzkarPageArguments({required this.azkarList, required this.title});
 }
 
-class AzkarPage extends StatelessWidget {
-  const AzkarPage({super.key});
+class AzkarPageScreen extends StatelessWidget {
+  const AzkarPageScreen({super.key});
   @override
   Widget build(BuildContext context) {
     final args =

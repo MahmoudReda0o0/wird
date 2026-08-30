@@ -17,6 +17,7 @@ class CustomTextValueAndImage extends StatelessWidget {
     this.valueSize,
     this.imageSize,
     this.imageColor,
+    this.spacing = 4,
     this.checkValueIsEmpty = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
   });
@@ -32,6 +33,7 @@ class CustomTextValueAndImage extends StatelessWidget {
   final Color? imageColor;
   final CrossAxisAlignment crossAxisAlignment;
   final bool checkValueIsEmpty;
+  final double spacing;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +59,7 @@ class CustomTextValueAndImage extends StatelessWidget {
           color: textColor ?? AppColors.appPrimaryColor,
           fontSize: textSize ?? 16,
         ),
+        spacing.horizontalSpace,
         value == null && value != ''
             ? const SizedBox.shrink()
             : Flexible(

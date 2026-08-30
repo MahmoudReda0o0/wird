@@ -5,11 +5,13 @@ import 'package:my_guide/core/app/app_route.dart';
 import 'package:my_guide/feature/screen/azkar/all_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 import 'package:my_guide/feature/screen/home/home_screen.dart';
+import 'package:my_guide/feature/screen/pray_timeing/pray_timing_screen.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
 String siteURL =
     'https://www.islambook.com/?action=Azkar&cat=2&azkar_fontweight=1';
 void main() {
+
   runApp(const MyApp());
 }
 
@@ -23,9 +25,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       child: MaterialApp(
         locale: const Locale('ar'),
-        supportedLocales: const [
-          Locale('ar'),
-        ],
+        supportedLocales: const [Locale('ar')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -44,17 +44,16 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
 
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-          ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
 
         initialRoute: AppRoutes.home,
 
         routes: {
           AppRoutes.home: (context) => const HomeScreen(),
-          AppRoutes.allAzkar: (context) => const AllAzkar(),
-          AppRoutes.azkarPage: (context) => const AzkarPage(),
+          AppRoutes.allAzkar: (context) => const AllAzkarScreen(),
+          AppRoutes.azkarPage: (context) => const AzkarPageScreen(),
+          AppRoutes.prayTiming: (context) => const PrayTimingScreen(),
         },
       ),
     );

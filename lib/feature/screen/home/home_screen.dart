@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_guide/core/app/app_route.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_button/custom_button.dart';
@@ -21,6 +22,14 @@ class HomeScreen extends StatelessWidget {
             },
             text: 'الأذكار',
           ),
+          16.verticalSpace,
+          CustomButton(
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.prayTiming);
+            },
+            text: 'مواقيت الصلاة',
+          ),
+          16.verticalSpace,
         ],
       ),
     );

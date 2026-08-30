@@ -11,8 +11,8 @@ import 'package:my_guide/feature/model/azkar_model/sleep_azkar.dart';
 import 'package:my_guide/feature/model/azkar_model/tasabih_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 
-class AllAzkar extends StatelessWidget {
-  const AllAzkar({super.key});
+class AllAzkarScreen extends StatelessWidget {
+  const AllAzkarScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
