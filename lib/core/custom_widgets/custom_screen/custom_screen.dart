@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import 'package:my_guide/core/custom_widgets/custom_Item/custom_item.dart';
 import 'package:my_guide/core/app/app_colors.dart';
@@ -31,7 +31,7 @@ class CustomScreen extends StatelessWidget {
             top: false,
             bottom: false,
             child: Scaffold(
-              backgroundColor: AppColors.appWhite,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               floatingActionButton: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: floatingActionButton,
