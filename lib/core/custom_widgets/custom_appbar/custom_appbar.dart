@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:my_guide/core/app/app_colors.dart';
-import 'package:my_guide/core/app/app_images.dart';
 import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_button/custom_back_button.dart';
-import 'package:my_guide/core/custom_widgets/custom_image/custom_image.dart';
-import 'package:my_guide/core/custom_widgets/custom_text/custom_text.dart';
+import 'package:my_guide/core/custom_widgets/custom_button/theme_toggle_button.dart';
 
+/// Top bar: centered title, back button at the leading (right) edge,
+/// theme toggle at the trailing (left) edge.
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
@@ -32,76 +29,30 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final c = context.wird;
 
     return AppBar(
       centerTitle: centerTitle,
-      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-      elevation: 1,
-      shadowColor: AppColors.appPrimaryColor.withValues(alpha: 0.5),
-
+      backgroundColor: c.surfaceRaised,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      shape: Border(bottom: BorderSide(color: c.line)),
       automaticallyImplyLeading: false,
-      title: CustomText(
-        text: title,
-        fontSize: 17.w,
-        fontWeight: FontWeight.w700,
-        color: primary,
-      ),
-      leading: IconButton(
-        tooltip: 'تغيير الوضع',
-        onPressed: () => ThemeController.toggle(context),
-        icon: Icon(
-          Theme.of(context).brightness == Brightness.dark
-              ? Icons.light_mode_outlined
-              : Icons.dark_mode_outlined,
-          color: primary,
-        ),
-      ),
-      actions: [showBackButton ? const CustomBackButton() : SizedBox()],
-      // title: Row(
-      //   children: [
-      //     CustomBackButton(color: primary),
-      //     CustomText(
-      //       text: title,
-      //       fontSize: 17.w,
-      //       fontWeight: FontWeight.w700,
-      //       color: primary,
-      //     ),
-      //     8.horizontalSpace,
-      //     const Spacer(),
-
-      //     // _buildIconButton(image: AppImages.notifications),
-      //     // 4.horizontalSpace,
-      //     // (showNotivication)
-      //     //     ? _buildIconButton(
-      //     //         height: 30,
-      //     //         image: AppImages.logo,
-      //     //         onTap: () => Get.toNamed(AppRoutes.notifications),
-      //     //       )
-      //     //     : SizedBox.shrink(),
-      //     // 5.horizontalSpace,
-      //     // _buildIconButton(
-      //     //   image: AppImages.logo,
-      //     //   onTap: () => Get.offAllNamed(AppRoutes.home),
-      //     // ),
-      //   ],
-      // ),
-    );
-  }
-
-  Widget _buildIconButton({
-    required String image,
-    VoidCallback? onTap,
-    double height = 24,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: height.h,
-        width: 30.w,
-        // padding: const EdgeInsets.all(4),
-        child: CustomImage(fit: BoxFit.contain, image: image),
-      ),
+      leading: showBackButton
+          ? IconButton(
+              tooltip: 'رجوع',
+              onPressed: onBackTap ?? () => Navigator.maybePop(context),
+              // Mirrors in RTL, so it points right (back).
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: c.primary,
+                size: 22,
+              ),
+            )
+          : null,
+      title: Text(title, style: AppText.title.copyWith(color: c.primary)),
+      actions: const [ThemeToggleButton(), SizedBox(width: AppSpace.s1)],
     );
   }
 }
