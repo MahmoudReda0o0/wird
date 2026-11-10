@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_guide/core/app/app_route.dart';
+import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
-import 'package:my_guide/core/custom_widgets/custom_button/custom_button.dart';
-import 'package:my_guide/core/custom_widgets/custom_container/custom_container.dart';
+import 'package:my_guide/core/custom_widgets/custom_button/menu_tile.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/core/custom_widgets/custom_text/custom_text.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,23 +11,22 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScreen(
-      appBar: CustomAppBar(title: 'الصفحة الرئيسية', showBackButton: false),
+      appBar: const CustomAppBar(title: 'وِرْد', showBackButton: false),
       body: Column(
         children: [
-          CustomButton(
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.allAzkar);
-            },
-            text: 'الأذكار',
+          MenuTile(
+            icon: Icons.auto_stories_outlined,
+            title: 'الأذكار',
+            subtitle: 'الصباح والمساء والنوم والاستيقاظ',
+            onTap: () => Navigator.pushNamed(context, AppRoutes.allAzkar),
           ),
-          16.verticalSpace,
-          CustomButton(
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.prayTiming);
-            },
-            text: 'مواقيت الصلاة',
+          const SizedBox(height: AppSpace.s3),
+          MenuTile(
+            icon: Icons.schedule_rounded,
+            title: 'مواقيت الصلاة',
+            subtitle: 'مواقيت اليوم والصلاة القادمة',
+            onTap: () => Navigator.pushNamed(context, AppRoutes.prayTiming),
           ),
-          16.verticalSpace,
         ],
       ),
     );

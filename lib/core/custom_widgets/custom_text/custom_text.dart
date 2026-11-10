@@ -1,5 +1,4 @@
-﻿import 'package:flutter/material.dart';
-import 'package:my_guide/core/app/app_colors.dart';
+import 'package:flutter/material.dart';
 
 class CustomText extends StatelessWidget {
   CustomText({
@@ -33,7 +32,7 @@ class CustomText extends StatelessWidget {
       text,
       textAlign: textAlign,
       style: TextStyle(
-        color: color ?? AppColors.appBlack,
+        color: color ?? Theme.of(context).colorScheme.onSurface,
         fontSize: _safeFontSize,
         fontWeight: bold ? FontWeight.bold : fontWeight ?? FontWeight.w500,
         overflow: overflow,

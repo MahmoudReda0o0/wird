@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Legacy colors, kept for older widgets that still reference them.
+/// New UI reads its colors from the Wird design system: `context.wird`
+/// (see app_theme.dart).
 class AppColors {
   static const Color appPrimaryColor = Color.fromARGB(255, 174, 175, 175);
   static const Color appWhite = Colors.white;

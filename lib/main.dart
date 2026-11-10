@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_guide/core/app/app_route.dart';
+import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/feature/screen/azkar/all_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 import 'package:my_guide/feature/screen/home/home_screen.dart';
@@ -10,8 +11,9 @@ import 'package:my_guide/feature/screen/pray_timeing/pray_timing_screen.dart';
 GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
 String siteURL =
     'https://www.islambook.com/?action=Azkar&cat=2&azkar_fontweight=1';
-void main() {
-
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ThemeController.load();
   runApp(const MyApp());
 }
 
@@ -23,7 +25,9 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       splitScreenMode: true,
       designSize: const Size(375, 812),
-      child: MaterialApp(
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: ThemeController.themeMode,
+        builder: (context, themeMode, _) => MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar')],
         localizationsDelegates: const [
@@ -41,11 +45,11 @@ class MyApp extends StatelessWidget {
 
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Wird',
 
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        ),
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeMode,
 
         initialRoute: AppRoutes.home,
 
@@ -55,6 +59,7 @@ class MyApp extends StatelessWidget {
           AppRoutes.azkarPage: (context) => const AzkarPageScreen(),
           AppRoutes.prayTiming: (context) => const PrayTimingScreen(),
         },
+        ),
       ),
     );
   }
