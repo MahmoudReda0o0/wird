@@ -1,18 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Holds the current theme mode. Defaults to following the device setting.
+/// Holds the current theme mode. Follows the device setting until the user
+/// picks light or dark; that choice is saved and restored on the next launch.
 class ThemeController {
   ThemeController._();
+
+  static const _prefsKey = 'theme_mode';
 
   static final ValueNotifier<ThemeMode> themeMode = ValueNotifier(
     ThemeMode.system,
   );
 
-  /// Switches between light and dark, based on what is shown right now.
-  static void toggle(BuildContext context) {
+  /// Restores the saved choice. Call once in main() before runApp().
+  static Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_prefsKey);
+    themeMode.value = ThemeMode.values.firstWhere(
+      (mode) => mode.name == saved,
+      orElse: () => ThemeMode.system,
+    );
+  }
+
+  /// Switches between light and dark, based on what is shown right now,
+  /// and saves the choice.
+  static Future<void> toggle(BuildContext context) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    themeMode.value = isDark ? ThemeMode.light : ThemeMode.dark;
+    final mode = isDark ? ThemeMode.light : ThemeMode.dark;
+    themeMode.value = mode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsKey, mode.name);
   }
 }
 
