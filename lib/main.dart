@@ -11,8 +11,9 @@ import 'package:my_guide/feature/screen/pray_timeing/pray_timing_screen.dart';
 GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
 String siteURL =
     'https://www.islambook.com/?action=Azkar&cat=2&azkar_fontweight=1';
-void main() {
-
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ThemeController.load();
   runApp(const MyApp());
 }
 
