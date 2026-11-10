@@ -80,7 +80,10 @@ class _AzkarCardState extends State<AzkarCard> {
                     bottomRight: Radius.circular(0),
                   ),
                 ),
-                child: CustomText(text: widget.index.toString()),
+                child: CustomText(
+                  text: widget.index.toString(),
+                  color: AppColors.appWhite,
+                ),
               ),
             ],
           ),
@@ -88,7 +91,7 @@ class _AzkarCardState extends State<AzkarCard> {
             width: double.infinity,
             padding: EdgeInsetsDirectional.only(start: 8, top: 8, bottom: 8),
             decoration: BoxDecoration(
-              color: AppColors.appWhite,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(0),
                 topRight: Radius.circular(5),
@@ -176,6 +179,7 @@ class _AzkarCardState extends State<AzkarCard> {
                               ),
                               child: CustomText(
                                 text: widget.azkarModel.fadl ?? '',
+                                color: AppColors.appWhite,
                               ),
                             )
                           : Align(
