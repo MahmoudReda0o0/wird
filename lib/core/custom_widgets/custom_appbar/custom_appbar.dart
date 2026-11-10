@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_guide/core/app/app_colors.dart';
 import 'package:my_guide/core/app/app_images.dart';
+import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_button/custom_back_button.dart';
 import 'package:my_guide/core/custom_widgets/custom_image/custom_image.dart';
 import 'package:my_guide/core/custom_widgets/custom_text/custom_text.dart';
@@ -35,7 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       centerTitle: centerTitle,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 1,
       shadowColor: AppColors.appPrimaryColor.withValues(alpha: 0.5),
 
@@ -45,6 +46,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         fontSize: 17.w,
         fontWeight: FontWeight.w700,
         color: primary,
+      ),
+      leading: IconButton(
+        tooltip: 'تغيير الوضع',
+        onPressed: () => ThemeController.toggle(context),
+        icon: Icon(
+          Theme.of(context).brightness == Brightness.dark
+              ? Icons.light_mode_outlined
+              : Icons.dark_mode_outlined,
+          color: primary,
+        ),
       ),
       actions: [showBackButton ? const CustomBackButton() : SizedBox()],
       // title: Row(
