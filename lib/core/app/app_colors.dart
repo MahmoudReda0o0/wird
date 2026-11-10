@@ -7,4 +7,9 @@ class AppColors {
   static const Color appGreen = Color(0xff18BC9C);
   static const Color appBlue = Color(0xff3498DB);
   static const Color appGold = Color(0xffF39C12);
+
+  // Dark theme
+  static const Color darkBackground = Color(0xff121212);
+  static const Color darkSurface = Color(0xff1E1E1E);
+  static const Color darkText = Color(0xffEDEDED);
 }
