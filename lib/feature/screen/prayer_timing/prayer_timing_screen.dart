@@ -5,6 +5,7 @@ import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
+import 'package:my_guide/feature/screen/prayer_timing/prayer_city_picker.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
 
 class PrayerTimingScreen extends StatefulWidget {
@@ -33,37 +34,6 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
     super.dispose();
   }
 
-  Future<void> _pickCity(BuildContext context, PrayerCity current) async {
-    final c = context.wird;
-    final picked = await showModalBottomSheet<PrayerCity>(
-      context: context,
-      backgroundColor: c.surfaceRaised,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: ListView.builder(
-          itemCount: PrayerCity.all.length,
-          itemBuilder: (context, i) {
-            final city = PrayerCity.all[i];
-            final selected = city.id == current.id;
-            return ListTile(
-              title: Text(
-                city.name,
-                style: AppText.heading.copyWith(
-                  color: selected ? c.primary : c.ink,
-                ),
-              ),
-              trailing: selected
-                  ? Icon(Icons.check_rounded, color: c.primary)
-                  : null,
-              onTap: () => Navigator.pop(context, city),
-            );
-          },
-        ),
-      ),
-    );
-    if (picked != null) await PrayerCityController.select(picked);
-  }
-
   @override
   Widget build(BuildContext context) {
     return CustomScreen(
@@ -88,7 +58,7 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
       physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
-          _CityChip(name: city.name, onTap: () => _pickCity(context, city)),
+          PrayerCityChip(name: city.name),
           const SizedBox(height: AppSpace.s4),
           _NextPrayerHeader(
             name: next.isTomorrow ? '${next.entry.name} (غدًا)' : next.entry.name,
@@ -126,47 +96,6 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// The selected city; tap to choose another.
-class _CityChip extends StatelessWidget {
-  const _CityChip({required this.name, required this.onTap});
-  final String name;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.wird;
-    return Semantics(
-      button: true,
-      label: 'المدينة: $name، اضغط للتغيير',
-      excludeSemantics: true,
-      child: Material(
-        color: c.surfaceRaised,
-        shape: StadiumBorder(side: BorderSide(color: c.line)),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.s4,
-              vertical: AppSpace.s2,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.location_on_outlined, size: 18, color: c.primary),
-                const SizedBox(width: AppSpace.s1),
-                Text(name, style: AppText.label.copyWith(color: c.ink)),
-                const SizedBox(width: AppSpace.s1),
-                Icon(Icons.expand_more_rounded, size: 18, color: c.inkMuted),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

@@ -108,6 +108,79 @@ void main() {
     });
   });
 
+  group('window', () {
+    final today = PrayerTimingData.forDay(mansoura, at(2026, 11, 18, 9, 0));
+
+    test('between Dhuhr and Asr: from Dhuhr to Asr', () {
+      final now = today[2].time.add(const Duration(minutes: 10));
+      final w = PrayerTimingData.window(mansoura, now);
+      expect(w.previous.name, 'الظهر');
+      expect(w.next.entry.name, 'العصر');
+      expect(w.progressAt(now), inExclusiveRange(0.0, 1.0));
+    });
+
+    test('after Shurooq the previous prayer is still Fajr', () {
+      final now = today[1].time.add(const Duration(minutes: 5));
+      final w = PrayerTimingData.window(mansoura, now);
+      expect(w.previous.name, 'الفجر');
+      expect(w.next.entry.name, 'الظهر');
+    });
+
+    test('before Fajr: from yesterday\'s Isha', () {
+      final now = at(2026, 11, 18, 2, 0);
+      final w = PrayerTimingData.window(mansoura, now);
+      expect(w.previous.name, 'العشاء');
+      expect(w.previous.time.day, 17);
+      expect(w.next.entry.name, 'الفجر');
+      expect(w.next.isTomorrow, isFalse);
+    });
+
+    test('after Isha: from Isha to tomorrow\'s Fajr', () {
+      final now = today[5].time.add(const Duration(minutes: 30));
+      final w = PrayerTimingData.window(mansoura, now);
+      expect(w.previous.name, 'العشاء');
+      expect(w.previous.time.day, 18);
+      expect(w.next.isTomorrow, isTrue);
+    });
+
+    test('progress runs from 0 at the previous prayer to 1 at the next', () {
+      final now = today[2].time.add(const Duration(minutes: 1));
+      final w = PrayerTimingData.window(mansoura, now);
+      expect(w.progressAt(w.previous.time), 0);
+      expect(w.progressAt(w.next.entry.time), 1);
+      expect(w.progressAt(w.next.entry.time.add(const Duration(hours: 1))), 1);
+    });
+  });
+
+  group('countdown', () {
+    test('HH:MM:SS with leading zeros', () {
+      expect(
+        PrayerTimingData.countdown(
+          const Duration(hours: 1, minutes: 24, seconds: 37),
+        ),
+        '01:24:37',
+      );
+      expect(PrayerTimingData.countdown(const Duration(seconds: 5)), '00:00:05');
+      expect(PrayerTimingData.countdown(const Duration(hours: 12)), '12:00:00');
+    });
+
+    test('never negative', () {
+      expect(
+        PrayerTimingData.countdown(const Duration(seconds: -3)),
+        '00:00:00',
+      );
+    });
+  });
+
+  group('dateLabel', () {
+    test('Arabic weekday, day and month', () {
+      // 18 Nov 2026 is a Wednesday.
+      expect(PrayerTimingData.dateLabel(DateTime(2026, 11, 18)), 'الأربعاء 18 نوفمبر');
+      // 1 Jan 2027 is a Friday.
+      expect(PrayerTimingData.dateLabel(DateTime(2027, 1, 1)), 'الجمعة 1 يناير');
+    });
+  });
+
   group('format', () {
     test('12-hour clock with Arabic AM/PM', () {
       expect(PrayerTimingData.format(DateTime(2026, 1, 1, 0, 5)), '12:05 ص');
