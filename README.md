@@ -1,18 +1,44 @@
-# my_guide
+# وِرْد — Wird
 
-A new Flutter project.
+Flutter app for daily azkar and prayer times. Arabic, right-to-left, with light and dark themes.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+**Azkar**: 97 azkar in five sections: morning, evening, tasabih, before sleep and on waking.
+- Tap a card to count one repetition. When the count reaches zero the card turns gold and shows «تمّ».
+- Each zikr's virtue (فضل الذكر) opens under the card when it has one.
+- Progress is saved per section for the current day and starts again the next day.
+- Each section shows how many azkar are done, with a button to start over.
 
-A few resources to get you started if this is your first Flutter project:
+**Prayer times**
+- Fajr, Shurooq, Dhuhr, Asr, Maghrib and Isha for the selected city, calculated on the device.
+- Method: Egyptian General Authority of Survey. Asr follows the Shafi madhab.
+- 27 Egyptian cities, with Mansoura as the default. The chosen city is remembered.
+- The next prayer is highlighted, with a countdown to it. After Isha it shows tomorrow's Fajr.
+- The times update by themselves after midnight.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+**Themes**: light and dark, following the device until you pick one. The choice is remembered.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-hi iam claude
+## Project layout
+
+```
+lib/
+  core/app/            theme (colors, type, spacing) and routes
+  core/custom_widgets/ app bar, screen, menu tile, theme toggle
+  feature/model/       azkar data
+  feature/screen/
+    home/              home menu
+    azkar/             section list, azkar page, card, saved progress
+    prayer_timing/     cities, calculation, prayer-times screen
+test/                  unit tests for prayer times and azkar progress
+```
+
+## Run
+
+```
+flutter pub get
+flutter test
+flutter run
+```
+
+App ID: `com.mahmoudreda.wird` (Android and iOS).

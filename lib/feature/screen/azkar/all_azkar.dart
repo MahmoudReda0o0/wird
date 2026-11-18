@@ -15,42 +15,52 @@ import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 class AllAzkarScreen extends StatelessWidget {
   const AllAzkarScreen({super.key});
 
-  void _open(BuildContext context, String title, List<AzkarModel> list) {
+  void _open(
+    BuildContext context,
+    String id,
+    String title,
+    List<AzkarModel> list,
+  ) {
     Navigator.pushNamed(
       context,
       AppRoutes.azkarPage,
-      arguments: AzkarPageArguments(title: title, azkarList: list),
+      arguments: AzkarPageArguments(id: id, title: title, azkarList: list),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final sections = <(IconData, String, String, List<AzkarModel>)>[
+    final sections = <(String, IconData, String, String, List<AzkarModel>)>[
       (
+        'morning',
         Icons.wb_twilight_rounded,
         'أذكار الصباح',
         'بعد صلاة الفجر',
         MorningAzkar.morningAzkar,
       ),
       (
+        'evening',
         Icons.nights_stay_outlined,
         'أذكار المساء',
         'بعد صلاة العصر',
         EveningAzkar.eveningAzkar,
       ),
       (
+        'tasabih',
         Icons.radio_button_checked_rounded,
         'تسابيح',
         'تسبيح وتحميد وتكبير',
         TasabihAzkar.tasabihAzkar,
       ),
       (
+        'sleep',
         Icons.bedtime_outlined,
         'أذكار النوم',
         'قبل النوم',
         SleepAzkar.sleepAzkar,
       ),
       (
+        'wake_up',
         Icons.light_mode_outlined,
         'أذكار الاستيقاظ',
         'عند الاستيقاظ من النوم',
@@ -65,12 +75,12 @@ class AllAzkarScreen extends StatelessWidget {
         itemCount: sections.length,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpace.s3),
         itemBuilder: (context, i) {
-          final (icon, title, subtitle, list) = sections[i];
+          final (id, icon, title, subtitle, list) = sections[i];
           return MenuTile(
             icon: icon,
             title: title,
             subtitle: subtitle,
-            onTap: () => _open(context, title, list),
+            onTap: () => _open(context, id, title, list),
           );
         },
       ),

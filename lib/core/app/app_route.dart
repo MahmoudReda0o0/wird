@@ -1,7 +1,6 @@
 class AppRoutes {
   static const String home = '/';
-  static const String homeScreen = '/HomeScreen';
   static const String allAzkar = '/AllAzkar';
   static const String azkarPage = '/AzkarPage';
-  static const String prayTiming = '/PrayTimingScreen';
+  static const String prayerTiming = '/PrayerTimingScreen';
 }
