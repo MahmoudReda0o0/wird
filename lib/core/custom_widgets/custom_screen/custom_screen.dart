@@ -11,12 +11,16 @@ class CustomScreen extends StatelessWidget {
     this.screenPadding,
     this.appBar,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
   });
   final String? appBarTitle;
   final Widget body;
   final PreferredSizeWidget? appBar;
   final double? screenPadding;
   final Widget? floatingActionButton;
+
+  /// Defaults to a padded button docked at the bottom centre.
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -26,13 +30,16 @@ class CustomScreen extends StatelessWidget {
         bottom: false,
         child: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          floatingActionButton: floatingActionButton == null
-              ? null
+          floatingActionButton:
+              floatingActionButton == null ||
+                  floatingActionButtonLocation != null
+              ? floatingActionButton
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: floatingActionButton,
                 ),
           floatingActionButtonLocation:
+              floatingActionButtonLocation ??
               FloatingActionButtonLocation.centerDocked,
           appBar: appBarTitle != null
               ? CustomAppBar(title: appBarTitle ?? '')

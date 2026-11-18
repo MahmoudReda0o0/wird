@@ -9,6 +9,7 @@ Flutter app for daily azkar and prayer times. Arabic, right-to-left, with light 
 - Each zikr's virtue (فضل الذكر) opens under the card when it has one.
 - Progress is saved per section for the current day and starts again the next day.
 - Each section shows how many azkar are done, with a button to start over.
+- **Sabha mode**: the beads button at the bottom right of any section opens one zikr at a time with a big count button, calm colors, and arrows to move between azkar. When a zikr is finished it moves on to the next one by itself. It shares the section's saved progress.
 
 **Prayer times**
 - Fajr, Shurooq, Dhuhr, Asr, Maghrib and Isha for the selected city, calculated on the device.
@@ -28,9 +29,9 @@ lib/
   feature/model/       azkar data
   feature/screen/
     home/              home menu
-    azkar/             section list, azkar page, card, saved progress
+    azkar/             section list, azkar page, card, saved progress, sabha mode
     prayer_timing/     cities, calculation, prayer-times screen
-test/                  unit tests for prayer times and azkar progress
+test/                  unit tests for prayer times, azkar progress and the sabha
 ```
 
 ## Run
