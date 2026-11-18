@@ -1,4 +1,4 @@
-package com.example.my_guide
+package com.mahmoudreda.wird
 
 import io.flutter.embedding.android.FlutterActivity
 
