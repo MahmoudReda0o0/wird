@@ -3,11 +3,33 @@ import 'package:flutter/services.dart';
 import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/feature/model/azkar_model.dart';
 
+/// "مرة واحدة"، "مرتان"، "3 مرات"، "11 مرة" — Arabic counting rules.
+String azkarCounterLabel(int count) {
+  if (count == 1) return 'مرة واحدة';
+  if (count == 2) return 'مرتان';
+  if (count <= 10) return '$count مرات';
+  return '$count مرة';
+}
+
 /// One zikr. Tapping the card counts one repetition; at zero it turns gold.
+///
+/// The page owns the count ([remaining]) so it can be saved.
 class AzkarCard extends StatefulWidget {
-  const AzkarCard({super.key, required this.azkarModel, required this.index});
+  const AzkarCard({
+    super.key,
+    required this.azkarModel,
+    required this.index,
+    required this.remaining,
+    required this.onCount,
+  });
   final AzkarModel azkarModel;
   final int index;
+
+  /// Repetitions left. Zero or less means done.
+  final int remaining;
+
+  /// Called on each tap while not done.
+  final VoidCallback onCount;
   @override
   State<AzkarCard> createState() => _AzkarCardState();
 }
@@ -16,28 +38,18 @@ class _AzkarCardState extends State<AzkarCard> {
   static const _duration = Duration(milliseconds: 250);
 
   bool expanded = false;
-  late int counter;
 
-  @override
-  void initState() {
-    super.initState();
-    counter = widget.azkarModel.repetition;
-  }
+  int get counter => widget.remaining;
 
   bool get done => counter <= 0;
 
   void _count() {
     if (done) return;
     HapticFeedback.lightImpact();
-    setState(() => counter--);
+    widget.onCount();
   }
 
-  String get _counterLabel {
-    if (counter == 1) return 'مرة واحدة';
-    if (counter == 2) return 'مرتان';
-    if (counter <= 10) return '$counter مرات';
-    return '$counter مرة';
-  }
+  String get _counterLabel => azkarCounterLabel(counter);
 
   @override
   Widget build(BuildContext context) {
