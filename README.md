@@ -20,11 +20,11 @@ Flutter app for daily azkar and prayer times. Arabic, right-to-left, with light 
 - The next prayer is highlighted, with a countdown to it. After Isha it shows tomorrow's Fajr.
 - The times update by themselves after midnight.
 
-**Adhan**: a «صوت الأذان» switch on the prayer-times screen, with a bell per prayer. Each enabled prayer gets a notification with the adhan sound at its time, scheduled 10 days ahead and again on every app start or city change. It asks for notification permission (and exact alarms on Android) when turned on.
+**Adhan**: a «صوت الأذان» switch on the prayer-times screen, with a bell per prayer, and a chip on the home next-prayer card that shows whether it's on and opens that screen. Each enabled prayer gets a notification with the adhan sound at its time: a Fajr adhan for Fajr and the regular adhan for the others. Adhans are scheduled 10 days ahead, and again on every app start or city change. Turning the adhan on asks for notification permission, and for exact alarms on Android.
 
-Sound files (not in the repo yet):
-- Android: `android/app/src/main/res/raw/adhan.mp3`, plus `res/raw/keep.xml` so release builds keep it.
-- iOS: `ios/Runner/adhan.caf`, at most 30 seconds, added to the Runner target in Xcode. iOS can't use mp3 for notification sounds.
+Sounds:
+- Android: `res/raw/adhan.mp3` and `res/raw/adhan_fajr.mp3` at full length. `res/raw/keep.xml` keeps them in release builds.
+- iOS: `ios/Runner/adhan.caf` and `adhan_fajr.caf`, already in the Runner target. iOS plays at most 30 seconds of a notification sound, so these are the first 30 seconds with a fade-out.
 
 **Themes**: light and dark, following the device until you pick one. The choice is remembered.
 

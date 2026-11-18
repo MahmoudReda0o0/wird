@@ -8,10 +8,21 @@ import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
 /// Ground `primary`, everything on it `on-primary` (design system:
 /// NextPrayerCard).
 class NextPrayerCard extends StatelessWidget {
-  const NextPrayerCard({super.key, required this.window, required this.now});
+  const NextPrayerCard({
+    super.key,
+    required this.window,
+    required this.now,
+    required this.adhanOn,
+    required this.onAdhanTap,
+  });
 
   final PrayerWindow window;
   final DateTime now;
+
+  /// Shows a bell when the adhan is on, «شغّل الأذان» when it's off.
+  /// The switch itself lives on the prayer-times screen; this only opens it.
+  final bool adhanOn;
+  final VoidCallback onAdhanTap;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +56,13 @@ class NextPrayerCard extends StatelessWidget {
                   style: AppText.label.copyWith(color: sub),
                 ),
                 const Spacer(),
+                _AdhanChip(
+                  on: adhanOn,
+                  onTap: onAdhanTap,
+                  color: c.onPrimary,
+                  tint: tint,
+                ),
+                if (next.isTomorrow) const SizedBox(width: AppSpace.s2),
                 if (next.isTomorrow)
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -116,6 +134,69 @@ class NextPrayerCard extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The adhan status on the card. Opens the prayer-times screen, where the
+/// adhan is switched on and off.
+class _AdhanChip extends StatelessWidget {
+  const _AdhanChip({
+    required this.on,
+    required this.onTap,
+    required this.color,
+    required this.tint,
+  });
+  final bool on;
+  final VoidCallback onTap;
+  final Color color;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: on ? 'الأذان شغال، اضغط للإعدادات' : 'شغّل الأذان',
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        color: tint,
+        shape: const StadiumBorder(),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            // Small chip, full-size tap target.
+            constraints: const BoxConstraints(minHeight: 40, minWidth: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    on
+                        ? Icons.notifications_active_rounded
+                        : Icons.notifications_none_rounded,
+                    size: 18,
+                    color: color,
+                  ),
+                  if (!on) ...[
+                    const SizedBox(width: AppSpace.s1),
+                    Text(
+                      'شغّل الأذان',
+                      style: AppText.caption.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
