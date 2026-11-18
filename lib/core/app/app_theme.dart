@@ -233,6 +233,16 @@ class AppText {
   static TextStyle _reading(double size, double line, FontWeight weight) =>
       GoogleFonts.amiri(fontSize: size, height: line / size, fontWeight: weight);
 
+  /// The live countdown on the home next-prayer card ("01:24:37").
+  static TextStyle get countdown =>
+      _ui(52, 60, FontWeight.w600).copyWith(
+        letterSpacing: 1,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
+  /// The next prayer's name on the home next-prayer card.
+  static TextStyle get hero => _ui(28, 38, FontWeight.w600);
+
   /// The next prayer's time.
   static TextStyle get display => _ui(34, 44, FontWeight.w600);
 

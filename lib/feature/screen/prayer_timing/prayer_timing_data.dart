@@ -24,6 +24,24 @@ class NextPrayer {
   final bool isTomorrow;
 }
 
+/// The stretch of time the user is in: from the last prayer to the next.
+/// Before Fajr the last prayer is yesterday's Isha; after Isha the next
+/// one is tomorrow's Fajr.
+@immutable
+class PrayerWindow {
+  const PrayerWindow({required this.previous, required this.next});
+  final PrayerEntry previous;
+  final NextPrayer next;
+
+  /// How much of the wait has passed at [now], from 0 to 1.
+  double progressAt(DateTime now) {
+    final total = next.entry.time.difference(previous.time).inSeconds;
+    if (total <= 0) return 0;
+    final passed = now.difference(previous.time).inSeconds;
+    return (passed / total).clamp(0.0, 1.0).toDouble();
+  }
+}
+
 /// Prayer-time calculations. Pure functions so they can be tested.
 ///
 /// Uses the Egyptian General Authority of Survey method with the Shafi
@@ -82,12 +100,61 @@ class PrayerTimingData {
     return NextPrayer(forDay(city, tomorrow).first, isTomorrow: true);
   }
 
+  /// The last prayer at or before [now] and the next one after it.
+  static PrayerWindow window(PrayerCity city, tz.TZDateTime now) {
+    final upcoming = PrayerTimingData.next(city, now);
+    PrayerEntry? previous;
+    for (final p in forDay(city, now)) {
+      if (p.isPrayer && !p.time.isAfter(now)) previous = p;
+    }
+    previous ??= forDay(
+      city,
+      DateTime(now.year, now.month, now.day - 1),
+    ).lastWhere((p) => p.isPrayer);
+    return PrayerWindow(previous: previous, next: upcoming);
+  }
+
   /// "3:21 م" — 12-hour clock with an Arabic AM/PM mark.
   static String format(DateTime time) {
     final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
     final minute = time.minute.toString().padLeft(2, '0');
     final period = time.hour >= 12 ? 'م' : 'ص';
     return '$hour:$minute $period';
+  }
+
+  /// "01:24:37" — the live countdown on the home screen.
+  static String countdown(Duration d) {
+    final seconds = d.isNegative ? 0 : d.inSeconds;
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(seconds ~/ 3600)}:${two(seconds % 3600 ~/ 60)}:${two(seconds % 60)}';
+  }
+
+  /// "الأربعاء 18 نوفمبر".
+  static String dateLabel(DateTime d) {
+    const days = [
+      'الإثنين',
+      'الثلاثاء',
+      'الأربعاء',
+      'الخميس',
+      'الجمعة',
+      'السبت',
+      'الأحد',
+    ];
+    const months = [
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
+    ];
+    return '${days[d.weekday - 1]} ${d.day} ${months[d.month - 1]}';
   }
 
   /// "2:05 ساعة" or "45 دقيقة". Never shows less than one minute.
