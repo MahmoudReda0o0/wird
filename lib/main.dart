@@ -6,14 +6,14 @@ import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/feature/screen/azkar/all_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 import 'package:my_guide/feature/screen/home/home_screen.dart';
-import 'package:my_guide/feature/screen/pray_timeing/pray_timing_screen.dart';
+import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
+import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_screen.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
-String siteURL =
-    'https://www.islambook.com/?action=Azkar&cat=2&azkar_fontweight=1';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeController.load();
+  await PrayerCityController.load();
   runApp(const MyApp());
 }
 
@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
           AppRoutes.home: (context) => const HomeScreen(),
           AppRoutes.allAzkar: (context) => const AllAzkarScreen(),
           AppRoutes.azkarPage: (context) => const AzkarPageScreen(),
-          AppRoutes.prayTiming: (context) => const PrayTimingScreen(),
+          AppRoutes.prayerTiming: (context) => const PrayerTimingScreen(),
         },
         ),
       ),

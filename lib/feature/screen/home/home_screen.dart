@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
             icon: Icons.schedule_rounded,
             title: 'مواقيت الصلاة',
             subtitle: 'مواقيت اليوم والصلاة القادمة',
-            onTap: () => Navigator.pushNamed(context, AppRoutes.prayTiming),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.prayerTiming),
           ),
         ],
       ),
