@@ -8,7 +8,10 @@ import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
 /// One row in the prayer-times list.
 @immutable
 class PrayerEntry {
-  const PrayerEntry(this.name, this.time, {this.isPrayer = true});
+  const PrayerEntry(this.key, this.name, this.time, {this.isPrayer = true});
+
+  /// Stable id: fajr, sunrise, dhuhr, asr, maghrib, isha.
+  final String key;
   final String name;
   final tz.TZDateTime time;
 
@@ -80,12 +83,12 @@ class PrayerTimingData {
     tz.TZDateTime local(DateTime t) => tz.TZDateTime.from(t, cairo);
 
     return [
-      PrayerEntry('الفجر', local(times.fajr)),
-      PrayerEntry('الشروق', local(times.sunrise), isPrayer: false),
-      PrayerEntry('الظهر', local(times.dhuhr)),
-      PrayerEntry('العصر', local(times.asr)),
-      PrayerEntry('المغرب', local(times.maghrib)),
-      PrayerEntry('العشاء', local(times.isha)),
+      PrayerEntry('fajr', 'الفجر', local(times.fajr)),
+      PrayerEntry('sunrise', 'الشروق', local(times.sunrise), isPrayer: false),
+      PrayerEntry('dhuhr', 'الظهر', local(times.dhuhr)),
+      PrayerEntry('asr', 'العصر', local(times.asr)),
+      PrayerEntry('maghrib', 'المغرب', local(times.maghrib)),
+      PrayerEntry('isha', 'العشاء', local(times.isha)),
     ];
   }
 
