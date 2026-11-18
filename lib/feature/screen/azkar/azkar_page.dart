@@ -5,6 +5,8 @@ import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
 import 'package:my_guide/feature/model/azkar_model.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_progress.dart';
 import 'package:my_guide/feature/screen/azkar/custom_widget/azkar_card.dart';
+import 'package:my_guide/feature/screen/azkar/custom_widget/sabha_icon.dart';
+import 'package:my_guide/feature/screen/azkar/sabha_screen.dart';
 
 class AzkarPageArguments {
   /// Stable key used to save this section's progress.
@@ -93,16 +95,50 @@ class _AzkarPageScreenState extends State<AzkarPageScreen> {
     AzkarProgress.save(_args.id, fresh);
   }
 
+  Future<void> _openSabha() async {
+    final remaining = _remaining;
+    if (remaining == null) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => SabhaScreen(
+          args: SabhaArguments(
+            sectionId: _args.id,
+            title: _args.title,
+            azkarList: _args.azkarList,
+            remaining: remaining,
+          ),
+        ),
+      ),
+    );
+    // The sabha counted into the same list; show its progress here.
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final remaining = _remaining;
+    final c = context.wird;
     return CustomScreen(
       appBar: CustomAppBar(title: _args.title),
+      // In RTL "start" is the right-hand side.
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButton: remaining == null
+          ? null
+          : FloatingActionButton(
+              onPressed: _openSabha,
+              tooltip: 'وضع السبحة',
+              backgroundColor: c.primary,
+              foregroundColor: c.onPrimary,
+              shape: const CircleBorder(),
+              child: SabhaIcon(size: 30, color: c.onPrimary),
+            ),
       body: remaining == null
           ? const Center(child: CircularProgressIndicator())
           : ListView.separated(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: AppSpace.s6),
+              // Room at the end so the sabha button never covers the last card.
+              padding: const EdgeInsets.only(bottom: 96),
               itemCount: _args.azkarList.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpace.s3),
               itemBuilder: (context, i) {
