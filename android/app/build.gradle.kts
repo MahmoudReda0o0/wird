@@ -10,6 +10,8 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // Needed by flutter_local_notifications (scheduled adhan).
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -19,7 +21,8 @@ android {
         applicationId = "com.mahmoudreda.wird"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // flutter_local_notifications 21+ needs Android 7.0 (API 24).
+        minSdk = maxOf(24, flutter.minSdkVersion)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -42,4 +45,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

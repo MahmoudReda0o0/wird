@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_guide/core/app/app_route.dart';
 import 'package:my_guide/core/app/app_theme.dart';
+import 'package:my_guide/feature/adhan/adhan_service.dart';
+import 'package:my_guide/feature/adhan/adhan_settings.dart';
 import 'package:my_guide/feature/screen/azkar/all_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 import 'package:my_guide/feature/screen/home/home_screen.dart';
@@ -14,7 +16,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeController.load();
   await PrayerCityController.load();
+  await AdhanSettingsController.load();
   runApp(const MyApp());
+  // Schedules the coming days' adhans; never blocks the first frame.
+  AdhanService.init();
 }
 
 class MyApp extends StatelessWidget {

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
+import 'package:my_guide/feature/adhan/adhan_service.dart';
+import 'package:my_guide/feature/adhan/adhan_settings.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city_picker.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
@@ -40,12 +42,34 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
       appBar: const CustomAppBar(title: 'مواقيت الصلاة'),
       body: ValueListenableBuilder<PrayerCity>(
         valueListenable: PrayerCityController.city,
-        builder: (context, city, _) => _buildBody(context, city),
+        builder: (context, city, _) => ValueListenableBuilder<AdhanSettings>(
+          valueListenable: AdhanSettingsController.settings,
+          builder: (context, adhan, _) => _buildBody(context, city, adhan),
+        ),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, PrayerCity city) {
+  Future<void> _setAdhan(bool on) async {
+    final current = AdhanSettingsController.settings.value;
+    if (on) {
+      final allowed = await AdhanService.requestPermission();
+      if (!allowed) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'اسمح لوِرْد بالإشعارات من إعدادات الموبايل عشان الأذان يشتغل.',
+            ),
+          ),
+        );
+        return;
+      }
+    }
+    await AdhanSettingsController.update(current.copyWith(enabled: on));
+  }
+
+  Widget _buildBody(BuildContext context, PrayerCity city, AdhanSettings adhan) {
     final c = context.wird;
     final now = PrayerTimingData.now();
     final prayers = PrayerTimingData.forDay(city, now);
@@ -90,12 +114,91 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
                     time: PrayerTimingData.format(prayers[i].time),
                     isNext: i == nextIndex,
                     isPast: !prayers[i].time.isAfter(now),
+                    trailing: adhan.enabled && prayers[i].isPrayer
+                        ? _AdhanBell(
+                            prayerName: prayers[i].name,
+                            on: adhan.isOn(prayers[i].key),
+                            onTap: () => AdhanSettingsController.update(
+                              adhan.toggle(prayers[i].key),
+                            ),
+                          )
+                        : (adhan.enabled
+                              ? const SizedBox(width: 40)
+                              : null),
                   ),
                 ],
               ],
             ),
           ),
+          const SizedBox(height: AppSpace.s4),
+          _AdhanSwitch(on: adhan.enabled, onChanged: _setAdhan),
         ],
+      ),
+    );
+  }
+}
+
+/// "صوت الأذان" with a switch for all prayers.
+class _AdhanSwitch extends StatelessWidget {
+  const _AdhanSwitch({required this.on, required this.onChanged});
+  final bool on;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.wird;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surfaceRaised,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: c.cardShadow,
+      ),
+      child: SwitchListTile(
+        value: on,
+        onChanged: onChanged,
+        activeThumbColor: c.onPrimary,
+        activeTrackColor: c.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        secondary: Icon(
+          on ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+          color: c.primary,
+        ),
+        title: Text('صوت الأذان', style: AppText.heading.copyWith(color: c.ink)),
+        subtitle: Text(
+          on
+              ? 'هيأذّن في وقت كل صلاة عليها الجرس'
+              : 'شغّله عشان يأذّن في وقت كل صلاة',
+          style: AppText.body.copyWith(color: c.inkMuted),
+        ),
+      ),
+    );
+  }
+}
+
+/// Per-prayer adhan on/off, shown beside each time while the adhan is on.
+class _AdhanBell extends StatelessWidget {
+  const _AdhanBell({
+    required this.prayerName,
+    required this.on,
+    required this.onTap,
+  });
+  final String prayerName;
+  final bool on;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.wird;
+    return IconButton(
+      onPressed: onTap,
+      tooltip: on ? 'إيقاف أذان $prayerName' : 'تشغيل أذان $prayerName',
+      iconSize: 22,
+      style: IconButton.styleFrom(fixedSize: const Size(40, 40)),
+      icon: Icon(
+        on ? Icons.notifications_active_rounded : Icons.notifications_off_outlined,
+        color: on ? c.primary : c.inkMuted,
       ),
     );
   }
@@ -165,11 +268,15 @@ class _PrayerRow extends StatelessWidget {
     required this.time,
     required this.isNext,
     required this.isPast,
+    this.trailing,
   });
   final String name;
   final String time;
   final bool isNext;
   final bool isPast;
+
+  /// The adhan bell, when the adhan is on.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +287,10 @@ class _PrayerRow extends StatelessWidget {
 
     return Container(
       height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3),
+      padding: EdgeInsetsDirectional.only(
+        start: AppSpace.s3,
+        end: trailing == null ? AppSpace.s3 : AppSpace.s1,
+      ),
       decoration: BoxDecoration(
         color: isNext ? c.primarySoft : null,
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -211,6 +321,10 @@ class _PrayerRow extends StatelessWidget {
               ],
             ),
           ),
+          if (trailing != null) ...[
+            const SizedBox(width: AppSpace.s1),
+            trailing!,
+          ],
         ],
       ),
     );
