@@ -28,6 +28,20 @@ Sounds:
 
 **Themes**: light and dark, following the device until you pick one. The choice is remembered.
 
+## State management
+
+The app's state lives in Cubits (`flutter_bloc`):
+
+| Cubit | State | Where |
+| --- | --- | --- |
+| `ThemeCubit` | `ThemeMode`, saved | app root |
+| `CityCubit` | the selected `PrayerCity`, saved | app root |
+| `AdhanCubit` | `AdhanSettings` (on/off + per-prayer), saved; asks for permission when turned on | app root |
+| `AzkarProgressCubit` | repetitions left per zikr in one section, saved for the day | each azkar page, shared with its sabha |
+| `SabhaCubit` | which zikr the sabha shows; moves on when one is finished | the sabha screen |
+
+`main.dart` reads `SharedPreferences` once, creates the three app-wide Cubits, and provides them with a `MultiBlocProvider`. A `MultiBlocListener` there reschedules the adhan notifications whenever the city or the adhan settings change. The prayer-time calculation (`PrayerTimingData`, `AdhanPlan`) stays as pure functions; screens recalculate from the current state on each tick.
+
 ## Project layout
 
 ```
@@ -39,7 +53,7 @@ lib/
     home/              home: next-prayer countdown card and sections grid
     azkar/             section list, azkar page, card, saved progress, sabha mode
     prayer_timing/     cities, calculation, prayer-times screen
-test/                  unit tests for prayer times, azkar progress and the sabha
+test/                  unit tests: prayer times, adhan plan, every Cubit
 ```
 
 ## Run

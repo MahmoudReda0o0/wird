@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/feature/adhan/adhan_service.dart';
+import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/feature/adhan/adhan_settings.dart';
+import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city_picker.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
@@ -40,33 +42,26 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
   Widget build(BuildContext context) {
     return CustomScreen(
       appBar: const CustomAppBar(title: 'مواقيت الصلاة'),
-      body: ValueListenableBuilder<PrayerCity>(
-        valueListenable: PrayerCityController.city,
-        builder: (context, city, _) => ValueListenableBuilder<AdhanSettings>(
-          valueListenable: AdhanSettingsController.settings,
-          builder: (context, adhan, _) => _buildBody(context, city, adhan),
+      body: Builder(
+        builder: (context) => _buildBody(
+          context,
+          context.watch<CityCubit>().state,
+          context.watch<AdhanCubit>().state,
         ),
       ),
     );
   }
 
   Future<void> _setAdhan(bool on) async {
-    final current = AdhanSettingsController.settings.value;
-    if (on) {
-      final allowed = await AdhanService.requestPermission();
-      if (!allowed) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'اسمح لوِرْد بالإشعارات من إعدادات الموبايل عشان الأذان يشتغل.',
-            ),
-          ),
-        );
-        return;
-      }
-    }
-    await AdhanSettingsController.update(current.copyWith(enabled: on));
+    final allowed = await context.read<AdhanCubit>().setEnabled(on);
+    if (allowed || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'اسمح لوِرْد بالإشعارات من إعدادات الموبايل عشان الأذان يشتغل.',
+        ),
+      ),
+    );
   }
 
   Widget _buildBody(BuildContext context, PrayerCity city, AdhanSettings adhan) {
@@ -118,9 +113,9 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
                         ? _AdhanBell(
                             prayerName: prayers[i].name,
                             on: adhan.isOn(prayers[i].key),
-                            onTap: () => AdhanSettingsController.update(
-                              adhan.toggle(prayers[i].key),
-                            ),
+                            onTap: () => context
+                                .read<AdhanCubit>()
+                                .togglePrayer(prayers[i].key),
                           )
                         : (adhan.enabled
                               ? const SizedBox(width: 40)

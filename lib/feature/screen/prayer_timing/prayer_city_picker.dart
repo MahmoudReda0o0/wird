@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/app/app_theme.dart';
+import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
 
 /// Bottom sheet listing the cities; saves the one the user taps.
 Future<void> showPrayerCityPicker(BuildContext context) async {
   final c = context.wird;
-  final current = PrayerCityController.city.value;
+  final cities = context.read<CityCubit>();
+  final current = cities.state;
   final picked = await showModalBottomSheet<PrayerCity>(
     context: context,
     backgroundColor: c.surfaceRaised,
@@ -32,7 +35,7 @@ Future<void> showPrayerCityPicker(BuildContext context) async {
       ),
     ),
   );
-  if (picked != null) await PrayerCityController.select(picked);
+  if (picked != null) await cities.select(picked);
 }
 
 /// The selected city as a chip; tap to choose another.

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Whether the adhan plays, and for which of the five prayers.
 @immutable
@@ -34,38 +33,5 @@ class AdhanSettings {
           if (k == prayerKey ? !on : prayers.contains(k)) k,
       ],
     );
-  }
-}
-
-/// The saved adhan settings. Load once in main() before runApp().
-class AdhanSettingsController {
-  AdhanSettingsController._();
-
-  static const _enabledKey = 'adhan_enabled';
-  static const _prayersKey = 'adhan_prayers';
-
-  static final ValueNotifier<AdhanSettings> settings = ValueNotifier(
-    AdhanSettings.initial,
-  );
-
-  static Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList(_prayersKey);
-    settings.value = AdhanSettings(
-      enabled: prefs.getBool(_enabledKey) ?? false,
-      prayers: saved == null
-          ? AdhanSettings.allPrayers
-          : [
-              for (final k in AdhanSettings.allPrayers)
-                if (saved.contains(k)) k,
-            ],
-    );
-  }
-
-  static Future<void> update(AdhanSettings value) async {
-    settings.value = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_enabledKey, value.enabled);
-    await prefs.setStringList(_prayersKey, value.prayers);
   }
 }

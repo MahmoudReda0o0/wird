@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
 import 'package:my_guide/feature/model/azkar_model.dart';
-import 'package:my_guide/feature/screen/azkar/azkar_progress.dart';
+import 'package:my_guide/feature/screen/azkar/cubit/azkar_progress_cubit.dart';
+import 'package:my_guide/feature/screen/azkar/cubit/sabha_cubit.dart';
 import 'package:my_guide/feature/screen/azkar/custom_widget/azkar_card.dart';
 import 'package:my_guide/feature/screen/azkar/custom_widget/sabha_icon.dart';
 import 'package:my_guide/feature/screen/azkar/sabha_screen.dart';
@@ -20,51 +22,32 @@ class AzkarPageArguments {
   });
 }
 
-class AzkarPageScreen extends StatefulWidget {
+/// One azkar section. Provides the section's [AzkarProgressCubit], which
+/// the sabha screen shares.
+class AzkarPageScreen extends StatelessWidget {
   const AzkarPageScreen({super.key});
 
   @override
-  State<AzkarPageScreen> createState() => _AzkarPageScreenState();
+  Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as AzkarPageArguments;
+    return BlocProvider(
+      create: (_) => AzkarProgressCubit(
+        sectionId: args.id,
+        defaults: [for (final z in args.azkarList) z.repetition],
+      )..load(),
+      child: _AzkarPageView(args: args),
+    );
+  }
 }
 
-class _AzkarPageScreenState extends State<AzkarPageScreen> {
-  late AzkarPageArguments _args;
-  late List<int> _defaults;
+class _AzkarPageView extends StatelessWidget {
+  const _AzkarPageView({required this.args});
+  final AzkarPageArguments args;
 
-  /// Repetitions left per zikr. Null until the saved progress is loaded.
-  List<int>? _remaining;
-  bool _started = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_started) return;
-    _started = true;
-    _args = ModalRoute.of(context)!.settings.arguments as AzkarPageArguments;
-    _defaults = [for (final z in _args.azkarList) z.repetition];
-    AzkarProgress.load(_args.id, _defaults).then((counts) {
-      if (mounted) setState(() => _remaining = counts);
-    });
-  }
-
-  void _count(int index) {
-    final remaining = _remaining;
-    if (remaining == null || remaining[index] <= 0) return;
-    setState(() {
-      remaining[index]--;
-    });
-    AzkarProgress.save(_args.id, remaining);
-  }
-
-  bool _hasProgress(List<int> remaining) {
-    for (var i = 0; i < remaining.length; i++) {
-      if (remaining[i] < _defaults[i]) return true;
-    }
-    return false;
-  }
-
-  Future<void> _reset() async {
+  Future<void> _confirmReset(BuildContext context) async {
     final c = context.wird;
+    final progress = context.read<AzkarProgressCubit>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -89,44 +72,39 @@ class _AzkarPageScreenState extends State<AzkarPageScreen> {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
-    final fresh = List.of(_defaults);
-    setState(() => _remaining = fresh);
-    AzkarProgress.save(_args.id, fresh);
+    if (confirmed == true) progress.resetAll();
   }
 
-  Future<void> _openSabha() async {
-    final remaining = _remaining;
-    if (remaining == null) return;
-    await Navigator.push(
+  void _openSabha(BuildContext context) {
+    final progress = context.read<AzkarProgressCubit>();
+    Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => SabhaScreen(
-          args: SabhaArguments(
-            sectionId: _args.id,
-            title: _args.title,
-            azkarList: _args.azkarList,
-            remaining: remaining,
+        builder: (_) => BlocProvider.value(
+          value: progress,
+          child: BlocProvider(
+            create: (_) => SabhaCubit(progress),
+            child: SabhaScreen(title: args.title, azkarList: args.azkarList),
           ),
         ),
       ),
     );
-    // The sabha counted into the same list; show its progress here.
-    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final remaining = _remaining;
     final c = context.wird;
+    final progress = context.watch<AzkarProgressCubit>();
+    final state = progress.state;
+    final remaining = state.remaining;
     return CustomScreen(
-      appBar: CustomAppBar(title: _args.title),
+      appBar: CustomAppBar(title: args.title),
       // In RTL "start" is the right-hand side.
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: remaining == null
           ? null
           : FloatingActionButton(
-              onPressed: _openSabha,
+              onPressed: () => _openSabha(context),
               tooltip: 'وضع السبحة',
               backgroundColor: c.primary,
               foregroundColor: c.onPrimary,
@@ -139,23 +117,23 @@ class _AzkarPageScreenState extends State<AzkarPageScreen> {
               physics: const BouncingScrollPhysics(),
               // Room at the end so the sabha button never covers the last card.
               padding: const EdgeInsets.only(bottom: 96),
-              itemCount: _args.azkarList.length + 1,
+              itemCount: args.azkarList.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpace.s3),
               itemBuilder: (context, i) {
                 if (i == 0) {
                   return _ProgressHeader(
-                    done: remaining.where((r) => r <= 0).length,
+                    done: state.doneCount,
                     total: remaining.length,
-                    canReset: _hasProgress(remaining),
-                    onReset: _reset,
+                    canReset: state.hasProgress,
+                    onReset: () => _confirmReset(context),
                   );
                 }
                 final index = i - 1;
                 return AzkarCard(
-                  azkarModel: _args.azkarList[index],
+                  azkarModel: args.azkarList[index],
                   index: index + 1,
                   remaining: remaining[index],
-                  onCount: () => _count(index),
+                  onCount: () => progress.count(index),
                 );
               },
             ),
