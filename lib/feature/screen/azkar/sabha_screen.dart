@@ -75,11 +75,7 @@ class SabhaColors {
     goldSoft: Color(0xFFF4EAD2),
     goldInk: Color(0xFF7A5300),
     buttonShadow: [
-      BoxShadow(
-        color: Color(0x2922302B),
-        blurRadius: 18,
-        offset: Offset(0, 6),
-      ),
+      BoxShadow(color: Color(0x2922302B), blurRadius: 18, offset: Offset(0, 6)),
     ],
   );
 
@@ -210,10 +206,7 @@ class _SabhaScreenState extends State<SabhaScreen> {
               widget.args.title,
               style: AppText.title.copyWith(color: c.ink),
             ),
-            Text(
-              'وضع السبحة',
-              style: AppText.caption.copyWith(color: c.muted),
-            ),
+            Text('وضع السبحة', style: AppText.caption.copyWith(color: c.muted)),
           ],
         ),
       ),
@@ -282,6 +275,28 @@ class _SabhaScreenState extends State<SabhaScreen> {
           // Previous / position / next. In RTL the first child is on the
           // right. The back/forward icons mirror with the text direction,
           // like the app bar's back button, so "previous" points right.
+
+          // The count, in a ring that fills up to the target.
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    child: _CountRing(done: done, target: target, colors: c),
+                  ),
+                ),
+                const SizedBox(height: AppSpace.s2),
+                SizedBox(
+                  height: 20,
+                  child: Text(
+                    _flash,
+                    style: AppText.label.copyWith(color: c.accent),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Row(
             children: [
               _RoundIconButton(
@@ -308,29 +323,6 @@ class _SabhaScreenState extends State<SabhaScreen> {
               ),
             ],
           ),
-
-          // The count, in a ring that fills up to the target.
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: FittedBox(
-                    child: _CountRing(done: done, target: target, colors: c),
-                  ),
-                ),
-                const SizedBox(height: AppSpace.s2),
-                SizedBox(
-                  height: 20,
-                  child: Text(
-                    _flash,
-                    style: AppText.label.copyWith(color: c.accent),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Count button in the middle, reset beside it.
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -411,10 +403,7 @@ class _SabhaScreenState extends State<SabhaScreen> {
               style: AppText.title.copyWith(fontSize: 28, color: c.ink),
             ),
             const SizedBox(height: AppSpace.s1),
-            Text(
-              'تقبّل الله.',
-              style: AppText.body.copyWith(color: c.muted),
-            ),
+            Text('تقبّل الله.', style: AppText.body.copyWith(color: c.muted)),
             const SizedBox(height: AppSpace.s5),
             Wrap(
               spacing: AppSpace.s3,
@@ -480,10 +469,7 @@ class SabhaLogic {
     if (remaining[index] > 0) {
       return const SabhaStep(finishedZikr: false);
     }
-    return SabhaStep(
-      finishedZikr: true,
-      nextIndex: nextOpen(remaining, index),
-    );
+    return SabhaStep(finishedZikr: true, nextIndex: nextOpen(remaining, index));
   }
 }
 
@@ -506,7 +492,7 @@ class _CountRing extends StatelessWidget {
     required this.target,
     required this.colors,
   });
-  final int done;
+  final num done;
   final int target;
   final SabhaColors colors;
 

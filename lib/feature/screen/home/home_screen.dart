@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _ticker;
 
   @override
-  void initState() {
+  void initState() { 
     super.initState();
     // The countdown shows seconds. Times are recalculated on every build,
     // so the next prayer and the date move on by themselves.
