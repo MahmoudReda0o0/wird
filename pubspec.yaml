@@ -58,6 +58,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  # Generates the native splash (white, with the sabha) from the config at
+  # the end of this file: dart run flutter_native_splash:create
+  flutter_native_splash: ^2.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -100,3 +103,18 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Native splash: white background with the sabha (SabhaIcon) in brand green,
+# in light and dark mode. The images come from tool/render_splash_test.dart.
+# After changing anything here: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#FFFFFF"
+  image: assets/splash/sabha.png
+  image_dark: assets/splash/sabha.png
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#FFFFFF"
+    image: assets/splash/sabha_android12.png
+    image_dark: assets/splash/sabha_android12.png
+  web: false

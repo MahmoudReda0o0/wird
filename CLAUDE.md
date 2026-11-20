@@ -93,6 +93,7 @@ flutter pub get && flutter analyze && flutter test
 - **الإشعارات:** كل feature ليه نطاق ids في `core/notifications/notification_ids.dart`، والأذان واخد 1000–1999. أي feature بيلغي النطاق بتاعه بس بـ `cancelRanges`، وممنوع `cancelAll`. الشاشات اللي بتعمل Cubit بنفسها بتاخد الـ prefs من `context.read<SharedPreferences>()`.
 - **صوت الـ channel على Android:** بيتثبّت أول ما الـ channel يتعمل. لو غيّرت ملف صوت، غيّر الـ channel id معاه (`adhan_v2`).
 - **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
+- **الـ Native splash:** خلفية بيضا، وفي النص السبحة (`SabhaIcon`) بلون الـ primary، والكلام ده في الوضع الفاتح والغامق. الإعدادات في آخر `pubspec.yaml` (`flutter_native_splash`). الصور في `assets/splash/`، وبتتعمل بـ `flutter test tool/render_splash_test.dart`. بعد أي تعديل شغّل `dart run flutter_native_splash:create`، وما تعدّلش ملفات الـ splash في android/ios بإيدك.
 - **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.
 - **`math.min` و`math.max`** بيرجّعوا `num`. في العدّ استخدم `countedOf()`، اللي بيرجّع `int`.
 - **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests شغّالة: استخدم `testApp()` و`TestCubits` و`mockPrefs()` و`usePhoneSize()` من `test/helpers/test_app.dart`. الـ helper بيقفل تحميل `google_fonts` من النت، فالنص بيظهر بخط التيست، وده عادي. خط التيست أعرض من الحقيقي، فأي overflow بيطلع في التيست بيبقى حقيقي مع النص الكبير (accessibility) أو الموبايل الضيق.
