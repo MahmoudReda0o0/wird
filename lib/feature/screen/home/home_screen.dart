@@ -8,6 +8,7 @@ import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
 import 'package:my_guide/feature/adhan/adhan_settings.dart';
 import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/feature/app_version/widgets/version_badge.dart';
 import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
 import 'package:my_guide/feature/screen/home/widgets/home_grid_tile.dart';
 import 'package:my_guide/feature/screen/home/widgets/next_prayer_card.dart';
@@ -49,12 +50,9 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: CustomAppBar(
         title: 'وِرْد',
         showBackButton: false,
-        leadingWidget: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, AppRoutes.appVersion);
-          },
-          child: Container(child: Text('version: 1.0.0+1')),
-        ),
+        // The installed version; bright after an update. Opens «عن التطبيق».
+        leadingWidget: const VersionBadge(),
+        leadingWidth: 112,
       ),
       body: Builder(
         builder: (context) => _buildBody(

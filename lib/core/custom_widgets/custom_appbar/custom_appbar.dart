@@ -15,12 +15,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showNotivication = true,
     this.centerTitle = true,
     this.leadingWidget,
+    this.leadingWidth,
   });
 
   final String title;
   final VoidCallback? onBackTap;
   final bool showBackButton;
+  /// Replaces the back button, e.g. the version badge on home.
   final Widget? leadingWidget;
+
+  /// Room for a [leadingWidget] wider than an icon.
+  final double? leadingWidth;
   final VoidCallback? onHomeTap;
   final VoidCallback? onNotificationTap;
   final bool showNotivication;
@@ -41,6 +46,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       shape: Border(bottom: BorderSide(color: c.line)),
       automaticallyImplyLeading: false,
+      leadingWidth: leadingWidth,
       leading:
           leadingWidget ??
           (showBackButton

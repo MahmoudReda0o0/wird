@@ -26,6 +26,8 @@ Sounds:
 - Android: `res/raw/adhan.mp3` and `res/raw/adhan_fajr.mp3` at full length. `res/raw/keep.xml` keeps them in release builds.
 - iOS: `ios/Runner/adhan.caf` and `adhan_fajr.caf`, already in the Runner target. iOS plays at most 30 seconds of a notification sound, so these are the first 30 seconds with a fade-out.
 
+**About / version**: the installed version (from `version:` in pubspec.yaml) sits beside the home title. After an update it turns gold with «جديد» until the user opens «عن التطبيق». That screen shows the name, version, what's new (`AppInfo.releaseNotes`), and the Drive download link with a QR code, an open button and a copy button.
+
 **Themes**: light and dark, following the device until you pick one. The choice is remembered.
 
 ## State management
@@ -38,6 +40,7 @@ The app's state lives in Cubits (`flutter_bloc`):
 | `CityCubit` | the selected `PrayerCity`, saved | app root |
 | `AdhanCubit` | `AdhanSettings` (on/off + per-prayer), saved; asks for permission when turned on | app root |
 | `AzkarProgressCubit` | repetitions left per zikr in one section, saved for the day | each azkar page, shared with its sabha |
+| `AppVersionCubit` | installed version + whether it's new to the user | app root |
 | `SabhaCubit` | which zikr the sabha shows; moves on when one is finished | the sabha screen |
 
 `main.dart` reads `SharedPreferences` once, creates the three app-wide Cubits, and provides them with a `MultiBlocProvider`. A `MultiBlocListener` there reschedules the adhan notifications whenever the city or the adhan settings change. The prayer-time calculation (`PrayerTimingData`, `AdhanPlan`) stays as pure functions; screens recalculate from the current state on each tick.
@@ -65,3 +68,11 @@ flutter run
 ```
 
 App ID: `com.mahmoudreda.wird` (Android and iOS).
+
+## Releasing a new version
+
+1. Bump `version:` in `pubspec.yaml` (e.g. `1.0.0+1` → `1.1.0+2`).
+2. Write the changes in `AppInfo.releaseNotes` (`lib/core/app/app_info.dart`), one line each.
+3. `flutter build apk --release` and upload the APK to the Drive folder in `AppInfo.downloadUrl`, shared as "Anyone with the link".
+
+Users who install it see the gold «جديد» badge on home until they open «عن التطبيق».

@@ -7,6 +7,7 @@ import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/app/cubit/theme_cubit.dart';
 import 'package:my_guide/feature/adhan/adhan_service.dart';
 import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/feature/app_version/cubit/app_version_cubit.dart';
 import 'package:my_guide/feature/screen/app_version.dart';
 import 'package:my_guide/feature/screen/azkar/all_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
@@ -15,12 +16,14 @@ import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_screen.dart';
 import 'package:my_guide/feature/adhan/adhan_settings.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  final package = await PackageInfo.fromPlatform();
 
   // App-wide state, read from preferences once. Screens get these through
   // the MultiBlocProvider in MyApp.
@@ -30,8 +33,15 @@ Future<void> main() async {
     prefs,
     requestPermission: AdhanService.requestPermission,
   );
+  final appVersion = AppVersionCubit(
+    prefs,
+    version: package.version,
+    buildNumber: package.buildNumber,
+  );
 
-  runApp(MyApp(theme: theme, city: city, adhan: adhan));
+  runApp(
+    MyApp(theme: theme, city: city, adhan: adhan, appVersion: appVersion),
+  );
 
   // Schedules the coming days' adhans; never blocks the first frame. After
   // this, MyApp's listeners reschedule on every city or adhan change.
@@ -45,11 +55,13 @@ class MyApp extends StatelessWidget {
     required this.theme,
     required this.city,
     required this.adhan,
+    required this.appVersion,
   });
 
   final ThemeCubit theme;
   final CityCubit city;
   final AdhanCubit adhan;
+  final AppVersionCubit appVersion;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +70,7 @@ class MyApp extends StatelessWidget {
         BlocProvider.value(value: theme),
         BlocProvider.value(value: city),
         BlocProvider.value(value: adhan),
+        BlocProvider.value(value: appVersion),
       ],
       child: MultiBlocListener(
         listeners: [
