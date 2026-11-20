@@ -14,11 +14,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onNotificationTap,
     this.showNotivication = true,
     this.centerTitle = true,
+    this.leadingWidget,
   });
 
   final String title;
   final VoidCallback? onBackTap;
   final bool showBackButton;
+  final Widget? leadingWidget;
   final VoidCallback? onHomeTap;
   final VoidCallback? onNotificationTap;
   final bool showNotivication;
@@ -39,20 +41,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       shape: Border(bottom: BorderSide(color: c.line)),
       automaticallyImplyLeading: false,
-      leading: showBackButton
-          ? IconButton(
-              tooltip: 'رجوع',
-              onPressed: onBackTap ?? () => Navigator.maybePop(context),
-              // Mirrors in RTL, so it points right (back).
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: c.primary,
-                size: 22,
-              ),
-            )
-          : null,
+      leading:
+          leadingWidget ??
+          (showBackButton
+              ? IconButton(
+                  tooltip: 'رجوع',
+                  onPressed: onBackTap ?? () => Navigator.maybePop(context),
+                  // Mirrors in RTL, so it points right (back).
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: c.primary,
+                    size: 22,
+                  ),
+                )
+              : null),
       title: Text(title, style: AppText.title.copyWith(color: c.primary)),
-      actions: const [ThemeToggleButton(), SizedBox(width: AppSpace.s1)],
+      actions: const [
+        ThemeToggleButton(),
+        SizedBox(width: AppSpace.s1),
+      ],
     );
   }
 }
