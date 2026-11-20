@@ -9,11 +9,10 @@ typedef AdhanPermissionRequest = Future<bool> Function();
 /// Whether the adhan plays and for which prayers. Saved on every change.
 ///
 /// The adhans themselves are scheduled by a listener at the app root
-/// (see `main.dart`), so this cubit holds state only.
+/// (see `app/app.dart`), so this cubit holds state only.
 class AdhanCubit extends Cubit<AdhanSettings> {
-  AdhanCubit(this._prefs, {required AdhanPermissionRequest requestPermission})
-    : _requestPermission = requestPermission,
-      super(_read(_prefs));
+  AdhanCubit(this._prefs, {required this._requestPermission})
+    : super(_read(_prefs));
 
   final SharedPreferences _prefs;
   final AdhanPermissionRequest _requestPermission;

@@ -70,11 +70,7 @@ flutter pub get && flutter analyze && flutter test
 1. **تأكد إن الأساس سليم:** `analyze` و`test` و`run` على موبايل حقيقي. جرّب الأذان، وزرار السبحة، والـ badge الدهبي: غيّر `version:` لـ `1.0.1+2` وشغّل تاني.
 2. **CI:** GitHub Actions بيشغّل `flutter analyze` و`flutter test` على كل PR.
 3. **الخطوط جوه التطبيق:** حط IBM Plex Sans Arabic وAmiri في `assets/fonts/`، وخلّي `GoogleFonts.config.allowRuntimeFetching = false`. التطبيق offline، وده كمان هيخلّي الـ widget tests تشتغل.
-4. **تنضيف:**
-   - شيل `flutter_screenutil`، لأنه مستخدم في `ScreenUtilInit` بس.
-   - شيل `navigatorKey`، لأنه global ومش مستخدم.
-   - امسح `android/app/src/main/kotlin/com/mahmoudreda/my_guide/MainActivity.kt`، لأنه نسخة زيادة.
-   - ضيف lints: `unawaited_futures` و`prefer_const_constructors` و`always_declare_return_types`.
+4. ~~**تنضيف**~~ ✅ اتعمل على `chore/cleanup`: اتشال `flutter_screenutil` و`navigatorKey`، واتمسح `MainActivity.kt` القديم، واتضافت الـ lints الـ 3، و`flutter analyze` بقى «No issues found».
 5. **الأذان بيقف لو التطبيق ما اتفتحش 10 أيام:** يومي في الخلفية بـ `workmanager` يعيد الجدولة. ومعاه اختيار إن الأذان يشتغل كصوت منبّه عشان يأذّن والموبايل صامت.
 6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
 7. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.

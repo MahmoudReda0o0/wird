@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_guide/app/router/app_router.dart';
 import 'package:my_guide/app/router/app_routes.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
@@ -13,8 +12,6 @@ import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
 
 /// The app root. Provides the app-wide Cubits, and [SharedPreferences] for
 /// screens that create their own Cubits (`context.read<SharedPreferences>()`).
@@ -87,37 +84,32 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _buildApp() {
-    return ScreenUtilInit(
-      splitScreenMode: true,
-      designSize: const Size(375, 812),
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) => MaterialApp(
-          locale: const Locale('ar'),
-          supportedLocales: const [Locale('ar')],
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) => MaterialApp(
+        locale: const Locale('ar'),
+        supportedLocales: const [Locale('ar')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
 
-          builder: (context, child) {
-            return Directionality(
-              textDirection: TextDirection.rtl,
-              child: child!,
-            );
-          },
+        builder: (context, child) {
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: child!,
+          );
+        },
 
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          title: 'Wird',
+        debugShowCheckedModeBanner: false,
+        title: 'Wird',
 
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: themeMode,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeMode,
 
-          initialRoute: AppRoutes.home,
-          routes: AppRouter.routes,
-        ),
+        initialRoute: AppRoutes.home,
+        routes: AppRouter.routes,
       ),
     );
   }

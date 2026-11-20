@@ -32,9 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // The countdown shows seconds. Times are recalculated on every build,
-    // so the next prayer and the date move on by themselves.
+    // so the next prayer and the date move on by themselves. While another
+    // screen covers home, ticks are skipped; the next tick after coming
+    // back (within a second) brings everything up to date.
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      if (ModalRoute.isCurrentOf(context) ?? true) setState(() {});
     });
   }
 
@@ -47,11 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScreen(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         title: 'وِرْد',
         showBackButton: false,
         // The installed version; bright after an update. Opens «عن التطبيق».
-        leadingWidget: const VersionBadge(),
+        leadingWidget: VersionBadge(),
         leadingWidth: 112,
       ),
       body: Builder(

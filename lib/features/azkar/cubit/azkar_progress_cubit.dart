@@ -46,12 +46,11 @@ class AzkarProgressState {
 /// the same counts.
 class AzkarProgressCubit extends Cubit<AzkarProgressState> {
   AzkarProgressCubit({
-    required SharedPreferences prefs,
+    required this._prefs,
     required this.sectionId,
     required List<int> defaults,
     DateTime Function()? clock,
-  }) : _prefs = prefs,
-       _clock = clock ?? AppClock.now,
+  }) : _clock = clock ?? AppClock.now,
        super(AzkarProgressState(defaults: List.unmodifiable(defaults)));
 
   final SharedPreferences _prefs;
