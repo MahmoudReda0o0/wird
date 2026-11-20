@@ -6,6 +6,7 @@ import 'package:my_guide/app/router/app_routes.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/core/widgets/custom_appbar.dart';
 import 'package:my_guide/core/widgets/custom_screen.dart';
+import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/about/widgets/version_badge.dart';
@@ -39,6 +40,32 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       if (ModalRoute.isCurrentOf(context) ?? true) setState(() {});
     });
+    // An update already known from the last check (e.g. offline) is
+    // announced as soon as home shows.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _announceUpdate(context.read<AppVersionCubit>().state);
+    });
+  }
+
+  /// Tells the user once per new version that it's on Drive, with a
+  /// shortcut to «عن التطبيق» where the download button is.
+  void _announceUpdate(AppVersionState version) {
+    final update = version.update;
+    if (update == null || !version.announceUpdate) return;
+    context.read<AppVersionCubit>().markUpdateAnnounced();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('فيه نسخة جديدة من وِرْد: ${update.version}'),
+        duration: const Duration(seconds: 8),
+        // A snack bar with an action stays forever by default; this one
+        // goes away by itself (the badge keeps showing the update).
+        persist: false,
+        action: SnackBarAction(
+          label: 'التفاصيل',
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.appVersion),
+        ),
+      ),
+    );
   }
 
   @override
@@ -49,11 +76,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<AppVersionCubit, AppVersionState>(
+      listenWhen: (prev, next) => next.announceUpdate && !prev.announceUpdate,
+      listener: (_, version) => _announceUpdate(version),
+      child: _buildScreen(),
+    );
+  }
+
+  Widget _buildScreen() {
     return CustomScreen(
       appBar: const CustomAppBar(
         title: 'وِرْد',
         showBackButton: false,
-        // The installed version; bright after an update. Opens «عن التطبيق».
+        // The installed version; «تحديث» when a newer one is on Drive,
+        // «جديد» right after updating. Opens «عن التطبيق».
         leadingWidget: VersionBadge(),
         leadingWidth: 112,
       ),

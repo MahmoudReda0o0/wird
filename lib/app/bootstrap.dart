@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_guide/app/app.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
+import 'package:my_guide/features/about/data/app_info.dart';
+import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
@@ -44,5 +46,11 @@ Future<void> bootstrap() async {
   // Schedules the coming days' adhans (setting up notifications first);
   // never blocks the first frame. After this, MyApp's listeners reschedule
   // on every city or adhan change, and when the app comes back.
-  await AdhanService.reschedule(city.state, adhan.state);
+  // Looks for a newer version on Drive; shows a known one offline too.
+  await Future.wait([
+    AdhanService.reschedule(city.state, adhan.state),
+    appVersion.checkForUpdate(
+      const HttpReleaseSource(AppInfo.latestReleaseUrl),
+    ),
+  ]);
 }

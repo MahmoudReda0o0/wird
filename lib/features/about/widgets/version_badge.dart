@@ -4,8 +4,11 @@ import 'package:my_guide/app/router/app_routes.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 
-/// The installed version beside the home title, e.g. «1.0.0». After an
-/// update it turns gold with «جديد» until the user opens «عن التطبيق».
+/// The installed version beside the home title, e.g. «1.0.0». Opens
+/// «عن التطبيق».
+///
+/// - A newer version is published: green «تحديث 1.1.0».
+/// - Just updated: gold «جديد 1.1.0» until «عن التطبيق» is opened.
 class VersionBadge extends StatelessWidget {
   const VersionBadge({super.key});
 
@@ -13,14 +16,30 @@ class VersionBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.wird;
     final state = context.watch<AppVersionCubit>().state;
-    final isNew = state.isNew;
+    final update = state.update;
+    final isNew = update == null && state.isNew;
 
-    final background = isNew ? c.gold : c.surfaceSunken;
-    final foreground = isNew ? c.onGold : c.inkMuted;
+    final background = update != null
+        ? c.primary
+        : isNew
+        ? c.gold
+        : c.surfaceSunken;
+    final foreground = update != null
+        ? c.onPrimary
+        : isNew
+        ? c.onGold
+        : c.inkMuted;
+    final text = update != null
+        ? 'تحديث ${update.version}'
+        : isNew
+        ? 'جديد ${state.version}'
+        : state.version;
 
     return Semantics(
       button: true,
-      label: isNew
+      label: update != null
+          ? 'تحديث متاح ${update.version}، اضغط للتنزيل'
+          : isNew
           ? 'إصدار جديد ${state.version}، اضغط لمعرفة الجديد'
           : 'الإصدار ${state.version}، عن التطبيق',
       excludeSemantics: true,
@@ -39,9 +58,11 @@ class VersionBadge extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (isNew) ...[
+                    if (update != null || isNew) ...[
                       Icon(
-                        Icons.new_releases_rounded,
+                        update != null
+                            ? Icons.system_update_rounded
+                            : Icons.new_releases_rounded,
                         size: 16,
                         color: foreground,
                       ),
@@ -51,8 +72,10 @@ class VersionBadge extends StatelessWidget {
                     // leading slot with large text or a long version.
                     Flexible(
                       child: Text(
-                        isNew ? 'جديد ${state.version}' : state.version,
-                        textDirection: isNew ? null : TextDirection.ltr,
+                        text,
+                        textDirection: update != null || isNew
+                            ? null
+                            : TextDirection.ltr,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppText.caption.copyWith(

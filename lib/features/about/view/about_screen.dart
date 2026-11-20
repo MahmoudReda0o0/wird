@@ -5,13 +5,15 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:my_guide/features/about/data/app_info.dart';
+import 'package:my_guide/features/about/data/release_info.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/core/widgets/custom_appbar.dart';
 import 'package:my_guide/core/widgets/custom_screen.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 
 /// «عن التطبيق»: the app's name and installed version, what's new in it,
-/// and the download link with a QR code to share it.
+/// a newer version with its notes and a download button when one is on
+/// Drive, and the download link with a QR code to share it.
 class AppVersion extends StatefulWidget {
   const AppVersion({super.key});
 
@@ -51,6 +53,7 @@ class _AppVersionState extends State<AppVersion> {
   Widget build(BuildContext context) {
     final c = context.wird;
     final version = context.watch<AppVersionCubit>().state;
+    final update = version.update;
     final notes = AppInfo.releaseNotes
         .split('\n')
         .map((l) => l.trim())
@@ -100,6 +103,11 @@ class _AppVersionState extends State<AppVersion> {
             ),
           ),
 
+          if (update != null) ...[
+            const SizedBox(height: AppSpace.s4),
+            _UpdatePanel(update: update, onDownload: _openLink),
+          ],
+
           if (notes.isNotEmpty) ...[
             const SizedBox(height: AppSpace.s4),
             _Panel(
@@ -108,37 +116,13 @@ class _AppVersionState extends State<AppVersion> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الجديد في هذا الإصدار',
+                    update == null
+                        ? 'الجديد في هذا الإصدار'
+                        : 'الجديد في نسختك الحالية (${version.version})',
                     style: AppText.heading.copyWith(color: c.ink),
                   ),
                   const SizedBox(height: AppSpace.s2),
-                  for (final line in notes)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpace.s1),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 9),
-                            child: Container(
-                              width: 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: c.primary,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpace.s2),
-                          Expanded(
-                            child: Text(
-                              line,
-                              style: AppText.body.copyWith(color: c.ink),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  _Notes(notes),
                 ],
               ),
             ),
@@ -230,6 +214,111 @@ class _AppVersionState extends State<AppVersion> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A newer version on Drive: its number, what's new in it, and a button
+/// that opens the download link.
+class _UpdatePanel extends StatelessWidget {
+  const _UpdatePanel({required this.update, required this.onDownload});
+  final ReleaseInfo update;
+  final VoidCallback onDownload;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.wird;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: c.primary, width: 1.5),
+      ),
+      child: _Panel(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.system_update_rounded, color: c.primary),
+                const SizedBox(width: AppSpace.s2),
+                Expanded(
+                  child: Text(
+                    'نسخة جديدة متاحة',
+                    style: AppText.heading.copyWith(color: c.ink),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpace.s1),
+            Text(
+              'الإصدار ${update.version} (${update.build})',
+              style: AppText.label.copyWith(color: c.primary),
+            ),
+            if (update.notes.isNotEmpty) ...[
+              const SizedBox(height: AppSpace.s3),
+              Text(
+                'الجديد فيها',
+                style: AppText.label.copyWith(color: c.inkMuted),
+              ),
+              const SizedBox(height: AppSpace.s1),
+              _Notes(update.notes),
+            ],
+            const SizedBox(height: AppSpace.s4),
+            FilledButton.icon(
+              onPressed: onDownload,
+              style: FilledButton.styleFrom(
+                backgroundColor: c.primary,
+                foregroundColor: c.onPrimary,
+                minimumSize: const Size(0, 48),
+                textStyle: AppText.label,
+              ),
+              icon: const Icon(Icons.download_rounded, size: 20),
+              label: const Text('تنزيل النسخة الجديدة'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A bulleted list of changes, one per line.
+class _Notes extends StatelessWidget {
+  const _Notes(this.notes);
+  final List<String> notes;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.wird;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final line in notes)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpace.s1),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 9),
+                  child: Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: c.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpace.s2),
+                Expanded(
+                  child: Text(line, style: AppText.body.copyWith(color: c.ink)),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
