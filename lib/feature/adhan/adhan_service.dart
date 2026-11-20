@@ -26,7 +26,7 @@ class AdhanService {
   static const _channelId = 'adhan_v1';
   static const _fajrChannelId = 'adhan_fajr_v1';
 
-  /// Call once in main() after the settings and city are loaded.
+  /// Call once in main(), before the first [reschedule].
   static Future<void> init() async {
     try {
       await _plugin.initialize(
@@ -45,9 +45,6 @@ class AdhanService {
       debugPrint('Adhan: notifications unavailable: $e');
       return;
     }
-    AdhanSettingsController.settings.addListener(reschedule);
-    PrayerCityController.city.addListener(reschedule);
-    await reschedule();
   }
 
   static AndroidFlutterLocalNotificationsPlugin? get _android =>
@@ -80,21 +77,23 @@ class AdhanService {
   }
 
   static bool _busy = false;
-  static bool _again = false;
+  static (PrayerCity, AdhanSettings)? _pending;
 
-  /// Cancels every scheduled adhan and schedules them again from now.
-  static Future<void> reschedule() async {
+  /// Cancels every scheduled adhan and schedules them again from now for
+  /// [city] and [settings]. Called on app start and whenever the city or
+  /// adhan cubit changes. Calls that arrive while one is running are
+  /// folded into one more run with the latest values.
+  static Future<void> reschedule(PrayerCity city, AdhanSettings settings) async {
     if (!_ready) return;
-    if (_busy) {
-      _again = true;
-      return;
-    }
+    _pending = (city, settings);
+    if (_busy) return;
     _busy = true;
     try {
-      do {
-        _again = false;
-        await _scheduleAll();
-      } while (_again);
+      while (_pending != null) {
+        final (c, s) = _pending!;
+        _pending = null;
+        await _scheduleAll(c, s);
+      }
     } catch (e) {
       debugPrint('Adhan: scheduling failed: $e');
     } finally {
@@ -102,12 +101,13 @@ class AdhanService {
     }
   }
 
-  static Future<void> _scheduleAll() async {
+  static Future<void> _scheduleAll(
+    PrayerCity city,
+    AdhanSettings settings,
+  ) async {
     await _plugin.cancelAll();
-    final settings = AdhanSettingsController.settings.value;
     if (!settings.enabled) return;
 
-    final city = PrayerCityController.city.value;
     final alerts = AdhanPlan.plan(city, PrayerTimingData.now(), settings);
     if (alerts.isEmpty) return;
 

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// A city the prayer times can be calculated for.
 @immutable
@@ -48,27 +47,4 @@ class PrayerCity {
 
   static PrayerCity byId(String? id) =>
       all.firstWhere((c) => c.id == id, orElse: () => fallback);
-}
-
-/// The city the user picked. Saved and restored like the theme.
-class PrayerCityController {
-  PrayerCityController._();
-
-  static const _prefsKey = 'prayer_city';
-
-  static final ValueNotifier<PrayerCity> city = ValueNotifier(
-    PrayerCity.fallback,
-  );
-
-  /// Restores the saved city. Call once in main() before runApp().
-  static Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    city.value = PrayerCity.byId(prefs.getString(_prefsKey));
-  }
-
-  static Future<void> select(PrayerCity value) async {
-    city.value = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, value.id);
-  }
 }

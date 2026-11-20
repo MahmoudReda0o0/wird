@@ -3,7 +3,6 @@ import 'package:my_guide/feature/adhan/adhan_plan.dart';
 import 'package:my_guide/feature/adhan/adhan_settings.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 void main() {
@@ -65,18 +64,6 @@ void main() {
     test('isOn needs the main switch too', () {
       expect(allOn.isOn('fajr'), isTrue);
       expect(allOn.copyWith(enabled: false).isOn('fajr'), isFalse);
-    });
-
-    test('saved and loaded', () async {
-      SharedPreferences.setMockInitialValues({});
-      await AdhanSettingsController.update(
-        const AdhanSettings(enabled: true, prayers: ['isha', 'fajr']),
-      );
-      AdhanSettingsController.settings.value = AdhanSettings.initial;
-      await AdhanSettingsController.load();
-      final s = AdhanSettingsController.settings.value;
-      expect(s.enabled, isTrue);
-      expect(s.prayers, ['fajr', 'isha']);
     });
   });
 }

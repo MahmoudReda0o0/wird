@@ -3,26 +3,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/feature/model/azkar_model.dart';
-import 'package:my_guide/feature/screen/azkar/azkar_progress.dart';
-
-/// What the sabha screen needs from the azkar page.
-///
-/// [remaining] is the page's own list: the sabha changes it in place and
-/// saves it, so both screens always show the same progress.
-class SabhaArguments {
-  SabhaArguments({
-    required this.sectionId,
-    required this.title,
-    required this.azkarList,
-    required this.remaining,
-  });
-  final String sectionId;
-  final String title;
-  final List<AzkarModel> azkarList;
-  final List<int> remaining;
-}
+import 'package:my_guide/feature/screen/azkar/cubit/azkar_progress_cubit.dart';
+import 'package:my_guide/feature/screen/azkar/cubit/sabha_cubit.dart';
 
 /// The calm palette used only on the sabha screen: low contrast around a
 /// single clear accent, so the zikr and the count button stand out.
@@ -102,27 +87,25 @@ class SabhaColors {
 
 /// One zikr at a time with a big count button. When a zikr's count is
 /// finished it moves on to the next unfinished one by itself.
+///
+/// Needs an [AzkarProgressCubit] (the section's, shared with the azkar
+/// page) and a [SabhaCubit] above it.
 class SabhaScreen extends StatefulWidget {
-  const SabhaScreen({super.key, required this.args});
-  final SabhaArguments args;
+  const SabhaScreen({super.key, required this.title, required this.azkarList});
+  final String title;
+  final List<AzkarModel> azkarList;
 
   @override
   State<SabhaScreen> createState() => _SabhaScreenState();
 }
 
 class _SabhaScreenState extends State<SabhaScreen> {
-  late int _index;
+  // «تمّ ✓ — الذكر التالي» is a moment, not state: shown for 1.4 s after
+  // the sabha moves on by itself.
   String _flash = '';
   Timer? _flashTimer;
 
-  List<AzkarModel> get _azkar => widget.args.azkarList;
-  List<int> get _remaining => widget.args.remaining;
-
-  @override
-  void initState() {
-    super.initState();
-    _index = SabhaLogic.firstOpen(_remaining) ?? 0;
-  }
+  List<AzkarModel> get _azkar => widget.azkarList;
 
   @override
   void dispose() {
@@ -130,97 +113,86 @@ class _SabhaScreenState extends State<SabhaScreen> {
     super.dispose();
   }
 
-  bool get _allDone => _remaining.every((r) => r <= 0);
-
-  void _save() => AzkarProgress.save(widget.args.sectionId, _remaining);
-
-  void _showFlash(String text) {
+  void _showFlash() {
     _flashTimer?.cancel();
-    _flash = text;
+    setState(() => _flash = 'تمّ ✓ — الذكر التالي');
     _flashTimer = Timer(const Duration(milliseconds: 1400), () {
       if (mounted) setState(() => _flash = '');
     });
   }
 
+  void _clearFlash() {
+    _flashTimer?.cancel();
+    if (_flash.isNotEmpty) setState(() => _flash = '');
+  }
+
   void _increment() {
-    final step = SabhaLogic.count(_remaining, _index);
-    if (step == null) return;
-    setState(() {
-      if (step.finishedZikr) {
-        HapticFeedback.mediumImpact();
-        if (step.nextIndex != null) {
-          _index = step.nextIndex!;
-          _showFlash('تمّ ✓ — الذكر التالي');
-        }
-      } else {
-        HapticFeedback.lightImpact();
-      }
-    });
-    _save();
+    final finished = context.read<SabhaCubit>().increment();
+    if (finished) {
+      HapticFeedback.mediumImpact();
+    } else {
+      HapticFeedback.lightImpact();
+    }
   }
 
   void _reset() {
-    setState(() {
-      _remaining[_index] = _azkar[_index].repetition;
-      _flash = '';
-    });
-    _save();
+    _clearFlash();
+    context.read<SabhaCubit>().resetCurrent();
   }
 
   void _restartAll() {
-    setState(() {
-      for (var i = 0; i < _remaining.length; i++) {
-        _remaining[i] = _azkar[i].repetition;
-      }
-      _index = 0;
-      _flash = '';
-    });
-    _save();
+    _clearFlash();
+    context.read<SabhaCubit>().restartAll();
   }
 
   void _go(int delta) {
-    final next = _index + delta;
-    if (next < 0 || next >= _azkar.length) return;
-    setState(() {
-      _index = next;
-      _flash = '';
-    });
+    _clearFlash();
+    context.read<SabhaCubit>().go(delta);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = SabhaColors.of(context);
-    return Scaffold(
-      backgroundColor: c.bg,
-      appBar: AppBar(
+    final allDone = context.select(
+      (AzkarProgressCubit cubit) => cubit.state.allDone,
+    );
+    return BlocListener<SabhaCubit, SabhaState>(
+      listenWhen: (prev, next) => next.finishedCount > prev.finishedCount,
+      listener: (context, _) => _showFlash(),
+      child: Scaffold(
         backgroundColor: c.bg,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: c.muted),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.args.title,
-              style: AppText.title.copyWith(color: c.ink),
-            ),
-            Text('وضع السبحة', style: AppText.caption.copyWith(color: c.muted)),
-          ],
+        appBar: AppBar(
+          backgroundColor: c.bg,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: c.muted),
+          title: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(widget.title, style: AppText.title.copyWith(color: c.ink)),
+              Text(
+                'وضع السبحة',
+                style: AppText.caption.copyWith(color: c.muted),
+              ),
+            ],
+          ),
         ),
-      ),
-      body: SafeArea(
-        top: false,
-        child: _allDone ? _buildDone(c) : _buildCounter(c),
+        body: SafeArea(
+          top: false,
+          child: allDone ? _buildDone(c) : _buildCounter(c),
+        ),
       ),
     );
   }
 
   Widget _buildCounter(SabhaColors c) {
-    final zikr = _azkar[_index];
+    final index = context.watch<SabhaCubit>().state.index;
+    final progress = context.watch<AzkarProgressCubit>().state;
+    final zikr = _azkar[index];
     final target = zikr.repetition;
-    final done = target - math.max(0, math.min(_remaining[_index], target));
+    final done = progress.countedOf(index);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -242,7 +214,7 @@ class _SabhaScreenState extends State<SabhaScreen> {
                 border: Border.all(color: c.line),
               ),
               child: SingleChildScrollView(
-                key: ValueKey(_index),
+                key: ValueKey(index),
                 padding: const EdgeInsets.all(AppSpace.s5),
                 child: Column(
                   children: [
@@ -303,11 +275,11 @@ class _SabhaScreenState extends State<SabhaScreen> {
                 icon: Icons.arrow_back_ios_new_rounded,
                 tooltip: 'الذكر السابق',
                 colors: c,
-                onPressed: _index > 0 ? () => _go(-1) : null,
+                onPressed: index > 0 ? () => _go(-1) : null,
               ),
               Expanded(
                 child: Text(
-                  'الذكر ${_index + 1} من ${_azkar.length}',
+                  'الذكر ${index + 1} من ${_azkar.length}',
                   textAlign: TextAlign.center,
                   style: AppText.body.copyWith(
                     color: c.muted,
@@ -319,7 +291,7 @@ class _SabhaScreenState extends State<SabhaScreen> {
                 icon: Icons.arrow_forward_ios_rounded,
                 tooltip: 'الذكر التالي',
                 colors: c,
-                onPressed: _index < _azkar.length - 1 ? () => _go(1) : null,
+                onPressed: index < _azkar.length - 1 ? () => _go(1) : null,
               ),
             ],
           ),
@@ -439,60 +411,13 @@ class _SabhaScreenState extends State<SabhaScreen> {
   }
 }
 
-/// The sabha's counting rules, kept apart from the widget so they can be
-/// tested.
-class SabhaLogic {
-  SabhaLogic._();
-
-  /// The first zikr with repetitions left, or null when all are done.
-  static int? firstOpen(List<int> remaining) {
-    for (var i = 0; i < remaining.length; i++) {
-      if (remaining[i] > 0) return i;
-    }
-    return null;
-  }
-
-  /// The next unfinished zikr after [from], wrapping around; null if none.
-  static int? nextOpen(List<int> remaining, int from) {
-    for (var k = 1; k <= remaining.length; k++) {
-      final i = (from + k) % remaining.length;
-      if (remaining[i] > 0) return i;
-    }
-    return null;
-  }
-
-  /// Counts one repetition of zikr [index] in [remaining] (changed in
-  /// place). Returns null when that zikr was already finished.
-  static SabhaStep? count(List<int> remaining, int index) {
-    if (remaining[index] <= 0) return null;
-    remaining[index]--;
-    if (remaining[index] > 0) {
-      return const SabhaStep(finishedZikr: false);
-    }
-    return SabhaStep(finishedZikr: true, nextIndex: nextOpen(remaining, index));
-  }
-}
-
-/// What one tap did.
-@immutable
-class SabhaStep {
-  const SabhaStep({required this.finishedZikr, this.nextIndex});
-
-  /// This tap finished the zikr.
-  final bool finishedZikr;
-
-  /// Where to go next once a zikr is finished. Null means the whole
-  /// section is done.
-  final int? nextIndex;
-}
-
 class _CountRing extends StatelessWidget {
   const _CountRing({
     required this.done,
     required this.target,
     required this.colors,
   });
-  final num done;
+  final int done;
   final int target;
   final SabhaColors colors;
 

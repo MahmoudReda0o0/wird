@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/app/app_route.dart';
 import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
 import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
 import 'package:my_guide/feature/adhan/adhan_settings.dart';
+import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
 import 'package:my_guide/feature/screen/home/widgets/home_grid_tile.dart';
 import 'package:my_guide/feature/screen/home/widgets/next_prayer_card.dart';
 import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
@@ -53,11 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Container(child: Text('version: 1.0.0+1')),
         ),
       ),
-      body: ValueListenableBuilder<PrayerCity>(
-        valueListenable: PrayerCityController.city,
-        builder: (context, city, _) => ValueListenableBuilder<AdhanSettings>(
-          valueListenable: AdhanSettingsController.settings,
-          builder: (context, adhan, _) => _buildBody(context, city, adhan),
+      body: Builder(
+        builder: (context) => _buildBody(
+          context,
+          context.watch<CityCubit>().state,
+          context.watch<AdhanCubit>().state,
         ),
       ),
     );
