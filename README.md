@@ -87,11 +87,17 @@ flutter run
 
 App ID: `com.mahmoudreda.wird` (Android and iOS).
 
-## Releasing a new version
+## Branches and releases
 
-1. Bump `version:` in `pubspec.yaml` (e.g. `1.0.0+1` → `1.1.0+2`).
-2. Write the changes in `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`), one line each.
-3. `flutter build apk --release` and upload the APK to the Drive folder in `AppInfo.downloadUrl`, shared as "Anyone with the link".
-4. Update `release/latest.json` with the new `version`, `build` and `notes` (the same lines as `releaseNotes`), commit, and only after the APK is on Drive, bring the `new_version` branch up to that commit and push it (`git push origin main:new_version`). Raw GitHub files can take a few minutes to refresh.
+- `main`: all work lands here, directly or by merging a side branch (`feature/...`, `fix/...`). Every change passes `flutter analyze` and `flutter test` first.
+- `new_version`: what users have. Installed apps read `release/latest.json` from this branch on every launch (`AppInfo.latestReleaseUrl`). It only ever moves to a released commit of `main`.
 
-Users on the old version see «تحديث» on home and the download button in «عن التطبيق». After they install it they see the gold «جديد» badge until they open «عن التطبيق».
+Releasing, once `main` is stable (analyze clean, tests green, APK tried on a real phone):
+
+1. Bump `version:` in `pubspec.yaml`: the build number always goes up (`1.0.0+2` → `1.0.0+3` for fixes, `1.1.0+3` for new features).
+2. Write the changes in `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`), one line each, and the same lines, `version` and `build` in `release/latest.json`.
+3. Commit on `main` («Release x.y.z+n»).
+4. `flutter build apk --release` and upload the APK to the Drive folder in `AppInfo.downloadUrl`, shared as "Anyone with the link".
+5. Only after the APK is on Drive: `git push origin main`, then `git push origin main:new_version`.
+
+Users on an older version then see «تحديث» on home and the download button in «عن التطبيق» (raw GitHub files can take a few minutes to refresh). After they install it they see the gold «جديد» badge until they open «عن التطبيق».

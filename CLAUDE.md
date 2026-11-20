@@ -1,14 +1,14 @@
 # وِرْد (Wird) — ملخص المشروع للشغل في Claude Code
 
 > Claude Code بيقرا الملف ده لوحده في أول كل جلسة. حدّثه لما حاجة مهمة تتغير.
-> آخر تحديث: 20 نوفمبر 2026، و`main` واقف على `d48730a` (Merge #7).
+> آخر تحديث: 20 نوفمبر 2026. النسخة على `main` هي `1.0.0+2`.
 
 ## المشروع
 - تطبيق Flutter عربي (RTL) للأذكار ومواقيت الصلاة. الـ repo: `MahmoudReda0o0/wird`. اسم الـ Dart package `my_guide`، ومش هنغيّره دلوقتي.
-- الـ App ID `com.mahmoudreda.wird` على Android وiOS، والاسم الظاهر «وِرْد». النسخة الحالية `1.0.0+1`.
+- الـ App ID `com.mahmoudreda.wird` على Android وiOS، والاسم الظاهر «وِرْد». النسخة الحالية `1.0.0+2`.
 - التصميم (Claude Design canvas): https://claude.ai/artifact/GUnUgbYYBFF7WRFV5giQX5. فيه الهوم (فاتح وغامق وبعد العشاء)، وإضافات الـ design system، وصفحة الأذكار، ووضع السبحة.
 - الـ Design System «Wird»: https://claude.ai/artifact/2fwNvazQhYq3XrKv7VCqsK. فيه الـ tokens والـ components: AppBar، MenuTile، ZikrCard، PrayerTimes، ThemeToggle.
-- الـ owner بيعمل merge بنفسه، والشغل بيمشي كده: branch، بعدين PR، بعدين merge على `main`.
+- طريقة الشغل والـ branches في قسم «طريقة الشغل» تحت. الخلاصة: كل الشغل بيتجمّع على `main`، و`new_version` هو اللي بيوصّل النسخة للناس.
 
 ## الـ Stack
 Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences`، و`adhan_dart` لحساب المواقيت، و`timezone`، و`flutter_local_notifications` 22.x للأذان، و`package_info_plus`، و`url_launcher`، و`qr_flutter`، و`google_fonts` (IBM Plex Sans Arabic للواجهة وAmiri لنص الأذكار).
@@ -82,11 +82,24 @@ flutter pub get && flutter analyze && flutter test
 - شيّر فولدر الدرايف `15sMC3pU1w12yFQQIKqurSKqujRBF9dhY` كـ «Anyone with the link».
 - حدّث الـ Wird Design System بـ `NextPrayerCard` و`HomeGridTile`، والستايلين `countdown` و`hero`، وألوان السبحة. التفاصيل في board «Design System — الإضافات الجديدة» على الكانفاس، لأني ما قدرتش أعدّل الـ design system من الشات.
 
-## خطوات رفع نسخة جديدة
-1. عدّل `version:` في `pubspec.yaml`.
-2. اكتب الجديد في `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`)، كل تعديل في سطر.
-3. `flutter build apk --release`، وارفع الـ APK على فولدر الدرايف.
-4. حدّث `release/latest.json`: الـ `version` والـ `build` والـ `notes`، والـ notes هي نفس سطور `releaseNotes`. اعمل commit، وبعد ما الـ APK يترفع على الدرايف بس، انقل branch اسمه `new_version` للـ commit ده واعمله push: `git push origin main:new_version`. التطبيق بيقرا `release/latest.json` من الـ branch ده على GitHub (`AppInfo.latestReleaseUrl`، الـ raw file بتاع الـ repo الـ public) كل مرة بيفتح. لو لقى نسخة أحدث من المتسطّبة، بيبيّن «تحديث» وزرار تنزيل بيفتح فولدر الدرايف. GitHub ممكن ياخد كام دقيقة لحد ما يحدّث الملف.
+## طريقة الشغل
+فيه branchين ليهم معنى:
+
+| Branch | دوره |
+|---|---|
+| `main` | كل الشغل بيتجمّع عليه. أي تعديل بيتعمل على `main` على طول، أو على branch جانبي (زي `feature/...` أو `fix/...`) وبعدين يتعمله merge في `main`. |
+| `new_version` | النسخة اللي وصلت للناس. التطبيق المتسطّب بيقرا `release/latest.json` من هنا كل ما يفتح (`AppInfo.latestReleaseUrl`). مفيش حد بيشتغل عليه مباشرة: بيتحرّك بس لـ commit على `main` اتعمله release. |
+
+**الدورة:**
+1. **الشغل:** التعديلات بتتعمل على `main` أو على branch جانبي. الـ branch الجانبي بيتعمله merge في `main` لما يخلص، وبعدها يتمسح. وكل تعديل لازم يعدّي `flutter analyze` و`flutter test` قبل ما يدخل `main`.
+2. **ثبات:** قبل أي release، `main` لازم يبقى مستقر: الـ analyze نضيف، والتيستات كلها عدّت، والـ APK اتجرّب على موبايل حقيقي. لو حاجة مش مستقرة، الـ release يستنّى. وما بنغيّرش رقم النسخة في نص الشغل.
+3. **Release** (بس لما Mahmoud يقول إن كل حاجة مستقرة):
+   1. زوّد `version:` في `pubspec.yaml`. تعديل صغير أو إصلاح بيزوّد الـ build بس (`1.0.0+2` بتبقى `1.0.0+3`)، وأي feature جديد بيزوّد الرقم نفسه (`1.0.0+2` بتبقى `1.1.0+3`). والـ build بيزيد دايمًا.
+   2. اكتب الجديد في `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`)، كل تعديل في سطر، وحط نفس السطور في `release/latest.json` مع الـ `version` والـ `build`.
+   3. اعمل commit على `main`: «Release x.y.z+n».
+   4. `flutter build apk --release`، وارفع الـ APK على فولدر الدرايف (`AppInfo.downloadUrl`).
+   5. **بعد ما الـ APK يترفع بس:** `git push origin main` وبعدها `git push origin main:new_version`. من اللحظة دي، أي حد عنده نسخة أقدم هيشوف «تحديث» وزرار التنزيل. GitHub ممكن ياخد كام دقيقة لحد ما يحدّث الملف.
+4. **ممنوع** تعمل push لـ `new_version` قبل ما الـ APK يبقى على الدرايف، لأن الناس هتتنبّه بنسخة مش موجودة. وممنوع تعمل push لـ commit مش مستقر، أو push من غير ما Mahmoud يطلب.
 
 ## Gotchas
 - **المواقيت:** `CalculationMethodParameters.egyptian()..madhab = Madhab.shafi`. الـ `date` بيتباصى الساعة 12 الضهر، عشان اليوم يفضل صح سواء المكتبة قرأته local أو UTC. والتوقيت دايمًا `Africa/Cairo`، والـ zone بتاعها بيتجاب من `PrayerTimingData.cairo`.
@@ -98,4 +111,4 @@ flutter pub get && flutter analyze && flutter test
 - **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.
 - **`math.min` و`math.max`** بيرجّعوا `num`. في العدّ استخدم `countedOf()`، اللي بيرجّع `int`.
 - **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests شغّالة: استخدم `testApp()` و`TestCubits` و`mockPrefs()` و`usePhoneSize()` من `test/helpers/test_app.dart`. الـ helper بيقفل تحميل `google_fonts` من النت، فالنص بيظهر بخط التيست، وده عادي. خط التيست أعرض من الحقيقي، فأي overflow بيطلع في التيست بيبقى حقيقي مع النص الكبير (accessibility) أو الموبايل الضيق.
-- **الـ commits:** رسايل واضحة، وكل feature في branch وPR.
+- **الـ commits:** رسايل واضحة. تقدر تشتغل على `main` على طول، أو على branch جانبي وبعدين تعمله merge في `main`. و`new_version` ما بيتحرّكش غير في الـ release (قسم «طريقة الشغل»).
