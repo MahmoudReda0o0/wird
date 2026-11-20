@@ -69,7 +69,7 @@ flutter pub get && flutter analyze && flutter test
 ## المطلوب، بالأولوية
 1. **تأكد إن الأساس سليم:** `analyze` و`test` و`run` على موبايل حقيقي. جرّب الأذان، وزرار السبحة، والـ badge الدهبي: غيّر `version:` لـ `1.0.1+2` وشغّل تاني.
 2. **CI:** GitHub Actions بيشغّل `flutter analyze` و`flutter test` على كل PR.
-3. **الخطوط جوه التطبيق:** حط IBM Plex Sans Arabic وAmiri في `assets/fonts/`، وخلّي `GoogleFonts.config.allowRuntimeFetching = false`. التطبيق offline، وده كمان هيخلّي الـ widget tests تشتغل.
+3. **الخطوط جوه التطبيق:** حط IBM Plex Sans Arabic وAmiri في `assets/fonts/`، وخلّي `GoogleFonts.config.allowRuntimeFetching = false`. التطبيق offline. (الـ widget tests مش مستنية الخطوة دي، هي شغّالة خلاص.)
 4. ~~**تنضيف**~~ ✅ اتعمل على `chore/cleanup`: اتشال `flutter_screenutil` و`navigatorKey`، واتمسح `MainActivity.kt` القديم، واتضافت الـ lints الـ 3، و`flutter analyze` بقى «No issues found».
 5. **الأذان بيقف لو التطبيق ما اتفتحش 10 أيام:** يومي في الخلفية بـ `workmanager` يعيد الجدولة. ومعاه اختيار إن الأذان يشتغل كصوت منبّه عشان يأذّن والموبايل صامت.
 6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
@@ -95,5 +95,5 @@ flutter pub get && flutter analyze && flutter test
 - **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
 - **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.
 - **`math.min` و`math.max`** بيرجّعوا `num`. في العدّ استخدم `countedOf()`، اللي بيرجّع `int`.
-- **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests هتقع بسبب `google_fonts` لحد ما الخطوط تتحط جوه التطبيق (رقم 3 فوق).
+- **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests شغّالة: استخدم `testApp()` و`TestCubits` و`mockPrefs()` و`usePhoneSize()` من `test/helpers/test_app.dart`. الـ helper بيقفل تحميل `google_fonts` من النت، فالنص بيظهر بخط التيست، وده عادي. خط التيست أعرض من الحقيقي، فأي overflow بيطلع في التيست بيبقى حقيقي مع النص الكبير (accessibility) أو الموبايل الضيق.
 - **الـ commits:** رسايل واضحة، وكل feature في branch وPR.

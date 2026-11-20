@@ -40,15 +40,25 @@ class VersionBadge extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (isNew) ...[
-                      Icon(Icons.new_releases_rounded, size: 16, color: foreground),
+                      Icon(
+                        Icons.new_releases_rounded,
+                        size: 16,
+                        color: foreground,
+                      ),
                       const SizedBox(width: 2),
                     ],
-                    Text(
-                      isNew ? 'جديد ${state.version}' : state.version,
-                      textDirection: isNew ? null : TextDirection.ltr,
-                      style: AppText.caption.copyWith(
-                        color: foreground,
-                        fontWeight: FontWeight.w600,
+                    // Shrinks with … instead of overflowing the app bar's
+                    // leading slot with large text or a long version.
+                    Flexible(
+                      child: Text(
+                        isNew ? 'جديد ${state.version}' : state.version,
+                        textDirection: isNew ? null : TextDirection.ltr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.caption.copyWith(
+                          color: foreground,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],

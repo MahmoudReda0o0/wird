@@ -51,11 +51,16 @@ class NextPrayerCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
-                  'الصلاة القادمة',
-                  style: AppText.label.copyWith(color: sub),
+                // Shrinks (with …) rather than overflow on a narrow phone or
+                // with large text; the chips on the left always fit.
+                Expanded(
+                  child: Text(
+                    'الصلاة القادمة',
+                    style: AppText.label.copyWith(color: sub),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Spacer(),
                 _AdhanChip(
                   on: adhanOn,
                   onTap: onAdhanTap,

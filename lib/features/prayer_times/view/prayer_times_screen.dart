@@ -64,7 +64,11 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, PrayerCity city, AdhanSettings adhan) {
+  Widget _buildBody(
+    BuildContext context,
+    PrayerCity city,
+    AdhanSettings adhan,
+  ) {
     final c = context.wird;
     final now = PrayerTimingData.now();
     final prayers = PrayerTimingData.forDay(city, now);
@@ -80,9 +84,13 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
           PrayerCityChip(name: city.name),
           const SizedBox(height: AppSpace.s4),
           _NextPrayerHeader(
-            name: next.isTomorrow ? '${next.entry.name} (غدًا)' : next.entry.name,
+            name: next.isTomorrow
+                ? '${next.entry.name} (غدًا)'
+                : next.entry.name,
             time: PrayerTimingData.format(next.entry.time),
-            remaining: PrayerTimingData.remaining(next.entry.time.difference(now)),
+            remaining: PrayerTimingData.remaining(
+              next.entry.time.difference(now),
+            ),
           ),
           const SizedBox(height: AppSpace.s5),
           Container(
@@ -117,9 +125,7 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
                                 .read<AdhanCubit>()
                                 .togglePrayer(prayers[i].key),
                           )
-                        : (adhan.enabled
-                              ? const SizedBox(width: 40)
-                              : null),
+                        : (adhan.enabled ? const SizedBox(width: 40) : null),
                   ),
                 ],
               ],
@@ -142,30 +148,40 @@ class _AdhanSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.wird;
-    return Container(
+    // The shadow is outside and the color is on a Material, so the tile's
+    // ripple shows when it's tapped.
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: c.surfaceRaised,
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: c.cardShadow,
       ),
-      child: SwitchListTile(
-        value: on,
-        onChanged: onChanged,
-        activeThumbColor: c.onPrimary,
-        activeTrackColor: c.primary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-        ),
-        secondary: Icon(
-          on ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
-          color: c.primary,
-        ),
-        title: Text('صوت الأذان', style: AppText.heading.copyWith(color: c.ink)),
-        subtitle: Text(
-          on
-              ? 'هيأذّن في وقت كل صلاة عليها الجرس'
-              : 'شغّله عشان يأذّن في وقت كل صلاة',
-          style: AppText.body.copyWith(color: c.inkMuted),
+      child: Material(
+        color: c.surfaceRaised,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: SwitchListTile(
+          value: on,
+          onChanged: onChanged,
+          activeThumbColor: c.onPrimary,
+          activeTrackColor: c.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          secondary: Icon(
+            on
+                ? Icons.notifications_active_rounded
+                : Icons.notifications_none_rounded,
+            color: c.primary,
+          ),
+          title: Text(
+            'صوت الأذان',
+            style: AppText.heading.copyWith(color: c.ink),
+          ),
+          subtitle: Text(
+            on
+                ? 'هيأذّن في وقت كل صلاة عليها الجرس'
+                : 'شغّله عشان يأذّن في وقت كل صلاة',
+            style: AppText.body.copyWith(color: c.inkMuted),
+          ),
         ),
       ),
     );
@@ -192,7 +208,9 @@ class _AdhanBell extends StatelessWidget {
       iconSize: 22,
       style: IconButton.styleFrom(fixedSize: const Size(40, 40)),
       icon: Icon(
-        on ? Icons.notifications_active_rounded : Icons.notifications_off_outlined,
+        on
+            ? Icons.notifications_active_rounded
+            : Icons.notifications_off_outlined,
         color: on ? c.primary : c.inkMuted,
       ),
     );
