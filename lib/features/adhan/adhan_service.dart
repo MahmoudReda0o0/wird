@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'package:my_guide/core/notifications/notification_ids.dart';
+import 'package:my_guide/core/notifications/notification_scheduler.dart';
+import 'package:my_guide/core/time/app_clock.dart';
 import 'package:my_guide/features/adhan/data/adhan_plan.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 
 /// Schedules the adhan as notifications with the adhan sound, at each
-/// enabled prayer time for the next [AdhanPlan.days] days.
+/// enabled prayer time for the next [AdhanPlan.days] days. Uses only the
+/// [NotificationIds.adhan] ids, so other features' notifications stay.
 ///
 /// The sounds: a Fajr adhan and one for the other four prayers.
 /// - Android: `res/raw/adhan.mp3` and `res/raw/adhan_fajr.mp3` (full
@@ -18,73 +22,27 @@ import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 class AdhanService {
   AdhanService._();
 
-  static final _plugin = FlutterLocalNotificationsPlugin();
-  static bool _ready = false;
-
   /// Android fixes a channel's sound when it's created. Change these ids
   /// if a sound file is ever replaced, so phones pick up the new sound.
   static const _channelId = 'adhan_v1';
   static const _fajrChannelId = 'adhan_fajr_v1';
 
-  /// Call once in main(), before the first [reschedule].
-  static Future<void> init() async {
-    try {
-      await _plugin.initialize(
-        settings: const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-          // Permission is asked when the user turns the adhan on.
-          iOS: DarwinInitializationSettings(
-            requestAlertPermission: false,
-            requestBadgePermission: false,
-            requestSoundPermission: false,
-          ),
-        ),
-      );
-      _ready = true;
-    } catch (e) {
-      debugPrint('Adhan: notifications unavailable: $e');
-      return;
-    }
-  }
-
-  static AndroidFlutterLocalNotificationsPlugin? get _android =>
-      _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-      >();
-
-  static IOSFlutterLocalNotificationsPlugin? get _ios =>
-      _plugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin
-      >();
-
-  /// Asks to show notifications (and, on Android, for exact alarms so the
-  /// adhan is on time). Returns false if notifications were refused.
-  static Future<bool> requestPermission() async {
-    if (!_ready) return false;
-    final android = _android;
-    if (android != null) {
-      final allowed = await android.requestNotificationsPermission() ?? false;
-      if (!allowed) return false;
-      final exact = await android.canScheduleExactNotifications() ?? false;
-      if (!exact) await android.requestExactAlarmsPermission();
-      return true;
-    }
-    final ios = _ios;
-    if (ios != null) {
-      return await ios.requestPermissions(alert: true, sound: true) ?? false;
-    }
-    return false;
-  }
+  /// Asks for notification permission (and exact alarms on Android).
+  /// Waits for the notifications setup, so it works right after launch.
+  static Future<bool> requestPermission() =>
+      NotificationScheduler.requestPermission();
 
   static bool _busy = false;
   static (PrayerCity, AdhanSettings)? _pending;
 
-  /// Cancels every scheduled adhan and schedules them again from now for
+  /// Whether the last schedule used exact alarms; null before the first.
+  static bool? _scheduledExact;
+
+  /// Cancels the scheduled adhans and schedules them again from now for
   /// [city] and [settings]. Called on app start and whenever the city or
   /// adhan cubit changes. Calls that arrive while one is running are
   /// folded into one more run with the latest values.
   static Future<void> reschedule(PrayerCity city, AdhanSettings settings) async {
-    if (!_ready) return;
     _pending = (city, settings);
     if (_busy) return;
     _busy = true;
@@ -101,79 +59,80 @@ class AdhanService {
     }
   }
 
+  /// Call when the app comes back to the foreground. If exact alarms were
+  /// allowed or taken away since the last schedule (the user went to the
+  /// Android settings screen), schedules again so the adhan is on time.
+  static Future<void> onResume(PrayerCity city, AdhanSettings settings) async {
+    if (!settings.enabled || _scheduledExact == null) return;
+    final exact = await NotificationScheduler.canScheduleExact();
+    if (exact != _scheduledExact) await reschedule(city, settings);
+  }
+
   static Future<void> _scheduleAll(
     PrayerCity city,
     AdhanSettings settings,
   ) async {
-    await _plugin.cancelAll();
-    if (!settings.enabled) return;
+    await NotificationScheduler.cancelRanges(const [
+      NotificationIds.adhan,
+      NotificationIds.legacyAdhan,
+    ]);
+    if (!settings.enabled) {
+      _scheduledExact = null;
+      return;
+    }
 
-    final alerts = AdhanPlan.plan(city, PrayerTimingData.now(), settings);
-    if (alerts.isEmpty) return;
-
-    final exact = await _android?.canScheduleExactNotifications() ?? true;
-    final mode = exact
-        ? AndroidScheduleMode.exactAllowWhileIdle
-        : AndroidScheduleMode.inexactAllowWhileIdle;
+    final alerts = AdhanPlan.plan(city, AppClock.now(), settings);
+    final exact = await NotificationScheduler.canScheduleExact();
+    _scheduledExact = exact;
 
     for (final alert in alerts) {
-      final details = alert.prayer.key == 'fajr' ? _fajrDetails : _details;
-      await _schedule(alert, city, details, mode);
+      final p = alert.prayer;
+      await NotificationScheduler.schedule(
+        id: NotificationIds.adhan.id(alert.id),
+        title: 'حان الآن موعد أذان ${p.name}',
+        body: '${city.name} · ${PrayerTimingData.format(p.time)}',
+        at: p.time,
+        details: p.key == 'fajr' ? _fajrDetails : _details,
+        exact: exact,
+      );
     }
   }
 
-  static Future<void> _schedule(
-    AdhanAlert alert,
-    PrayerCity city,
-    NotificationDetails details,
-    AndroidScheduleMode mode,
-  ) {
-    final p = alert.prayer;
-    return _plugin.zonedSchedule(
-      id: alert.id,
-      title: 'حان الآن موعد أذان ${p.name}',
-      body: '${city.name} · ${PrayerTimingData.format(p.time)}',
-      scheduledDate: p.time,
-      notificationDetails: details,
-      androidScheduleMode: mode,
-    );
-  }
-
   static const _details = NotificationDetails(
-      android: AndroidNotificationDetails(
-        _channelId,
-        'الأذان',
-        channelDescription: 'صوت الأذان للظهر والعصر والمغرب والعشاء',
-        importance: Importance.max,
-        priority: Priority.high,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound('adhan'),
-      ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBanner: true,
-        presentSound: true,
-        sound: 'adhan.caf',
-        interruptionLevel: InterruptionLevel.timeSensitive,
-      ),
-    );
+    android: AndroidNotificationDetails(
+      _channelId,
+      'الأذان',
+      channelDescription: 'صوت الأذان للظهر والعصر والمغرب والعشاء',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan'),
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
 
   static const _fajrDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        _fajrChannelId,
-        'أذان الفجر',
-        channelDescription: 'صوت أذان الفجر',
-        importance: Importance.max,
-        priority: Priority.high,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound('adhan_fajr'),
-      ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBanner: true,
-        presentSound: true,
-        sound: 'adhan_fajr.caf',
-        interruptionLevel: InterruptionLevel.timeSensitive,
-      ),
-    );
+    android: AndroidNotificationDetails(
+      _fajrChannelId,
+      'أذان الفجر',
+      channelDescription: 'صوت أذان الفجر',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan_fajr'),
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan_fajr.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
 }

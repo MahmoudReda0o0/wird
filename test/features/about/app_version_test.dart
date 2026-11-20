@@ -16,6 +16,18 @@ void main() {
       expect(prefs.getString('app_version_seen'), '1.0.0+1');
     });
 
+    test('an update from a build before the badge is new', () async {
+      // The user has used the app (a saved city), but no version is saved.
+      final prefs = await _prefs({'prayer_city': 'cairo'});
+      final cubit = AppVersionCubit(prefs, version: '1.1.0', buildNumber: '2');
+      expect(cubit.state.isNew, isTrue);
+
+      await cubit.markSeen();
+      expect(prefs.getString('app_version_seen'), '1.1.0+2');
+      final again = AppVersionCubit(prefs, version: '1.1.0', buildNumber: '2');
+      expect(again.state.isNew, isFalse);
+    });
+
     test('same version as last seen is not new', () async {
       final prefs = await _prefs({'app_version_seen': '1.0.0+1'});
       final cubit = AppVersionCubit(prefs, version: '1.0.0', buildNumber: '1');

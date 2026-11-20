@@ -32,11 +32,17 @@ Future<void> bootstrap() async {
   );
 
   runApp(
-    MyApp(theme: theme, city: city, adhan: adhan, appVersion: appVersion),
+    MyApp(
+      prefs: prefs,
+      theme: theme,
+      city: city,
+      adhan: adhan,
+      appVersion: appVersion,
+    ),
   );
 
-  // Schedules the coming days' adhans; never blocks the first frame. After
-  // this, MyApp's listeners reschedule on every city or adhan change.
-  await AdhanService.init();
+  // Schedules the coming days' adhans (setting up notifications first);
+  // never blocks the first frame. After this, MyApp's listeners reschedule
+  // on every city or adhan change, and when the app comes back.
   await AdhanService.reschedule(city.state, adhan.state);
 }

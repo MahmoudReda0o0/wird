@@ -101,16 +101,17 @@ void main() {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
     test('saves per section and per day', () async {
+      final prefs = await SharedPreferences.getInstance();
       final day = DateTime(2026, 11, 18, 8);
-      await AzkarProgress.save('morning', [0, 1], now: day);
+      await AzkarProgress.save(prefs, 'morning', [0, 1], now: day);
 
-      expect(await AzkarProgress.load('morning', [3, 1], now: day), [0, 1]);
+      expect(AzkarProgress.load(prefs, 'morning', [3, 1], now: day), [0, 1]);
       // Another section is untouched.
-      expect(await AzkarProgress.load('evening', [3, 1], now: day), [3, 1]);
+      expect(AzkarProgress.load(prefs, 'evening', [3, 1], now: day), [3, 1]);
       // The next day starts again.
       final tomorrow = DateTime(2026, 11, 19, 8);
       expect(
-        await AzkarProgress.load('morning', [3, 1], now: tomorrow),
+        AzkarProgress.load(prefs, 'morning', [3, 1], now: tomorrow),
         [3, 1],
       );
     });

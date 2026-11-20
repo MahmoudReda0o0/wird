@@ -5,11 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final _day = DateTime(2026, 11, 19, 8);
 
-Future<AzkarProgressCubit> _section(List<int> defaults) async {
+Future<AzkarProgressCubit> _section(
+  List<int> defaults, {
+  DateTime Function()? clock,
+}) async {
   final cubit = AzkarProgressCubit(
+    prefs: await SharedPreferences.getInstance(),
     sectionId: 'test',
     defaults: defaults,
-    clock: () => _day,
+    clock: clock ?? () => _day,
   );
   await cubit.load();
   return cubit;
@@ -19,6 +23,35 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   group('AzkarProgressCubit', () {
+    test('a page left open past midnight starts the new day fresh', () async {
+      var now = DateTime(2026, 11, 19, 23, 50);
+      final cubit = await _section([3, 1], clock: () => now);
+      cubit.count(0);
+      cubit.count(1);
+      expect(cubit.state.remaining, [2, 0]);
+
+      now = DateTime(2026, 11, 20, 0, 5);
+      // The first tap of the new day counts on the full counts.
+      expect(cubit.count(1), isTrue);
+      expect(cubit.state.remaining, [3, 0]);
+
+      // And it's saved for the new day, not carried from yesterday.
+      final again = await _section([3, 1], clock: () => now);
+      expect(again.state.remaining, [3, 0]);
+    });
+
+    test('a finished zikr tapped after midnight is open again', () async {
+      var now = DateTime(2026, 11, 19, 23, 50);
+      final cubit = await _section([2], clock: () => now);
+      cubit.count(0);
+      cubit.count(0);
+      expect(cubit.state.allDone, isTrue);
+
+      now = DateTime(2026, 11, 20, 6);
+      expect(cubit.count(0), isFalse);
+      expect(cubit.state.remaining, [1]);
+    });
+
     test('loads full counts on a new day', () async {
       final cubit = await _section([3, 1]);
       expect(cubit.state.remaining, [3, 1]);

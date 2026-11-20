@@ -1,8 +1,8 @@
 import 'package:adhan_dart/adhan_dart.dart';
 import 'package:flutter/foundation.dart';
-import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:my_guide/core/time/app_clock.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 
 /// One row in the prayer-times list.
@@ -52,22 +52,14 @@ class PrayerWindow {
 class PrayerTimingData {
   PrayerTimingData._();
 
-  static tz.Location? _cairo;
-
-  /// Africa/Cairo. Loads the time-zone database on first use.
-  static tz.Location get cairo {
-    if (_cairo == null) {
-      tz_data.initializeTimeZones();
-      _cairo = tz.getLocation('Africa/Cairo');
-    }
-    return _cairo!;
-  }
+  /// Africa/Cairo, from [AppClock].
+  static tz.Location get cairo => AppClock.cairo;
 
   static CalculationParameters get parameters =>
       CalculationMethodParameters.egyptian()..madhab = Madhab.shafi;
 
   /// The current time in Cairo, whatever the device's time zone is.
-  static tz.TZDateTime now() => tz.TZDateTime.now(cairo);
+  static tz.TZDateTime now() => AppClock.now();
 
   /// The six times for [day] (its year, month and day are used) in [city].
   static List<PrayerEntry> forDay(PrayerCity city, DateTime day) {

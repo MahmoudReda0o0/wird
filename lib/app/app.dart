@@ -12,43 +12,76 @@ import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey(debugLabel: "MainNavigator");
 
-class MyApp extends StatelessWidget {
+/// The app root. Provides the app-wide Cubits, and [SharedPreferences] for
+/// screens that create their own Cubits (`context.read<SharedPreferences>()`).
+class MyApp extends StatefulWidget {
   const MyApp({
     super.key,
+    required this.prefs,
     required this.theme,
     required this.city,
     required this.adhan,
     required this.appVersion,
   });
 
+  final SharedPreferences prefs;
   final ThemeCubit theme;
   final CityCubit city;
   final AdhanCubit adhan;
   final AppVersionCubit appVersion;
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // Back from the Android exact-alarm settings (or anywhere): reschedule
+    // if that permission changed, so the adhan is on time.
+    _lifecycle = AppLifecycleListener(
+      onResume: () =>
+          AdhanService.onResume(widget.city.state, widget.adhan.state),
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: theme),
-        BlocProvider.value(value: city),
-        BlocProvider.value(value: adhan),
-        BlocProvider.value(value: appVersion),
-      ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<CityCubit, PrayerCity>(
-            listener: (_, city) => AdhanService.reschedule(city, adhan.state),
-          ),
-          BlocListener<AdhanCubit, AdhanSettings>(
-            listener: (_, settings) =>
-                AdhanService.reschedule(this.city.state, settings),
-          ),
+    return RepositoryProvider.value(
+      value: widget.prefs,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: widget.theme),
+          BlocProvider.value(value: widget.city),
+          BlocProvider.value(value: widget.adhan),
+          BlocProvider.value(value: widget.appVersion),
         ],
-        child: _buildApp(),
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<CityCubit, PrayerCity>(
+              listener: (_, city) =>
+                  AdhanService.reschedule(city, widget.adhan.state),
+            ),
+            BlocListener<AdhanCubit, AdhanSettings>(
+              listener: (_, settings) =>
+                  AdhanService.reschedule(widget.city.state, settings),
+            ),
+          ],
+          child: _buildApp(),
+        ),
       ),
     );
   }

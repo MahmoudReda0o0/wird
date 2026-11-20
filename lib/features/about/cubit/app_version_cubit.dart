@@ -47,8 +47,18 @@ class AppVersionCubit extends Cubit<AppVersionState> {
     );
     final seen = prefs.getString(_seenKey);
     if (seen == null) {
-      // First install: nothing to announce. Remember this version so the
-      // next update is the one that lights up.
+      // Nothing saved by this feature yet. If the app saved anything else
+      // (theme, city, adhan, azkar progress), this is an update from a
+      // build made before the badge existed: announce it. Otherwise it's a
+      // first install: nothing to announce, and this version is remembered
+      // so the next update is the one that lights up.
+      if (prefs.getKeys().isNotEmpty) {
+        return AppVersionState(
+          version: version,
+          buildNumber: buildNumber,
+          isNew: true,
+        );
+      }
       prefs.setString(_seenKey, state.full);
       return state;
     }

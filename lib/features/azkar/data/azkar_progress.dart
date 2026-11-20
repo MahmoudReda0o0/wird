@@ -1,9 +1,12 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:my_guide/core/time/app_clock.dart';
+
 /// Saves how many repetitions are left for each zikr in a section.
 ///
 /// Progress belongs to one day: on a new day every section starts again
-/// from its full counts.
+/// from its full counts. Days follow Egypt's time ([AppClock]), like the
+/// prayer times.
 ///
 /// Stored as a string list: `[day, remaining0, remaining1, …]`.
 class AzkarProgress {
@@ -45,28 +48,28 @@ class AzkarProgress {
     for (final c in counts) '$c',
   ];
 
-  static Future<List<int>> load(
+  static List<int> load(
+    SharedPreferences prefs,
     String sectionId,
     List<int> defaults, {
     DateTime? now,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
+  }) {
     return restore(
       prefs.getStringList(_key(sectionId)),
       defaults,
-      dayKey(now ?? DateTime.now()),
+      dayKey(now ?? AppClock.now()),
     );
   }
 
   static Future<void> save(
+    SharedPreferences prefs,
     String sectionId,
     List<int> counts, {
     DateTime? now,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
+  }) {
+    return prefs.setStringList(
       _key(sectionId),
-      encode(counts, dayKey(now ?? DateTime.now())),
+      encode(counts, dayKey(now ?? AppClock.now())),
     );
   }
 }

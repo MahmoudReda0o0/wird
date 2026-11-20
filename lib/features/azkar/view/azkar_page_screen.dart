@@ -9,6 +9,7 @@ import 'package:my_guide/features/azkar/cubit/sabha_cubit.dart';
 import 'package:my_guide/features/azkar/widgets/azkar_card.dart';
 import 'package:my_guide/features/azkar/widgets/sabha_icon.dart';
 import 'package:my_guide/features/azkar/view/sabha_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AzkarPageArguments {
   /// Stable key used to save this section's progress.
@@ -32,7 +33,8 @@ class AzkarPageScreen extends StatelessWidget {
     final args =
         ModalRoute.of(context)!.settings.arguments as AzkarPageArguments;
     return BlocProvider(
-      create: (_) => AzkarProgressCubit(
+      create: (context) => AzkarProgressCubit(
+        prefs: context.read<SharedPreferences>(),
         sectionId: args.id,
         defaults: [for (final z in args.azkarList) z.repetition],
       )..load(),

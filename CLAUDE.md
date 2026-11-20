@@ -14,7 +14,7 @@
 Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences`، و`adhan_dart` لحساب المواقيت، و`timezone`، و`flutter_local_notifications` 22.x للأذان، و`package_info_plus`، و`url_launcher`، و`qr_flutter`، و`google_fonts` (IBM Plex Sans Arabic للواجهة وAmiri لنص الأذكار).
 
 ## الـ Architecture
-- **الـ structure:** feature-first. `lib/app/` فيه `bootstrap.dart` و`app.dart` و`router/`، و`lib/core/` فيه `theme/` و`widgets/` ومش بيعمل import لأي feature، و`lib/features/<name>/` فيه `data/` و`cubit/` و`view/` و`widgets/`. التيستات في `test/features/<name>/`. الـ imports ماشية في اتجاه واحد: view ثم cubit ثم data ثم core. التفاصيل في README («Project layout»).
+- **الـ structure:** feature-first. `lib/app/` فيه `bootstrap.dart` و`app.dart` و`router/`، و`lib/core/` فيه `theme/` و`widgets/` و`time/` (`AppClock`: الوقت دايمًا بتوقيت القاهرة) و`notifications/` (`NotificationScheduler`، المكان الوحيد اللي بيكلّم plugin الإشعارات)، ومش بيعمل import لأي feature، و`lib/features/<name>/` فيه `data/` و`cubit/` و`view/` و`widgets/`. التيستات في `test/features/<name>/`. الـ imports ماشية في اتجاه واحد: view ثم cubit ثم data ثم core. التفاصيل في README («Project layout»).
 - `app/bootstrap.dart` بيقرا `SharedPreferences` و`PackageInfo` مرة واحدة، وبيعمل الـ Cubits العامة، و`app/app.dart` بيوصّلها بـ `MultiBlocProvider`. فيه كمان `MultiBlocListener` بيعيد جدولة الأذان لما `CityCubit` أو `AdhanCubit` يتغيّر.
 - الـ Cubits:
   | Cubit | الحالة | مكانه |
@@ -94,6 +94,7 @@ flutter pub get && flutter analyze && flutter test
 ## Gotchas
 - **المواقيت:** `CalculationMethodParameters.egyptian()..madhab = Madhab.shafi`. الـ `date` بيتباصى الساعة 12 الضهر، عشان اليوم يفضل صح سواء المكتبة قرأته local أو UTC. والتوقيت دايمًا `Africa/Cairo`، والـ zone بتاعها بيتجاب من `PrayerTimingData.cairo`.
 - **`flutter_local_notifications` 22:** الـ parameters كلها named، زي `initialize(settings:)` و`zonedSchedule(id:, title:, body:, scheduledDate:, notificationDetails:, androidScheduleMode:)`.
+- **الإشعارات:** كل feature ليه نطاق ids في `core/notifications/notification_ids.dart`، والأذان واخد 1000–1999. أي feature بيلغي النطاق بتاعه بس بـ `cancelRanges`، وممنوع `cancelAll`. الشاشات اللي بتعمل Cubit بنفسها بتاخد الـ prefs من `context.read<SharedPreferences>()`.
 - **صوت الـ channel على Android:** بيتثبّت أول ما الـ channel يتعمل. لو غيّرت ملف صوت، غيّر الـ channel id معاه (`adhan_v2`).
 - **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
 - **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.

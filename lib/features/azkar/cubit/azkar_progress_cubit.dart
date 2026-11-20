@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:my_guide/core/time/app_clock.dart';
 
 import 'package:my_guide/features/azkar/data/azkar_progress.dart';
 
@@ -43,29 +46,54 @@ class AzkarProgressState {
 /// the same counts.
 class AzkarProgressCubit extends Cubit<AzkarProgressState> {
   AzkarProgressCubit({
+    required SharedPreferences prefs,
     required this.sectionId,
     required List<int> defaults,
     DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now,
+  }) : _prefs = prefs,
+       _clock = clock ?? AppClock.now,
        super(AzkarProgressState(defaults: List.unmodifiable(defaults)));
 
+  final SharedPreferences _prefs;
   final String sectionId;
   final DateTime Function() _clock;
 
+  /// The day the counts on screen belong to ([AzkarProgress.dayKey]).
+  String? _day;
+
   Future<void> load() async {
-    final counts = await AzkarProgress.load(
+    final now = _clock();
+    final counts = AzkarProgress.load(
+      _prefs,
       sectionId,
       state.defaults,
-      now: _clock(),
+      now: now,
     );
+    _day = AzkarProgress.dayKey(now);
     if (!isClosed) _update(counts, save: false);
+  }
+
+  /// The counts to change: the ones on screen, or the full counts when a
+  /// new day has started since they were loaded (the page stayed open past
+  /// midnight), so yesterday's progress never carries into today.
+  List<int>? _today() {
+    final r = state.remaining;
+    if (r == null) return null;
+    final today = AzkarProgress.dayKey(_clock());
+    if (today == _day) return r;
+    _day = today;
+    return state.defaults;
   }
 
   /// Counts one repetition of zikr [i]. Returns true when that tap
   /// finished the zikr; false if it wasn't finished yet or already was.
   bool count(int i) {
-    final r = state.remaining;
-    if (r == null || r[i] <= 0) return false;
+    final r = _today();
+    if (r == null) return false;
+    if (r[i] <= 0) {
+      if (!identical(r, state.remaining)) _update(List.of(r));
+      return false;
+    }
     final next = List.of(r);
     next[i]--;
     _update(next);
@@ -74,7 +102,7 @@ class AzkarProgressCubit extends Cubit<AzkarProgressState> {
 
   /// Starts zikr [i] again from its full count.
   void reset(int i) {
-    final r = state.remaining;
+    final r = _today();
     if (r == null) return;
     final next = List.of(r);
     next[i] = state.defaults[i];
@@ -83,7 +111,7 @@ class AzkarProgressCubit extends Cubit<AzkarProgressState> {
 
   /// Starts the whole section again.
   void resetAll() {
-    if (state.remaining == null) return;
+    if (_today() == null) return;
     _update(List.of(state.defaults));
   }
 
@@ -94,6 +122,6 @@ class AzkarProgressCubit extends Cubit<AzkarProgressState> {
         remaining: List.unmodifiable(remaining),
       ),
     );
-    if (save) AzkarProgress.save(sectionId, remaining, now: _clock());
+    if (save) AzkarProgress.save(_prefs, sectionId, remaining, now: _clock());
   }
 }
