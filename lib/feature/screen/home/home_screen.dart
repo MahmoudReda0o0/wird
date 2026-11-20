@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _ticker;
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     // The countdown shows seconds. Times are recalculated on every build,
     // so the next prayer and the date move on by themselves.
@@ -46,7 +46,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScreen(
-      appBar: const CustomAppBar(title: 'وِرْد', showBackButton: false),
+      appBar: CustomAppBar(
+        title: 'وِرْد',
+        showBackButton: false,
+        leadingWidget: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.appVersion);
+          },
+          child: Container(child: Text('version: 1.0.0+1')),
+        ),
+      ),
       body: Builder(
         builder: (context) => _buildBody(
           context,
@@ -57,7 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, PrayerCity city, AdhanSettings adhan) {
+  Widget _buildBody(
+    BuildContext context,
+    PrayerCity city,
+    AdhanSettings adhan,
+  ) {
     final c = context.wird;
     final now = PrayerTimingData.now();
     final window = PrayerTimingData.window(city, now);
@@ -108,10 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: AppSpace.s6),
         Semantics(
           header: true,
-          child: Text(
-            'الأقسام',
-            style: AppText.heading.copyWith(color: c.ink),
-          ),
+          child: Text('الأقسام', style: AppText.heading.copyWith(color: c.ink)),
         ),
         const SizedBox(height: AppSpace.s3),
         GridView.builder(

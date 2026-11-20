@@ -7,6 +7,7 @@ import 'package:my_guide/core/app/app_theme.dart';
 import 'package:my_guide/core/app/cubit/theme_cubit.dart';
 import 'package:my_guide/feature/adhan/adhan_service.dart';
 import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/feature/screen/app_version.dart';
 import 'package:my_guide/feature/screen/azkar/all_azkar.dart';
 import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
 import 'package:my_guide/feature/screen/home/home_screen.dart';
@@ -109,6 +110,7 @@ class MyApp extends StatelessWidget {
           AppRoutes.allAzkar: (context) => const AllAzkarScreen(),
           AppRoutes.azkarPage: (context) => const AzkarPageScreen(),
           AppRoutes.prayerTiming: (context) => const PrayerTimingScreen(),
+          AppRoutes.appVersion: (context) => const AppVersion(),
         },
         ),
       ),
