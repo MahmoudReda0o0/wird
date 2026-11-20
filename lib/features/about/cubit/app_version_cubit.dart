@@ -27,7 +27,8 @@ class AppVersionState {
   /// since they last opened «عن التطبيق». The home badge turns bright.
   final bool isNew;
 
-  /// A newer version published on Drive, not installed yet; null when the
+  /// A newer version published (on the `new_version` branch), not
+  /// installed yet; null when the
   /// installed one is the latest (or it couldn't be checked).
   final ReleaseInfo? update;
 
@@ -55,7 +56,8 @@ class AppVersionState {
 /// newer one is published.
 ///
 /// The cycle:
-/// 1. A new APK and `latest.json` are put on Drive.
+/// 1. A new APK is put on Drive, and its version in `release/latest.json`
+///    is pushed to the `new_version` branch.
 /// 2. [checkForUpdate] (on every launch) finds a version newer than the
 ///    installed one: the badge says «تحديث», home announces it once, and
 ///    «عن التطبيق» shows its notes with a download button.
@@ -100,11 +102,7 @@ class AppVersionCubit extends Cubit<AppVersionState> {
     } else {
       isNew = seen != installed.full;
     }
-    return _withUpdate(
-      prefs,
-      installed.copyWith(isNew: isNew),
-      _cached(prefs),
-    );
+    return _withUpdate(prefs, installed.copyWith(isNew: isNew), _cached(prefs));
   }
 
   static ReleaseInfo? _cached(SharedPreferences prefs) {

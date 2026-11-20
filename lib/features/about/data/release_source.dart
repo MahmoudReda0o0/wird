@@ -12,11 +12,9 @@ abstract class ReleaseSource {
   Future<ReleaseInfo?> latest();
 }
 
-/// Reads `latest.json` from Google Drive (or any public URL).
-///
-/// For a Drive file shared as "Anyone with the link", [url] is
-/// `https://drive.google.com/uc?export=download&id=<file id>`. An empty
-/// [url] means no file is published yet: nothing is checked.
+/// Reads `latest.json` from a public URL: the raw file on the
+/// `new_version` branch on GitHub (`AppInfo.latestReleaseUrl`). An empty
+/// [url] means nothing is checked.
 class HttpReleaseSource implements ReleaseSource {
   const HttpReleaseSource(
     this.url, {

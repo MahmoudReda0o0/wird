@@ -13,7 +13,7 @@ import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 
 /// «عن التطبيق»: the app's name and installed version, what's new in it,
 /// a newer version with its notes and a download button when one is on
-/// Drive, and the download link with a QR code to share it.
+/// the new_version branch, and the download link with a QR code to share it.
 class AppVersion extends StatefulWidget {
   const AppVersion({super.key});
 
@@ -218,7 +218,7 @@ class _AppVersionState extends State<AppVersion> {
   }
 }
 
-/// A newer version on Drive: its number, what's new in it, and a button
+/// A newer published version: its number, what's new in it, and a button
 /// that opens the download link.
 class _UpdatePanel extends StatelessWidget {
   const _UpdatePanel({required this.update, required this.onDownload});

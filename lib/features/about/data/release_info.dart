@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-/// The latest published version, as written in `latest.json` on Drive:
+/// The latest published version, as written in `release/latest.json` on the
+/// `new_version` branch:
 ///
 /// ```json
 /// {

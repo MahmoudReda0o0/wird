@@ -46,7 +46,8 @@ Future<void> bootstrap() async {
   // Schedules the coming days' adhans (setting up notifications first);
   // never blocks the first frame. After this, MyApp's listeners reschedule
   // on every city or adhan change, and when the app comes back.
-  // Looks for a newer version on Drive; shows a known one offline too.
+  // Looks for a newer version on the new_version branch; shows a known one
+  // offline too.
   await Future.wait([
     AdhanService.reschedule(city.state, adhan.state),
     appVersion.checkForUpdate(

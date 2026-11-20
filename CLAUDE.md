@@ -86,7 +86,7 @@ flutter pub get && flutter analyze && flutter test
 1. عدّل `version:` في `pubspec.yaml`.
 2. اكتب الجديد في `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`)، كل تعديل في سطر.
 3. `flutter build apk --release`، وارفع الـ APK على فولدر الدرايف.
-4. حدّث `release/latest.json`: الـ `version` والـ `build` والـ `notes`، والـ notes هي نفس سطور `releaseNotes`. بعدين ارفعه فوق `latest.json` القديم على الدرايف من Manage versions → Upload new version، عشان اللينك يفضل زي ما هو. التطبيق بيقرا الملف ده من `AppInfo.latestReleaseUrl` كل مرة بيفتح، فلو فيه نسخة أحدث بيبيّن «تحديث» وزرار تنزيل.
+4. حدّث `release/latest.json`: الـ `version` والـ `build` والـ `notes`، والـ notes هي نفس سطور `releaseNotes`. اعمل commit، وبعد ما الـ APK يترفع على الدرايف بس، انقل branch اسمه `new_version` للـ commit ده واعمله push: `git push origin main:new_version`. التطبيق بيقرا `release/latest.json` من الـ branch ده على GitHub (`AppInfo.latestReleaseUrl`، الـ raw file بتاع الـ repo الـ public) كل مرة بيفتح. لو لقى نسخة أحدث من المتسطّبة، بيبيّن «تحديث» وزرار تنزيل بيفتح فولدر الدرايف. GitHub ممكن ياخد كام دقيقة لحد ما يحدّث الملف.
 
 ## Gotchas
 - **المواقيت:** `CalculationMethodParameters.egyptian()..madhab = Madhab.shafi`. الـ `date` بيتباصى الساعة 12 الضهر، عشان اليوم يفضل صح سواء المكتبة قرأته local أو UTC. والتوقيت دايمًا `Africa/Cairo`، والـ zone بتاعها بيتجاب من `PrayerTimingData.cairo`.

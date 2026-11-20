@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
+import 'package:my_guide/features/about/data/app_info.dart';
 import 'package:my_guide/features/about/data/release_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 
@@ -156,6 +157,22 @@ void main() {
       expect(cubit.state.update?.version, '1.2.0');
       expect(cubit.state.announceUpdate, isTrue, reason: 'a new version');
     });
+  });
+
+  test('the app reads latest.json from the new_version branch', () {
+    expect(AppInfo.releaseBranch, 'new_version');
+    expect(
+      AppInfo.latestReleaseUrl,
+      'https://raw.githubusercontent.com/MahmoudReda0o0/wird/'
+      'new_version/release/latest.json',
+    );
+  });
+
+  test('release/latest.json in the repo is a valid release', () {
+    final file = File('release/latest.json');
+    final release = ReleaseInfo.fromJson(jsonDecode(file.readAsStringSync()));
+    expect(release, isNotNull);
+    expect(release!.notes, isNotEmpty);
   });
 
   group('HttpReleaseSource', () {

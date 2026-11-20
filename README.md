@@ -27,7 +27,7 @@ Sounds:
 - iOS: `ios/Runner/adhan.caf` and `adhan_fajr.caf`, already in the Runner target. iOS plays at most 30 seconds of a notification sound, so these are the first 30 seconds with a fade-out.
 
 **About / version**: the installed version (from `version:` in pubspec.yaml) sits beside the home title and opens «عن التطبيق».
-- On every launch the app reads `latest.json` from Drive (`AppInfo.latestReleaseUrl`). If it names a newer version, the badge turns green «تحديث 1.1.0», home shows a message once for that version, and «عن التطبيق» shows the new version, its notes and a «تنزيل النسخة الجديدة» button that opens the Drive folder. The last file read is saved, so a known update still shows offline; no internet or no file just means no update section.
+- On every launch the app reads `release/latest.json` from the `new_version` branch on GitHub (`AppInfo.latestReleaseUrl`, the raw file of the public repo). If it names a newer version, the badge turns green «تحديث 1.1.0», home shows a message once for that version, and «عن التطبيق» shows the new version, its notes and a «تنزيل النسخة الجديدة» button that opens the Drive folder. The last file read is saved, so a known update still shows offline; no internet or no file just means no update section.
 - Right after installing an update the badge turns gold «جديد» until «عن التطبيق» is opened.
 - «عن التطبيق» also shows the installed version and what's new in it (`AppInfo.releaseNotes`), and the Drive folder link (`AppInfo.downloadUrl`) with a QR code, an open button and a copy button.
 
@@ -92,8 +92,6 @@ App ID: `com.mahmoudreda.wird` (Android and iOS).
 1. Bump `version:` in `pubspec.yaml` (e.g. `1.0.0+1` → `1.1.0+2`).
 2. Write the changes in `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`), one line each.
 3. `flutter build apk --release` and upload the APK to the Drive folder in `AppInfo.downloadUrl`, shared as "Anyone with the link".
-4. Update `release/latest.json` with the new `version`, `build` and `notes` (the same lines as `releaseNotes`), and upload it over the old `latest.json` on Drive (Manage versions → Upload new version) so its link stays the same.
+4. Update `release/latest.json` with the new `version`, `build` and `notes` (the same lines as `releaseNotes`), commit, and only after the APK is on Drive, bring the `new_version` branch up to that commit and push it (`git push origin main:new_version`). Raw GitHub files can take a few minutes to refresh.
 
 Users on the old version see «تحديث» on home and the download button in «عن التطبيق». After they install it they see the gold «جديد» badge until they open «عن التطبيق».
-
-First time only: upload `release/latest.json` to the Drive folder, share it as "Anyone with the link", and put `https://drive.google.com/uc?export=download&id=<file id>` in `AppInfo.latestReleaseUrl`.
