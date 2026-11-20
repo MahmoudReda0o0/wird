@@ -1,0 +1,101 @@
+# وِرْد (Wird) — ملخص المشروع للشغل في Claude Code
+
+> Claude Code بيقرا الملف ده لوحده في أول كل جلسة. حدّثه لما حاجة مهمة تتغير.
+> آخر تحديث: 20 نوفمبر 2026، و`main` واقف على `d48730a` (Merge #7).
+
+## المشروع
+- تطبيق Flutter عربي (RTL) للأذكار ومواقيت الصلاة. الـ repo: `MahmoudReda0o0/wird`. اسم الـ Dart package `my_guide`، ومش هنغيّره دلوقتي.
+- الـ App ID `com.mahmoudreda.wird` على Android وiOS، والاسم الظاهر «وِرْد». النسخة الحالية `1.0.0+1`.
+- التصميم (Claude Design canvas): https://claude.ai/artifact/GUnUgbYYBFF7WRFV5giQX5. فيه الهوم (فاتح وغامق وبعد العشاء)، وإضافات الـ design system، وصفحة الأذكار، ووضع السبحة.
+- الـ Design System «Wird»: https://claude.ai/artifact/2fwNvazQhYq3XrKv7VCqsK. فيه الـ tokens والـ components: AppBar، MenuTile، ZikrCard، PrayerTimes، ThemeToggle.
+- الـ owner بيعمل merge بنفسه، والشغل بيمشي كده: branch، بعدين PR، بعدين merge على `main`.
+
+## الـ Stack
+Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences`، و`adhan_dart` لحساب المواقيت، و`timezone`، و`flutter_local_notifications` 22.x للأذان، و`package_info_plus`، و`url_launcher`، و`qr_flutter`، و`google_fonts` (IBM Plex Sans Arabic للواجهة وAmiri لنص الأذكار).
+
+## الـ Architecture
+- `main.dart` بيقرا `SharedPreferences` و`PackageInfo` مرة واحدة، وبيعمل الـ Cubits العامة، وبيوصّلها بـ `MultiBlocProvider`. فيه كمان `MultiBlocListener` بيعيد جدولة الأذان لما `CityCubit` أو `AdhanCubit` يتغيّر.
+- الـ Cubits:
+  | Cubit | الحالة | مكانه |
+  |---|---|---|
+  | `ThemeCubit` (`core/app/cubit`) | `ThemeMode`، key: `theme_mode` | root |
+  | `CityCubit` (`prayer_timing/cubit`) | `PrayerCity`، key: `prayer_city` | root |
+  | `AdhanCubit` (`adhan/cubit`) | `AdhanSettings`، keys: `adhan_enabled` و`adhan_prayers`. بيطلب الإذن عن طريق `requestPermission` اللي بيتباصى له | root |
+  | `AppVersionCubit` (`app_version/cubit`) | النسخة و`isNew`، key: `app_version_seen` | root |
+  | `AzkarProgressCubit` (`azkar/cubit`) | العدد الباقي لكل ذكر، ومحفوظ لليوم (`AzkarProgress`) | كل صفحة أذكار، وهو نفس الـ instance اللي السبحة بتستخدمه |
+  | `SabhaCubit` (`azkar/cubit`) | الذكر الظاهر، و`finishedCount` عشان رسالة «تمّ ✓» | شاشة السبحة |
+- اللوجيك الصافي، ومن غير Flutter state: `PrayerTimingData` فيه `forDay` و`next` و`window` و`format` و`countdown` و`dateLabel`، و`AdhanPlan.plan()`، و`AzkarProgress` للتخزين. الشاشات بتعيد الحساب من الـ state الحالي مع كل tick.
+- الـ Theme: `context.wird` للألوان (`WirdColors`)، و`AppText` و`AppSpace` و`AppRadius` في `core/app/app_theme.dart`. ممنوع أي hex في الشاشات، ما عدا `SabhaColors` (ألوان السبحة الهادية) والـ QR.
+
+## اللي اتعمل (PRs من #1 لـ #7، كلهم اتعملهم merge)
+1. **#2 إصلاحات المراجعة:**
+   - العصر بقى بطريقة الهيئة المصرية العامة للمساحة مع المذهب الشافعي (كان MWL وحنفي).
+   - اختيار مدينة من 27 مدينة مصرية.
+   - فجر بكرة بيظهر بعد العشاء، والشاشة بتتحدّث لوحدها بعد نص الليل.
+   - عدّ الأذكار بيتحفظ لليوم، ومعاه progress وزرار «من جديد».
+   - الاسم والـ ID اتغيّروا، والتنضيف، والـ tests، والـ README.
+2. **#3 وضع السبحة:**
+   - زرار السبحة (`SabhaIcon` مرسوم) تحت على اليمين في كل صفحة أذكار.
+   - ذكر واحد في الشاشة، والعداد هدفه تكرار الذكر نفسه، ولما يخلص بينقل للذكر اللي بعده لوحده ويتخطى اللي خلص.
+   - أسهم للتنقل، والتصفير بيصفّر الذكر الحالي بس، وشاشة «تمّ القسم كله».
+   - ألوان هادية خاصة بالشاشة دي.
+3. **#4 الهوم الجديد:**
+   - `NextPrayerCard`: عدّاد HH:MM:SS بيتحدّث كل ثانية، وشريط من الصلاة اللي فاتت للجاية.
+   - Grid عمودين من `HomeGridTile`.
+   - زرار المدينة.
+4. **#5 الأذان:**
+   - switch في شاشة المواقيت، وجرس لكل صلاة، وchip في كارت الهوم بتفتح شاشة المواقيت.
+   - الأذان بيتجدول 10 أيام قدام.
+   - صوت للفجر وصوت لباقي الصلوات:
+     - Android: `res/raw/adhan.mp3` و`adhan_fajr.mp3`، و`keep.xml`، والـ channels `adhan_v1` و`adhan_fajr_v1`.
+     - iOS: `adhan.caf` و`adhan_fajr.caf`، أول 30 ثانية مع fade، ومتضافين للـ Runner target.
+   - الـ manifest فيه الـ permissions والـ receivers، والـ desugaring متفعّل، و`minSdk` بقى 24 على الأقل.
+5. **`c861914` (Mahmoud):** إصلاحات بعد التشغيل الأول:
+   - ترتيب السبحة بقى: الذكر، وبعده الحلقة، وبعدها الأسهم، وبعدها الأزرار.
+   - إصلاح type.
+6. **#6 Bloc:** كل الـ `ValueNotifier` controllers اتنقلت لـ Cubits، ومعاها tests.
+7. **`9d338f1` + #7 النسخة:**
+   - `VersionBadge` جنب عنوان الهوم: بيتلوّن دهبي ومكتوب عليه «جديد» بعد التحديث، لحد ما المستخدم يفتح «عن التطبيق».
+   - شاشة `AppVersion`: الاسم، والإصدار، و`AppInfo.releaseNotes`، ولينك الدرايف مع QR وزرار فتح وزرار نسخ.
+
+## ⚠️ مهم: أغلب الكود اتكتب من غير ما يتبني
+الكود من #2 لـ #7 اتكتب في بيئة مفيهاش Flutter. **أول حاجة في Claude Code:**
+```
+flutter pub get && flutter analyze && flutter test
+```
+صلّح أي error قبل ما تبدأ أي feature. التيستات في `test/`، وبتغطي: المواقيت، و`AdhanPlan`، والـ Cubits، والسبحة، وتقدم الأذكار، والنسخة.
+
+## المطلوب، بالأولوية
+1. **تأكد إن الأساس سليم:** `analyze` و`test` و`run` على موبايل حقيقي. جرّب الأذان، وزرار السبحة، والـ badge الدهبي: غيّر `version:` لـ `1.0.1+2` وشغّل تاني.
+2. **CI:** GitHub Actions بيشغّل `flutter analyze` و`flutter test` على كل PR.
+3. **الخطوط جوه التطبيق:** حط IBM Plex Sans Arabic وAmiri في `assets/fonts/`، وخلّي `GoogleFonts.config.allowRuntimeFetching = false`. التطبيق offline، وده كمان هيخلّي الـ widget tests تشتغل.
+4. **تنضيف:**
+   - شيل `flutter_screenutil`، لأنه مستخدم في `ScreenUtilInit` بس.
+   - شيل `navigatorKey`، لأنه global ومش مستخدم.
+   - امسح `android/app/src/main/kotlin/com/mahmoudreda/my_guide/MainActivity.kt`، لأنه نسخة زيادة.
+   - ضيف lints: `unawaited_futures` و`prefer_const_constructors` و`always_declare_return_types`.
+5. **الأذان بيقف لو التطبيق ما اتفتحش 10 أيام:** يومي في الخلفية بـ `workmanager` يعيد الجدولة. ومعاه اختيار إن الأذان يشتغل كصوت منبّه عشان يأذّن والموبايل صامت.
+6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
+7. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
+8. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
+9. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، والقبلة، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
+
+## حاجات Manual على Mahmoud
+- امسح الـ branches القديمة: `feature/light-dark-theme`، `fix/review-issues`، `sabha`، `feature/new-home`، `feature/adhan`، `refactor/bloc`، `feature/app-version`.
+- شيّر فولدر الدرايف `15sMC3pU1w12yFQQIKqurSKqujRBF9dhY` كـ «Anyone with the link».
+- حدّث الـ Wird Design System بـ `NextPrayerCard` و`HomeGridTile`، والستايلين `countdown` و`hero`، وألوان السبحة. التفاصيل في board «Design System — الإضافات الجديدة» على الكانفاس، لأني ما قدرتش أعدّل الـ design system من الشات.
+
+## خطوات رفع نسخة جديدة
+1. عدّل `version:` في `pubspec.yaml`.
+2. اكتب الجديد في `AppInfo.releaseNotes` (`lib/core/app/app_info.dart`)، كل تعديل في سطر.
+3. `flutter build apk --release`، وارفع الـ APK على فولدر الدرايف.
+
+## Gotchas
+- **المواقيت:** `CalculationMethodParameters.egyptian()..madhab = Madhab.shafi`. الـ `date` بيتباصى الساعة 12 الضهر، عشان اليوم يفضل صح سواء المكتبة قرأته local أو UTC. والتوقيت دايمًا `Africa/Cairo`، والـ zone بتاعها بيتجاب من `PrayerTimingData.cairo`.
+- **`flutter_local_notifications` 22:** الـ parameters كلها named، زي `initialize(settings:)` و`zonedSchedule(id:, title:, body:, scheduledDate:, notificationDetails:, androidScheduleMode:)`.
+- **صوت الـ channel على Android:** بيتثبّت أول ما الـ channel يتعمل. لو غيّرت ملف صوت، غيّر الـ channel id معاه (`adhan_v2`).
+- **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
+- **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.
+- **`math.min` و`math.max`** بيرجّعوا `num`. في العدّ استخدم `countedOf()`، اللي بيرجّع `int`.
+- **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests هتقع بسبب `google_fonts` لحد ما الخطوط تتحط جوه التطبيق (رقم 3 فوق).
+- **الـ commits:** رسايل واضحة، وكل feature في branch وPR.
