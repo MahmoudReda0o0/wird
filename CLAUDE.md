@@ -14,18 +14,19 @@
 Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences`، و`adhan_dart` لحساب المواقيت، و`timezone`، و`flutter_local_notifications` 22.x للأذان، و`package_info_plus`، و`url_launcher`، و`qr_flutter`، و`google_fonts` (IBM Plex Sans Arabic للواجهة وAmiri لنص الأذكار).
 
 ## الـ Architecture
-- `main.dart` بيقرا `SharedPreferences` و`PackageInfo` مرة واحدة، وبيعمل الـ Cubits العامة، وبيوصّلها بـ `MultiBlocProvider`. فيه كمان `MultiBlocListener` بيعيد جدولة الأذان لما `CityCubit` أو `AdhanCubit` يتغيّر.
+- **الـ structure:** feature-first. `lib/app/` فيه `bootstrap.dart` و`app.dart` و`router/`، و`lib/core/` فيه `theme/` و`widgets/` ومش بيعمل import لأي feature، و`lib/features/<name>/` فيه `data/` و`cubit/` و`view/` و`widgets/`. التيستات في `test/features/<name>/`. الـ imports ماشية في اتجاه واحد: view ثم cubit ثم data ثم core. التفاصيل في README («Project layout»).
+- `app/bootstrap.dart` بيقرا `SharedPreferences` و`PackageInfo` مرة واحدة، وبيعمل الـ Cubits العامة، و`app/app.dart` بيوصّلها بـ `MultiBlocProvider`. فيه كمان `MultiBlocListener` بيعيد جدولة الأذان لما `CityCubit` أو `AdhanCubit` يتغيّر.
 - الـ Cubits:
   | Cubit | الحالة | مكانه |
   |---|---|---|
-  | `ThemeCubit` (`core/app/cubit`) | `ThemeMode`، key: `theme_mode` | root |
-  | `CityCubit` (`prayer_timing/cubit`) | `PrayerCity`، key: `prayer_city` | root |
-  | `AdhanCubit` (`adhan/cubit`) | `AdhanSettings`، keys: `adhan_enabled` و`adhan_prayers`. بيطلب الإذن عن طريق `requestPermission` اللي بيتباصى له | root |
-  | `AppVersionCubit` (`app_version/cubit`) | النسخة و`isNew`، key: `app_version_seen` | root |
-  | `AzkarProgressCubit` (`azkar/cubit`) | العدد الباقي لكل ذكر، ومحفوظ لليوم (`AzkarProgress`) | كل صفحة أذكار، وهو نفس الـ instance اللي السبحة بتستخدمه |
-  | `SabhaCubit` (`azkar/cubit`) | الذكر الظاهر، و`finishedCount` عشان رسالة «تمّ ✓» | شاشة السبحة |
+  | `ThemeCubit` (`core/theme`) | `ThemeMode`، key: `theme_mode` | root |
+  | `CityCubit` (`features/prayer_times/cubit`) | `PrayerCity`، key: `prayer_city` | root |
+  | `AdhanCubit` (`features/adhan/cubit`) | `AdhanSettings`، keys: `adhan_enabled` و`adhan_prayers`. بيطلب الإذن عن طريق `requestPermission` اللي بيتباصى له | root |
+  | `AppVersionCubit` (`features/about/cubit`) | النسخة و`isNew`، key: `app_version_seen` | root |
+  | `AzkarProgressCubit` (`features/azkar/cubit`) | العدد الباقي لكل ذكر، ومحفوظ لليوم (`AzkarProgress`) | كل صفحة أذكار، وهو نفس الـ instance اللي السبحة بتستخدمه |
+  | `SabhaCubit` (`features/azkar/cubit`) | الذكر الظاهر، و`finishedCount` عشان رسالة «تمّ ✓» | شاشة السبحة |
 - اللوجيك الصافي، ومن غير Flutter state: `PrayerTimingData` فيه `forDay` و`next` و`window` و`format` و`countdown` و`dateLabel`، و`AdhanPlan.plan()`، و`AzkarProgress` للتخزين. الشاشات بتعيد الحساب من الـ state الحالي مع كل tick.
-- الـ Theme: `context.wird` للألوان (`WirdColors`)، و`AppText` و`AppSpace` و`AppRadius` في `core/app/app_theme.dart`. ممنوع أي hex في الشاشات، ما عدا `SabhaColors` (ألوان السبحة الهادية) والـ QR.
+- الـ Theme: `context.wird` للألوان (`WirdColors`)، و`AppText` و`AppSpace` و`AppRadius` في `core/theme/app_theme.dart`. ممنوع أي hex في الشاشات، ما عدا `SabhaColors` (ألوان السبحة الهادية) والـ QR.
 
 ## اللي اتعمل (PRs من #1 لـ #7، كلهم اتعملهم merge)
 1. **#2 إصلاحات المراجعة:**
@@ -63,7 +64,7 @@ Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences
 ```
 flutter pub get && flutter analyze && flutter test
 ```
-صلّح أي error قبل ما تبدأ أي feature. التيستات في `test/`، وبتغطي: المواقيت، و`AdhanPlan`، والـ Cubits، والسبحة، وتقدم الأذكار، والنسخة.
+صلّح أي error قبل ما تبدأ أي feature. التيستات في `test/features/`، وبتغطي: المواقيت، و`AdhanPlan`، والـ Cubits، والسبحة، وتقدم الأذكار، والنسخة.
 
 ## المطلوب، بالأولوية
 1. **تأكد إن الأساس سليم:** `analyze` و`test` و`run` على موبايل حقيقي. جرّب الأذان، وزرار السبحة، والـ badge الدهبي: غيّر `version:` لـ `1.0.1+2` وشغّل تاني.
@@ -87,7 +88,7 @@ flutter pub get && flutter analyze && flutter test
 
 ## خطوات رفع نسخة جديدة
 1. عدّل `version:` في `pubspec.yaml`.
-2. اكتب الجديد في `AppInfo.releaseNotes` (`lib/core/app/app_info.dart`)، كل تعديل في سطر.
+2. اكتب الجديد في `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`)، كل تعديل في سطر.
 3. `flutter build apk --release`، وارفع الـ APK على فولدر الدرايف.
 
 ## Gotchas

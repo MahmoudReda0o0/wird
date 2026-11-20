@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 
 /// Home's hero: a live countdown to the next prayer, its adhan time, and a
 /// bar showing how much of the wait since the previous prayer has passed.

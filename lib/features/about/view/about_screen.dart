@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:my_guide/core/app/app_info.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
-import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/feature/app_version/cubit/app_version_cubit.dart';
+import 'package:my_guide/features/about/data/app_info.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/widgets/custom_appbar.dart';
+import 'package:my_guide/core/widgets/custom_screen.dart';
+import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 
 /// «عن التطبيق»: the app's name and installed version, what's new in it,
 /// and the download link with a QR code to share it.

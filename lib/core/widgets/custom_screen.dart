@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
+import 'package:my_guide/core/widgets/custom_appbar.dart';
 
 /// Base page: app bar, padded body, and tap-outside to dismiss the keyboard.
 class CustomScreen extends StatelessWidget {

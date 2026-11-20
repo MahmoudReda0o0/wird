@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/feature/model/azkar_model.dart';
-import 'package:my_guide/feature/screen/azkar/cubit/azkar_progress_cubit.dart';
-import 'package:my_guide/feature/screen/azkar/cubit/sabha_cubit.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
+import 'package:my_guide/features/azkar/cubit/azkar_progress_cubit.dart';
+import 'package:my_guide/features/azkar/cubit/sabha_cubit.dart';
 
 /// The calm palette used only on the sabha screen: low contrast around a
 /// single clear accent, so the zikr and the count button stand out.

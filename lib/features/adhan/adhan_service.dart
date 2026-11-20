@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'package:my_guide/feature/adhan/adhan_plan.dart';
-import 'package:my_guide/feature/adhan/adhan_settings.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
+import 'package:my_guide/features/adhan/data/adhan_plan.dart';
+import 'package:my_guide/features/adhan/data/adhan_settings.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 
 /// Schedules the adhan as notifications with the adhan sound, at each
 /// enabled prayer time for the next [AdhanPlan.days] days.

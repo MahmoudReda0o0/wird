@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:my_guide/feature/screen/azkar/cubit/azkar_progress_cubit.dart';
+import 'package:my_guide/features/azkar/cubit/azkar_progress_cubit.dart';
 
 @immutable
 class SabhaState {

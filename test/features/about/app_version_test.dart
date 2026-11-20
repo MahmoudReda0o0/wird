@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_guide/feature/app_version/cubit/app_version_cubit.dart';
+import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs([Map<String, Object> values = const {}]) {

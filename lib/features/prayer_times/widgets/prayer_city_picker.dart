@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 
 /// Bottom sheet listing the cities; saves the one the user taps.
 Future<void> showPrayerCityPicker(BuildContext context) async {

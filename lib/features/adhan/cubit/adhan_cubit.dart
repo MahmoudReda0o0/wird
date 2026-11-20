@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:my_guide/feature/adhan/adhan_settings.dart';
+import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 
 /// Asks the platform for notification permission; true if granted.
 typedef AdhanPermissionRequest = Future<bool> Function();

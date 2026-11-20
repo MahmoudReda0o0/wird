@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:my_guide/feature/screen/azkar/azkar_progress.dart';
+import 'package:my_guide/features/azkar/data/azkar_progress.dart';
 
 /// Repetitions left for each zikr in one section.
 @immutable

@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_route.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
-import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/feature/adhan/adhan_settings.dart';
-import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
-import 'package:my_guide/feature/app_version/widgets/version_badge.dart';
-import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
-import 'package:my_guide/feature/screen/home/widgets/home_grid_tile.dart';
-import 'package:my_guide/feature/screen/home/widgets/next_prayer_card.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city_picker.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
+import 'package:my_guide/app/router/app_routes.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/widgets/custom_appbar.dart';
+import 'package:my_guide/core/widgets/custom_screen.dart';
+import 'package:my_guide/features/adhan/data/adhan_settings.dart';
+import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/features/about/widgets/version_badge.dart';
+import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
+import 'package:my_guide/features/home/widgets/home_grid_tile.dart';
+import 'package:my_guide/features/home/widgets/next_prayer_card.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
+import 'package:my_guide/features/prayer_times/widgets/prayer_city_picker.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 
 /// Home: today's date and city, the next prayer with a live countdown,
 /// and a two-column grid of sections.

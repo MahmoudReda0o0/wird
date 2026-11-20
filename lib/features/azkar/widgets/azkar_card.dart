@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/feature/model/azkar_model.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
 
 /// "مرة واحدة"، "مرتان"، "3 مرات"، "11 مرة" — Arabic counting rules.
 String azkarCounterLabel(int count) {

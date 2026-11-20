@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_guide/core/app/app_theme.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
 
 /// One section in Home's two-column grid (design system: HomeGridTile).
 /// Icon at the top leading corner, title and subtitle at the bottom.

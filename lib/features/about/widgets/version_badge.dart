@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_route.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/feature/app_version/cubit/app_version_cubit.dart';
+import 'package:my_guide/app/router/app_routes.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 
 /// The installed version beside the home title, e.g. «1.0.0». After an
 /// update it turns gold with «جديد» until the user opens «عن التطبيق».

@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_guide/feature/model/azkar_model/awake_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/evening_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/morning_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/sleep_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/tasabih_azkar.dart';
-import 'package:my_guide/feature/screen/azkar/azkar_progress.dart';
-import 'package:my_guide/feature/screen/azkar/custom_widget/azkar_card.dart';
+import 'package:my_guide/features/azkar/data/sources/awake_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/evening_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/morning_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/sleep_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/tasabih_azkar.dart';
+import 'package:my_guide/features/azkar/data/azkar_progress.dart';
+import 'package:my_guide/features/azkar/widgets/azkar_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_button/theme_toggle_button.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/widgets/theme_toggle_button.dart';
 
 /// Top bar: centered title, back button at the leading (right) edge,
 /// theme toggle at the trailing (left) edge.

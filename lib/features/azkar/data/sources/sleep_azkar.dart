@@ -1,4 +1,4 @@
-import 'package:my_guide/feature/model/azkar_model.dart';
+import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
 
 class SleepAzkar {
   static List<AzkarModel> sleepAzkar = [

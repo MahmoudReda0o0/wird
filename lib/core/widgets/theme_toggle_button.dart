@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/app/cubit/theme_cubit.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/theme/theme_cubit.dart';
 
 /// App-bar button that flips between the light and dark themes.
 /// Shows the moon while light is on and the sun while dark is on.

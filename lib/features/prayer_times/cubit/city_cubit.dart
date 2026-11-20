@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 
 /// The city the prayer times are calculated for. Saved like the theme.
 class CityCubit extends Cubit<PrayerCity> {

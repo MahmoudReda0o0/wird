@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_guide/core/app/cubit/theme_cubit.dart';
-import 'package:my_guide/feature/adhan/adhan_settings.dart';
-import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
-import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
+import 'package:my_guide/core/theme/theme_cubit.dart';
+import 'package:my_guide/features/adhan/data/adhan_settings.dart';
+import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs([Map<String, Object> values = const {}]) {

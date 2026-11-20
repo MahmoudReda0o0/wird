@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_guide/core/app/app_theme.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
 
 /// Full-width tappable row that opens a section (Home and the azkar list).
 class MenuTile extends StatelessWidget {

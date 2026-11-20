@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
-import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/feature/adhan/cubit/adhan_cubit.dart';
-import 'package:my_guide/feature/adhan/adhan_settings.dart';
-import 'package:my_guide/feature/screen/prayer_timing/cubit/city_cubit.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_city_picker.dart';
-import 'package:my_guide/feature/screen/prayer_timing/prayer_timing_data.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/widgets/custom_appbar.dart';
+import 'package:my_guide/core/widgets/custom_screen.dart';
+import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/features/adhan/data/adhan_settings.dart';
+import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
+import 'package:my_guide/features/prayer_times/widgets/prayer_city_picker.dart';
+import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 
 class PrayerTimingScreen extends StatefulWidget {
   const PrayerTimingScreen({super.key});

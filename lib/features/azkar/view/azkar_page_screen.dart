@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
-import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/feature/model/azkar_model.dart';
-import 'package:my_guide/feature/screen/azkar/cubit/azkar_progress_cubit.dart';
-import 'package:my_guide/feature/screen/azkar/cubit/sabha_cubit.dart';
-import 'package:my_guide/feature/screen/azkar/custom_widget/azkar_card.dart';
-import 'package:my_guide/feature/screen/azkar/custom_widget/sabha_icon.dart';
-import 'package:my_guide/feature/screen/azkar/sabha_screen.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/widgets/custom_appbar.dart';
+import 'package:my_guide/core/widgets/custom_screen.dart';
+import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
+import 'package:my_guide/features/azkar/cubit/azkar_progress_cubit.dart';
+import 'package:my_guide/features/azkar/cubit/sabha_cubit.dart';
+import 'package:my_guide/features/azkar/widgets/azkar_card.dart';
+import 'package:my_guide/features/azkar/widgets/sabha_icon.dart';
+import 'package:my_guide/features/azkar/view/sabha_screen.dart';
 
 class AzkarPageArguments {
   /// Stable key used to save this section's progress.

@@ -43,21 +43,36 @@ The app's state lives in Cubits (`flutter_bloc`):
 | `AppVersionCubit` | installed version + whether it's new to the user | app root |
 | `SabhaCubit` | which zikr the sabha shows; moves on when one is finished | the sabha screen |
 
-`main.dart` reads `SharedPreferences` once, creates the three app-wide Cubits, and provides them with a `MultiBlocProvider`. A `MultiBlocListener` there reschedules the adhan notifications whenever the city or the adhan settings change. The prayer-time calculation (`PrayerTimingData`, `AdhanPlan`) stays as pure functions; screens recalculate from the current state on each tick.
+`app/bootstrap.dart` reads `SharedPreferences` once, creates the app-wide Cubits, and `app/app.dart` and provides them with a `MultiBlocProvider`. A `MultiBlocListener` there reschedules the adhan notifications whenever the city or the adhan settings change. The prayer-time calculation (`PrayerTimingData`, `AdhanPlan`) stays as pure functions; screens recalculate from the current state on each tick.
 
 ## Project layout
 
 ```
 lib/
-  core/app/            theme (colors, type, spacing) and routes
-  core/custom_widgets/ app bar, screen, menu tile, theme toggle
-  feature/model/       azkar data
-  feature/screen/
-    home/              home: next-prayer countdown card and sections grid
-    azkar/             section list, azkar page, card, saved progress, sabha mode
-    prayer_timing/     cities, calculation, prayer-times screen
-test/                  unit tests: prayer times, adhan plan, every Cubit
+  main.dart            calls bootstrap()
+  app/
+    bootstrap.dart     reads saved state, creates the app-wide Cubits, runs the app
+    app.dart           MyApp: providers, adhan listeners, MaterialApp
+    router/            route names (app_routes) and the route table (app_router)
+  core/                shared by every feature; imports no feature
+    theme/             colors, type, spacing, radius, ThemeCubit
+    widgets/           app bar, screen, menu tile, theme toggle
+  features/
+    home/              next-prayer countdown card and sections grid
+    azkar/             data (azkar, saved progress), cubits, screens, sabha mode
+    prayer_times/      cities, calculation, prayer-times screen, city picker
+    adhan/             settings, plan, scheduling the notifications
+    about/             app info, version badge, «عن التطبيق» screen
+test/                  mirrors lib/: test/features/<feature>/…
 ```
+
+Each feature folder uses the same parts, only the ones it needs:
+`data/` (models, storage, pure logic), `cubit/`, `view/` (screens) and `widgets/`.
+
+Adding a feature: create `lib/features/<name>/`, add its screen to
+`app/router/app_router.dart` and its name to `app_routes.dart`, and, if its
+state is app-wide, create its Cubit in `app/bootstrap.dart` and provide it in
+`app/app.dart`. Code flows one way: `view` → `cubit` → `data` → `core`.
 
 ## Run
 
@@ -72,7 +87,7 @@ App ID: `com.mahmoudreda.wird` (Android and iOS).
 ## Releasing a new version
 
 1. Bump `version:` in `pubspec.yaml` (e.g. `1.0.0+1` → `1.1.0+2`).
-2. Write the changes in `AppInfo.releaseNotes` (`lib/core/app/app_info.dart`), one line each.
+2. Write the changes in `AppInfo.releaseNotes` (`lib/features/about/data/app_info.dart`), one line each.
 3. `flutter build apk --release` and upload the APK to the Drive folder in `AppInfo.downloadUrl`, shared as "Anyone with the link".
 
 Users who install it see the gold «جديد» badge on home until they open «عن التطبيق».

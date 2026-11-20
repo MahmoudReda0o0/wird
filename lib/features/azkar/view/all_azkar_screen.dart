@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:my_guide/core/app/app_route.dart';
-import 'package:my_guide/core/app/app_theme.dart';
-import 'package:my_guide/core/custom_widgets/custom_appbar/custom_appbar.dart';
-import 'package:my_guide/core/custom_widgets/custom_button/menu_tile.dart';
-import 'package:my_guide/core/custom_widgets/custom_screen/custom_screen.dart';
-import 'package:my_guide/feature/model/azkar_model.dart';
-import 'package:my_guide/feature/model/azkar_model/awake_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/evening_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/morning_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/sleep_azkar.dart';
-import 'package:my_guide/feature/model/azkar_model/tasabih_azkar.dart';
-import 'package:my_guide/feature/screen/azkar/azkar_page.dart';
+import 'package:my_guide/app/router/app_routes.dart';
+import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/widgets/custom_appbar.dart';
+import 'package:my_guide/core/widgets/menu_tile.dart';
+import 'package:my_guide/core/widgets/custom_screen.dart';
+import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
+import 'package:my_guide/features/azkar/data/sources/awake_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/evening_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/morning_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/sleep_azkar.dart';
+import 'package:my_guide/features/azkar/data/sources/tasabih_azkar.dart';
+import 'package:my_guide/features/azkar/view/azkar_page_screen.dart';
 
 class AllAzkarScreen extends StatelessWidget {
   const AllAzkarScreen({super.key});

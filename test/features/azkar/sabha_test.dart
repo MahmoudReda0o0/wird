@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_guide/feature/screen/azkar/cubit/azkar_progress_cubit.dart';
-import 'package:my_guide/feature/screen/azkar/cubit/sabha_cubit.dart';
+import 'package:my_guide/features/azkar/cubit/azkar_progress_cubit.dart';
+import 'package:my_guide/features/azkar/cubit/sabha_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _day = DateTime(2026, 11, 19, 8);
