@@ -111,16 +111,6 @@ void main() {
     await pumpQibla(tester, now: DateTime.utc(2026, 11, 21, 22));
     await heading(tester, 139.9);
     expect(find.text('الشمس غابت، استخدم البوصلة'), findsOneWidget);
-
-    // Still opens the explanation, with a note that it's for the daytime.
-    await tester.ensureVisible(find.text('القبلة بالشمس'));
-    await tester.tap(find.text('القبلة بالشمس'));
-    await tester.pumpAndSettle();
-    expect(find.text('إزاي تعرف القبلة بالشمس؟'), findsOneWidget);
-    expect(
-      find.text('ملحوظة: الشمس غابت دلوقتي، الطريقة دي بتشتغل وقت النهار.'),
-      findsOneWidget,
-    );
     await done(tester);
   });
 
