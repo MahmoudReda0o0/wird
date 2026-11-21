@@ -1,0 +1,53 @@
+# Runs on every pull request to main and every push to main:
+# the analyzer and the whole test suite must pass before anything merges.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push to the same branch or PR cancels the run still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze-and-test:
+    name: Analyze & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Pinned to the Flutter the project is built with (.metadata revision
+      # 924134a = 3.44.1). Newer stables (3.47+) deprecate
+      # package:flutter/material.dart, which fails `flutter analyze`. Bump
+      # this together with the local Flutter, in its own PR.
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.1
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      # Only test/ runs here. tool/render_splash_test.dart regenerates the
+      # splash images and is run by hand.
+      - name: Test
+        run: flutter test --reporter expanded
