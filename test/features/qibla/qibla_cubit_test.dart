@@ -37,15 +37,21 @@ void main() {
     await tester.pump();
   }
 
-  tearDown(() async => cubit.close());
+  // Closes inside the test's fake-async zone: a tearDown would await the
+  // cubit's stream controllers outside it and never finish.
+  void qiblaTest(String name, Future<void> Function(WidgetTester) body) =>
+      qiblaTest(name, (tester) async {
+        await body(tester);
+        await cubit.close();
+      });
 
-  testWidgets('no compass → noSensor', (tester) async {
+  qiblaTest('no compass → noSensor', (tester) async {
     await startWith(tester, available: false);
     expect(cubit.state.status, QiblaStatus.noSensor);
     expect(cubit.state.qibla, closeTo(139.9, 0.2));
   });
 
-  testWidgets('facing the qibla is aligned, and counted once', (tester) async {
+  qiblaTest('facing the qibla is aligned, and counted once', (tester) async {
     await startWith(tester);
     expect(cubit.state.status, QiblaStatus.loading);
     expect(source.lastTarget?.lat, _mansoura.latitude);
@@ -67,7 +73,7 @@ void main() {
     expect(cubit.state.alignedCount, 2);
   });
 
-  testWidgets('across north it turns the short way', (tester) async {
+  qiblaTest('across north it turns the short way', (tester) async {
     await startWith(tester);
     await heading(tester, 359);
     expect(cubit.state.delta, closeTo(139.9 + 1, 0.2));
@@ -75,7 +81,7 @@ void main() {
     expect(cubit.state.delta, closeTo(-160.1, 0.2));
   });
 
-  testWidgets('calibration needed: unreliable, never aligned', (tester) async {
+  qiblaTest('calibration needed: unreliable, never aligned', (tester) async {
     await startWith(tester);
     await heading(tester, 139.9, needsCalibration: true);
     expect(cubit.state.unreliable, isTrue);
@@ -83,14 +89,14 @@ void main() {
     expect(cubit.state.alignedCount, 0);
   });
 
-  testWidgets('unreliable accuracy is unreliable', (tester) async {
+  qiblaTest('unreliable accuracy is unreliable', (tester) async {
     await startWith(tester);
     await heading(tester, 139.9, accuracy: CompassAccuracyLevel.unreliable);
     expect(cubit.state.unreliable, isTrue);
     expect(cubit.state.aligned, isFalse);
   });
 
-  testWidgets('iron nearby for a second → interference, and it clears', (
+  qiblaTest('iron nearby for a second → interference, and it clears', (
     tester,
   ) async {
     await startWith(tester);
@@ -115,7 +121,7 @@ void main() {
     expect(cubit.state.aligned, isTrue);
   });
 
-  testWidgets('a broken sensor stream → noSensor', (tester) async {
+  qiblaTest('a broken sensor stream → noSensor', (tester) async {
     await startWith(tester);
     await heading(tester, 100);
     source.readingsCtrl.addError(StateError('sensor gone'));
@@ -123,7 +129,7 @@ void main() {
     expect(cubit.state.status, QiblaStatus.noSensor);
   });
 
-  testWidgets('no reading within 2 s → noSensor', (tester) async {
+  qiblaTest('no reading within 2 s → noSensor', (tester) async {
     await startWith(tester);
     await tester.pump(const Duration(milliseconds: 1900));
     expect(cubit.state.status, QiblaStatus.loading);
@@ -131,7 +137,7 @@ void main() {
     expect(cubit.state.status, QiblaStatus.noSensor);
   });
 
-  testWidgets('changing the city re-targets at once', (tester) async {
+  qiblaTest('changing the city re-targets at once', (tester) async {
     await startWith(tester);
     await heading(tester, 139);
     cubit.setCity(_aswan);
@@ -142,23 +148,21 @@ void main() {
     expect(cubit.state.aligned, isFalse);
   });
 
-  testWidgets('the sun: where it is, and how far the qibla is from it', (
+  qiblaTest('the sun: where it is, and how far the qibla is from it', (
     tester,
   ) async {
     await startWith(tester);
     expect(cubit.state.sun.isUp, isTrue);
     expect(cubit.state.sun.azimuth, closeTo(218, 1.5));
     expect(cubit.state.sunDelta, closeTo(-78, 2));
-    await cubit.close(); // its start-up timer
   });
 
-  testWidgets('at night the sun is down', (tester) async {
+  qiblaTest('at night the sun is down', (tester) async {
     await startWith(tester, now: DateTime.utc(2026, 11, 21, 22));
     expect(cubit.state.sun.isUp, isFalse);
-    await cubit.close(); // its start-up timer
   });
 
-  testWidgets('the Kaaba sun day is known only on that day', (tester) async {
+  qiblaTest('the Kaaba sun day is known only on that day', (tester) async {
     final transit = SunPosition.kaabaTransits(2027).first;
     await startWith(tester, now: transit.subtract(const Duration(hours: 3)));
     expect(cubit.state.kaabaSunToday, transit);
@@ -166,10 +170,9 @@ void main() {
 
     await startWith(tester, now: transit.subtract(const Duration(days: 1)));
     expect(cubit.state.kaabaSunToday, isNull);
-    await cubit.close(); // its start-up timer
   });
 
-  testWidgets('closing disposes the source', (tester) async {
+  qiblaTest('closing disposes the source', (tester) async {
     await startWith(tester);
     await cubit.close();
     expect(source.disposed, isTrue);
