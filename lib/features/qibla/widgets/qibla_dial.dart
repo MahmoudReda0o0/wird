@@ -161,10 +161,7 @@ class _DialPainter extends CustomPainter {
 
     // The phone's direction: a dashed line straight up.
     if (showPointer) _paintPhoneLine(canvas);
-    canvas.drawLine( = Paint()
-      ..color = c.lineStrong
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
       _center,
       _at(qibla, 116),
       Paint()
