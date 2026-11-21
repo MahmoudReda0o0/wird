@@ -1,5 +1,7 @@
 # وِرْد — Wird
 
+[![CI](https://github.com/MahmoudReda0o0/wird/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MahmoudReda0o0/wird/actions/workflows/ci.yml)
+
 Flutter app for daily azkar and prayer times. Arabic, right-to-left, with light and dark themes.
 
 ## Features
