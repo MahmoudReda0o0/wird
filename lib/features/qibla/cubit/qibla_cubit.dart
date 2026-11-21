@@ -30,12 +30,19 @@ class QiblaCubit extends Cubit<QiblaState> {
   static const _interferenceLimit = 20.0;
   static const _interferenceAfter = Duration(seconds: 1);
 
+  /// No reading for this long: the heading on screen is stale.
+  static const _staleAfter = Duration(seconds: 1);
+
+  /// How often the sun (and the next prayer) refresh without readings.
+  static const _sunEvery = Duration(seconds: 30);
+
   StreamSubscription<HeadingReading>? _readings;
   StreamSubscription<double>? _field;
   Timer? _startTimer;
   Timer? _interferenceTimer;
+  Timer? _staleTimer;
+  Timer? _sunTimer;
   bool? _fieldHigh;
-  DateTime _sunAt = DateTime.utc(0);
 
   static QiblaState _initial(PrayerCity city, DateTime now) => QiblaState(
     status: QiblaStatus.loading,
@@ -46,7 +53,7 @@ class QiblaCubit extends Cubit<QiblaState> {
   );
 
   Future<void> start() async {
-    _sunAt = _now();
+    _sunTimer = Timer.periodic(_sunEvery, (_) => _refreshSun());
     // A plugin that never answers counts as no compass.
     final available = await _source.available().timeout(
       startTimeout,
@@ -66,7 +73,6 @@ class QiblaCubit extends Cubit<QiblaState> {
   void setCity(PrayerCity city) {
     if (city.id == state.city.id) return;
     final now = _now();
-    _sunAt = now;
     emit(
       state.copyWith(
         city: city,
@@ -83,7 +89,7 @@ class QiblaCubit extends Cubit<QiblaState> {
     final c = state.city;
     _readings = _source
         .readings(lat: c.latitude, lon: c.longitude)
-        .listen(_onReading, onError: (Object _) => _stop());
+        .listen(_onReading, onError: (Object _) => _stop(), onDone: _stop);
     _field = _source
         .fieldDeviation(lat: c.latitude, lon: c.longitude)
         .listen(_onField, onError: (Object _) {});
@@ -92,22 +98,33 @@ class QiblaCubit extends Cubit<QiblaState> {
   void _onReading(HeadingReading r) {
     if (isClosed) return;
     _startTimer?.cancel();
-    final wasAligned = state.aligned;
-    var next = state.copyWith(
-      status: QiblaStatus.live,
-      heading: r.heading,
-      accuracy: r.accuracy,
-      needsCalibration: r.needsCalibration,
+    _staleTimer?.cancel();
+    _staleTimer = Timer(_staleAfter, () {
+      if (!isClosed && state.status == QiblaStatus.live) {
+        _emitCounting(state.copyWith(stale: true));
+      }
+    });
+    _emitCounting(
+      state.copyWith(
+        status: QiblaStatus.live,
+        heading: r.heading,
+        accuracy: r.accuracy,
+        needsCalibration: r.needsCalibration,
+        stale: false,
+      ),
     );
+  }
+
+  void _refreshSun() {
+    if (isClosed) return;
     final now = _now();
-    if (now.difference(_sunAt) >= const Duration(minutes: 1)) {
-      _sunAt = now;
-      next = next.copyWith(
-        sun: SunPosition.at(next.city.latitude, next.city.longitude, now),
+    final c = state.city;
+    emit(
+      state.copyWith(
+        sun: SunPosition.at(c.latitude, c.longitude, now),
         kaabaSunToday: () => _kaabaDay(now),
-      );
-    }
-    _emitCounting(next, wasAligned);
+      ),
+    );
   }
 
   void _onField(double deviation) {
@@ -118,15 +135,21 @@ class QiblaCubit extends Cubit<QiblaState> {
     if (high == state.interference) return;
     _interferenceTimer = Timer(_interferenceAfter, () {
       if (isClosed) return;
-      _emitCounting(state.copyWith(interference: high), state.aligned);
+      _emitCounting(state.copyWith(interference: high));
     });
   }
 
-  void _emitCounting(QiblaState next, bool wasAligned) {
+  /// Emits [next], counting a new alignment and remembering it for the
+  /// edge hysteresis.
+  void _emitCounting(QiblaState next) {
+    final aligned = next.aligned;
     emit(
-      next.aligned && !wasAligned
-          ? next.copyWith(alignedCount: next.alignedCount + 1)
-          : next,
+      next.copyWith(
+        wasAligned: aligned,
+        alignedCount: aligned && !state.aligned
+            ? next.alignedCount + 1
+            : next.alignedCount,
+      ),
     );
   }
 
@@ -157,6 +180,8 @@ class QiblaCubit extends Cubit<QiblaState> {
   Future<void> close() async {
     _startTimer?.cancel();
     _interferenceTimer?.cancel();
+    _staleTimer?.cancel();
+    _sunTimer?.cancel();
     // Not awaited: in widget tests (fake async) awaiting a cancelled
     // sensor subscription never completes, and nothing here depends on it.
     unawaited(_readings?.cancel());

@@ -18,8 +18,10 @@ class QiblaState {
     this.accuracy = CompassAccuracyLevel.high,
     this.needsCalibration = false,
     this.interference = false,
+    this.stale = false,
     this.kaabaSunToday,
     this.alignedCount = 0,
+    this.wasAligned = false,
   });
 
   final QiblaStatus status;
@@ -35,6 +37,10 @@ class QiblaState {
 
   /// Iron or a magnet near the phone.
   final bool interference;
+
+  /// No reading for a while (the phone held upright, or the sensor paused):
+  /// the last heading may be wrong now.
+  final bool stale;
   final SunPosition sun;
 
   /// Today's moment (UTC) the sun is over the Kaaba, if today is one.
@@ -44,6 +50,10 @@ class QiblaState {
   /// gives one haptic tap per change.
   final int alignedCount;
 
+  /// Whether the last state was aligned: leaving takes a bigger angle than
+  /// entering ([QiblaMath.leaveAlignedBeyond]).
+  final bool wasAligned;
+
   /// How far to turn: positive = right (clockwise).
   double get delta =>
       heading == null ? 0 : QiblaMath.signedDelta(heading!, qibla);
@@ -51,13 +61,14 @@ class QiblaState {
   bool get unreliable =>
       needsCalibration ||
       interference ||
+      stale ||
       accuracy == CompassAccuracyLevel.unreliable;
 
   bool get aligned =>
       status == QiblaStatus.live &&
       heading != null &&
       !unreliable &&
-      QiblaMath.isAligned(delta);
+      QiblaMath.isAligned(delta, wasAligned: wasAligned);
 
   /// From the sun to the qibla: positive = turn right after facing the sun.
   double get sunDelta => QiblaMath.signedDelta(sun.azimuth, qibla);
@@ -70,9 +81,11 @@ class QiblaState {
     CompassAccuracyLevel? accuracy,
     bool? needsCalibration,
     bool? interference,
+    bool? stale,
     SunPosition? sun,
     ValueGetter<DateTime?>? kaabaSunToday,
     int? alignedCount,
+    bool? wasAligned,
   }) => QiblaState(
     status: status ?? this.status,
     city: city ?? this.city,
@@ -81,10 +94,12 @@ class QiblaState {
     accuracy: accuracy ?? this.accuracy,
     needsCalibration: needsCalibration ?? this.needsCalibration,
     interference: interference ?? this.interference,
+    stale: stale ?? this.stale,
     sun: sun ?? this.sun,
     kaabaSunToday: kaabaSunToday != null
         ? kaabaSunToday()
         : this.kaabaSunToday,
     alignedCount: alignedCount ?? this.alignedCount,
+    wasAligned: wasAligned ?? this.wasAligned,
   );
 }

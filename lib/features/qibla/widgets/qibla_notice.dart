@@ -26,6 +26,13 @@ class QiblaNotice extends StatelessWidget {
       body = 'ابعد عن العربيات والأجهزة، أو شيل الجراب لو فيه مغناطيس.',
       gold = false;
 
+  /// Orange warning when readings stopped (phone held upright).
+  const QiblaNotice.flat({super.key})
+    : icon = Icons.screen_rotation_alt_rounded,
+      title = 'خلّي الموبايل مفرود',
+      body = 'البوصلة بتقف لما الموبايل يبقى واقف أو مايل جامد.',
+      gold = false;
+
   final IconData icon;
   final String title;
   final String body;

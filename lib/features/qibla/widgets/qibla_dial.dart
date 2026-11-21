@@ -48,7 +48,11 @@ class QiblaDial extends StatelessWidget {
       image: true,
       child: Opacity(
         opacity: dimmed ? 0.45 : 1,
-        child: CustomPaint(
+        // Drawn at its design size and scaled down on narrow phones, so
+        // nothing is cut off at the edges.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: CustomPaint(
           size: size,
           painter: _DialPainter(
             colors: context.wird,
@@ -59,6 +63,7 @@ class QiblaDial extends StatelessWidget {
             showPointer: showPointer,
             textDirection: Directionality.of(context),
           ),
+        ),
         ),
       ),
     );

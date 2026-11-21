@@ -11,6 +11,10 @@ class QiblaMath {
   /// The phone counts as facing the qibla within this many degrees.
   static const alignedWithin = 3.0;
 
+  /// Once aligned, it stays aligned until this far off, so the title and
+  /// the haptic don't flicker at the edge.
+  static const leaveAlignedBeyond = 4.0;
+
   /// Great-circle initial bearing from ([lat], [lon]) to the Kaaba, 0–360.
   static double bearingToKaaba(double lat, double lon) {
     final p1 = _rad(lat);
@@ -47,7 +51,8 @@ class QiblaMath {
   static String compassPoint(double deg) =>
       _points[((normalize(deg) + 22.5) / 45).floor() % 8];
 
-  static bool isAligned(double delta) => delta.abs() <= alignedWithin;
+  static bool isAligned(double delta, {bool wasAligned = false}) =>
+      delta.abs() <= (wasAligned ? leaveAlignedBeyond : alignedWithin);
 
   static double _rad(double deg) => deg * math.pi / 180;
 }

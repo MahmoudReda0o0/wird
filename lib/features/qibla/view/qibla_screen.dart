@@ -154,9 +154,7 @@ class _Body extends StatelessWidget {
           if (s.status == QiblaStatus.noSensor) _NoCompass(state: s),
           if (live && s.unreliable) ...[
             const SizedBox(height: AppSpace.s3),
-            s.interference && !s.needsCalibration
-                ? const QiblaNotice.interference()
-                : const QiblaNotice.calibrate(),
+            _warning(s),
           ],
           if (s.kaabaSunToday != null) ...[
             const SizedBox(height: AppSpace.s3),
@@ -170,6 +168,7 @@ class _Body extends StatelessWidget {
           ],
           const SizedBox(height: AppSpace.s3),
           SunCard(
+            hasCompass: s.status != QiblaStatus.noSensor,
             sunUp: s.sun.isUp,
             sunDelta: s.sunDelta,
             onTap: () => showSunHelp(context, s.sunDelta),
@@ -180,6 +179,15 @@ class _Body extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Calibration first, then iron nearby, then frozen readings.
+Widget _warning(QiblaState s) {
+  if (s.needsCalibration || s.accuracy == CompassAccuracyLevel.unreliable) {
+    return const QiblaNotice.calibrate();
+  }
+  if (s.interference) return const QiblaNotice.interference();
+  return const QiblaNotice.flat();
 }
 
 /// «لفّ يمين 40°», «إنت في اتجاه القبلة», or «الاتجاه مش دقيق دلوقتي».
@@ -197,9 +205,11 @@ class _Status extends StatelessWidget {
     var color = c.ink;
     if (s.unreliable) {
       title = 'الاتجاه مش دقيق دلوقتي';
-      sub = s.interference && !s.needsCalibration
+      sub = s.needsCalibration || s.accuracy == CompassAccuracyLevel.unreliable
+          ? 'عاير البوصلة الأول'
+          : s.interference
           ? 'البوصلة متأثرة بحاجة جنبك'
-          : 'عاير البوصلة الأول';
+          : 'الموبايل لازم يبقى مفرود';
     } else if (s.aligned) {
       title = 'إنت في اتجاه القبلة';
       sub = 'ثبّت الموبايل كده';

@@ -13,9 +13,13 @@ class SunCard extends StatelessWidget {
     required this.sunUp,
     required this.sunDelta,
     required this.onTap,
+    this.hasCompass = true,
   });
 
   final bool sunUp;
+
+  /// Without a compass the night text points to the angle instead.
+  final bool hasCompass;
 
   /// From the sun to the qibla, degrees; positive = turn right.
   final double sunDelta;
@@ -26,7 +30,9 @@ class SunCard extends StatelessWidget {
     final c = context.wird;
     final body = sunUp
         ? 'اقف ووشّك للشمس، ولفّ ${sunTurnText(sunDelta)}'
-        : 'الشمس غابت، استخدم البوصلة';
+        : hasCompass
+        ? 'الشمس غابت، استخدم البوصلة'
+        : 'الشمس غابت، استخدم الزاوية فوق';
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.md),
