@@ -60,5 +60,11 @@ class DeviceHeadingSource implements HeadingSource {
   }
 
   @override
-  Future<void> dispose() async => _compass?.dispose();
+  Future<void> dispose() async {
+    try {
+      await _compass?.dispose();
+    } catch (e) {
+      debugPrint('Compass dispose failed: $e');
+    }
+  }
 }

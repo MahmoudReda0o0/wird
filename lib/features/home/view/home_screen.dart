@@ -129,6 +129,12 @@ class _HomeScreenState extends State<HomeScreen> {
         subtitle: 'الصباح والمساء والنوم',
         route: AppRoutes.allAzkar,
       ),
+      (
+        icon: Icons.explore_outlined,
+        title: 'القبلة',
+        subtitle: 'اتجاه الكعبة',
+        route: AppRoutes.qibla,
+      ),
     ];
 
     return ListView(

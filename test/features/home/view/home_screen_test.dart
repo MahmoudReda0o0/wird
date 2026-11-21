@@ -50,6 +50,16 @@ void main() {
     }
   });
 
+  testWidgets('the qibla tile opens the qibla', (tester) async {
+    await pumpHome(tester);
+    expect(find.text('اتجاه الكعبة'), findsOneWidget);
+    await tester.ensureVisible(find.text('القبلة'));
+    await tester.tap(find.text('القبلة'));
+    await tester.pumpAndSettle();
+    // No compass in tests: the screen falls back to the angle.
+    expect(find.text('الموبايل ده مفيهوش بوصلة'), findsOneWidget);
+  });
+
   testWidgets('the prayer-times tile opens prayer times', (tester) async {
     await pumpHome(tester);
     await tester.tap(find.text('مواقيت الصلاة'));

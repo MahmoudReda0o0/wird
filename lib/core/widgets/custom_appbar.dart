@@ -16,6 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.centerTitle = true,
     this.leadingWidget,
     this.leadingWidth,
+    this.actions = const [],
   });
 
   final String title;
@@ -30,6 +31,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onNotificationTap;
   final bool showNotivication;
   final bool centerTitle;
+
+  /// Shown before the theme toggle.
+  final List<Widget> actions;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -62,9 +66,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 )
               : null),
       title: Text(title, style: AppText.title.copyWith(color: c.primary)),
-      actions: const [
-        ThemeToggleButton(),
-        SizedBox(width: AppSpace.s1),
+      actions: [
+        ...actions,
+        const ThemeToggleButton(),
+        const SizedBox(width: AppSpace.s1),
       ],
     );
   }
