@@ -71,7 +71,11 @@ flutter pub get && flutter analyze && flutter test
 2. ~~**CI**~~ ✅ `.github/workflows/ci.yml`: بيشغّل `flutter pub get` و`flutter analyze` و`flutter test` على كل PR وكل push على `main`، على **Flutter 3.44.1** (نفس نسخة المشروع). لازم يبقى أخضر قبل أي merge. ابتداءً من Flutter 3.47، `package:flutter/material.dart` بقى deprecated لصالح `package:material_ui`، فالترقية ليها PR لوحدها: غيّر `flutter-version` في الـ workflow، ونقل الـ imports في نفس الـ PR.
 3. ~~**الخطوط جوه التطبيق**~~ ✅ `google_fonts` اتشال. الخطوط في `assets/fonts/` ومتعرّفة في `pubspec.yaml`: الواجهة بـ `IBMPlexSansArabic` (400 و500 و600)، والأذكار بـ `NotoNaskhArabic` (400 و500 و600 و700). Mahmoud اختار Noto Naskh بعد مقارنة مع Amiri وScheherazade New، والمقارنة في الكانفاس «Wird — مقارنة خطوط الأذكار». أوزان Noto الثابتة مقطوعة من الملف الـ variable بـ `fontTools`، والرخص (OFL) بتظهر في صفحة الرخص عن طريق `LicenseRegistry` في `bootstrap.dart`.
 4. ~~**تنضيف**~~ ✅ اتعمل على `chore/cleanup`: اتشال `flutter_screenutil` و`navigatorKey`، واتمسح `MainActivity.kt` القديم، واتضافت الـ lints الـ 3، و`flutter analyze` بقى «No issues found».
-5. **الأذان بيقف لو التطبيق ما اتفتحش 10 أيام:** يومي في الخلفية بـ `workmanager` يعيد الجدولة. ومعاه اختيار إن الأذان يشتغل كصوت منبّه عشان يأذّن والموبايل صامت.
+5. ~~**الأذان في الخلفية والتحديثات**~~ ✅ على `feature/background-refresh`:
+   - `app/background_refresh.dart` (Android بس، `workmanager`): task يومية بتعيد جدولة الأذان، وtask كل 6 ساعات بشرط النت بتقرا `latest.json` ولو فيه نسخة أحدث بتطلع إشعار «نسخة جديدة من وِرْد» مرة واحدة لكل نسخة (key: `update_notified`).
+   - `UpdateChecker` (`features/about/cubit`): بيشيك عند الفتح، وتاني لما التطبيق يرجع للـ foreground لو آخر شيك ناجح أقدم من 30 دقيقة، وبيعيد كل دقيقتين طول ما الشيك فاشل (مفيش نت) والتطبيق مفتوح.
+   - «يأذّن والموبايل صامت» (`AdhanSettings.asAlarm`، key: `adhan_as_alarm`): channels جديدة `adhan_alarm_v1` و`adhan_fajr_alarm_v1` بـ `AudioAttributesUsage.alarm`. على iOS مش متاح (محتاج critical alerts من Apple).
+   - الـ CI فيه job تاني «Build APK (debug)» عشان أخطاء Gradle والـ plugins تبان في الـ PR.
 6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
 7. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
 8. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
@@ -104,7 +108,7 @@ flutter pub get && flutter analyze && flutter test
 ## Gotchas
 - **المواقيت:** `CalculationMethodParameters.egyptian()..madhab = Madhab.shafi`. الـ `date` بيتباصى الساعة 12 الضهر، عشان اليوم يفضل صح سواء المكتبة قرأته local أو UTC. والتوقيت دايمًا `Africa/Cairo`، والـ zone بتاعها بيتجاب من `PrayerTimingData.cairo`.
 - **`flutter_local_notifications` 22:** الـ parameters كلها named، زي `initialize(settings:)` و`zonedSchedule(id:, title:, body:, scheduledDate:, notificationDetails:, androidScheduleMode:)`.
-- **الإشعارات:** كل feature ليه نطاق ids في `core/notifications/notification_ids.dart`، والأذان واخد 1000–1999. أي feature بيلغي النطاق بتاعه بس بـ `cancelRanges`، وممنوع `cancelAll`. الشاشات اللي بتعمل Cubit بنفسها بتاخد الـ prefs من `context.read<SharedPreferences>()`.
+- **الإشعارات:** كل feature ليه نطاق ids في `core/notifications/notification_ids.dart`، والأذان واخد 1000–1999، وإشعار التحديث 9000. أي feature بيلغي النطاق بتاعه بس بـ `cancelRanges`، وممنوع `cancelAll`. الشاشات اللي بتعمل Cubit بنفسها بتاخد الـ prefs من `context.read<SharedPreferences>()`.
 - **صوت الـ channel على Android:** بيتثبّت أول ما الـ channel يتعمل. لو غيّرت ملف صوت، غيّر الـ channel id معاه (`adhan_v2`).
 - **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
 - **الـ Native splash:** خلفية بيضا، وفي النص السبحة (`SabhaIcon`) بلون الـ primary، والكلام ده في الوضع الفاتح والغامق. الإعدادات في آخر `pubspec.yaml` (`flutter_native_splash`). الصور في `assets/splash/`، وبتتعمل بـ `flutter test tool/render_splash_test.dart`. بعد أي تعديل شغّل `dart run flutter_native_splash:create`، وما تعدّلش ملفات الـ splash في android/ios بإيدك.

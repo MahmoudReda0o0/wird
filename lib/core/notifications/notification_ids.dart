@@ -27,5 +27,8 @@ class NotificationIds {
   /// with [adhan] so adhans scheduled by an older build don't play twice.
   static const legacyAdhan = NotificationIdRange(0, 100);
 
+  /// «نسخة جديدة» from the background update check. One at a time.
+  static const update = NotificationIdRange(9000, 9001);
+
   // Next: azkar reminders 2000–2999, pre-adhan alerts 3000–3999, …
 }

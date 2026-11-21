@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,6 +8,7 @@ import 'package:my_guide/app/router/app_routes.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
+import 'package:my_guide/features/about/cubit/update_checker.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
@@ -23,6 +26,7 @@ class MyApp extends StatefulWidget {
     required this.city,
     required this.adhan,
     required this.appVersion,
+    required this.updates,
   });
 
   final SharedPreferences prefs;
@@ -30,6 +34,9 @@ class MyApp extends StatefulWidget {
   final CityCubit city;
   final AdhanCubit adhan;
   final AppVersionCubit appVersion;
+
+  /// Checks for a new version again when the app comes back.
+  final UpdateChecker updates;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -42,16 +49,23 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // Back from the Android exact-alarm settings (or anywhere): reschedule
-    // if that permission changed, so the adhan is on time.
+    // if that permission changed, so the adhan is on time, and look for a
+    // new version (the phone may have internet now).
     _lifecycle = AppLifecycleListener(
-      onResume: () =>
+      onResume: () {
+        unawaited(
           AdhanService.onResume(widget.city.state, widget.adhan.state),
+        );
+        widget.updates.onResume();
+      },
+      onPause: widget.updates.onPause,
     );
   }
 
   @override
   void dispose() {
     _lifecycle.dispose();
+    widget.updates.dispose();
     super.dispose();
   }
 

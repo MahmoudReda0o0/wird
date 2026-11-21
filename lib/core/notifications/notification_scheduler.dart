@@ -95,6 +95,22 @@ class NotificationScheduler {
     );
   }
 
+  /// Shows a notification now (not scheduled).
+  static Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    required NotificationDetails details,
+  }) async {
+    if (!await init()) return;
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: details,
+    );
+  }
+
   /// Cancels the pending notifications whose ids are in any of [ranges],
   /// leaving every other feature's notifications alone.
   static Future<void> cancelRanges(List<NotificationIdRange> ranges) async {

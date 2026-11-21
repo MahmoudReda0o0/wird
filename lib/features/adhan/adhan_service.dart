@@ -22,10 +22,16 @@ import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
 class AdhanService {
   AdhanService._();
 
-  /// Android fixes a channel's sound when it's created. Change these ids
-  /// if a sound file is ever replaced, so phones pick up the new sound.
+  /// Android fixes a channel's sound (and whether it plays as an alarm)
+  /// when it's created. Change these ids if a sound file is ever replaced,
+  /// so phones pick up the new sound.
   static const _channelId = 'adhan_v1';
   static const _fajrChannelId = 'adhan_fajr_v1';
+
+  /// The same adhans on the alarm volume ([AdhanSettings.asAlarm]): they
+  /// sound when the phone is on silent or vibrate.
+  static const _alarmChannelId = 'adhan_alarm_v1';
+  static const _fajrAlarmChannelId = 'adhan_fajr_alarm_v1';
 
   /// Asks for notification permission (and exact alarms on Android).
   /// Waits for the notifications setup, so it works right after launch.
@@ -92,10 +98,21 @@ class AdhanService {
         title: 'حان الآن موعد أذان ${p.name}',
         body: '${city.name} · ${PrayerTimingData.format(p.time)}',
         at: p.time,
-        details: p.key == 'fajr' ? _fajrDetails : _details,
+        details: detailsFor(fajr: p.key == 'fajr', asAlarm: settings.asAlarm),
         exact: exact,
       );
     }
+  }
+
+  /// The notification for one adhan: the Fajr or the regular sound, on
+  /// the notification volume or (Android) the alarm volume.
+  @visibleForTesting
+  static NotificationDetails detailsFor({
+    required bool fajr,
+    required bool asAlarm,
+  }) {
+    if (asAlarm) return fajr ? _fajrAlarmDetails : _alarmDetails;
+    return fajr ? _fajrDetails : _details;
   }
 
   static const _details = NotificationDetails(
@@ -126,6 +143,50 @@ class AdhanService {
       priority: Priority.high,
       playSound: true,
       sound: RawResourceAndroidNotificationSound('adhan_fajr'),
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan_fajr.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  static const _alarmDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _alarmChannelId,
+      'الأذان (صوت المنبّه)',
+      channelDescription: 'الأذان بصوت المنبّه، بيأذّن والموبايل صامت',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan'),
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+      category: AndroidNotificationCategory.alarm,
+    ),
+    // iOS can't play past silent without Apple's critical-alerts
+    // entitlement, so it's the normal adhan there.
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  static const _fajrAlarmDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _fajrAlarmChannelId,
+      'أذان الفجر (صوت المنبّه)',
+      channelDescription: 'أذان الفجر بصوت المنبّه، بيأذّن والموبايل صامت',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan_fajr'),
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+      category: AndroidNotificationCategory.alarm,
     ),
     iOS: DarwinNotificationDetails(
       presentAlert: true,

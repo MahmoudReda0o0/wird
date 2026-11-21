@@ -65,6 +65,23 @@ void main() {
     expect(cubits.adhan.state.isOn('dhuhr'), isTrue);
   });
 
+  testWidgets('with the adhan on, it can sound on silent too', (tester) async {
+    final cubits = await pumpScreen(tester);
+    expect(find.text('يأذّن والموبايل صامت'), findsNothing);
+
+    await tester.tap(find.text('صوت الأذان'));
+    await tester.pumpAndSettle();
+
+    final alarm = find.text('يأذّن والموبايل صامت');
+    await tester.ensureVisible(alarm);
+    await tester.pumpAndSettle();
+    await tester.tap(alarm);
+    await tester.pumpAndSettle();
+
+    expect(cubits.adhan.state.asAlarm, isTrue);
+    expect(cubits.prefs.getBool('adhan_as_alarm'), isTrue);
+  });
+
   testWidgets('a refused permission keeps the adhan off and explains why', (
     tester,
   ) async {
