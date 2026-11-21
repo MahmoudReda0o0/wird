@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 import 'package:my_guide/features/qibla/cubit/qibla_cubit.dart';
@@ -56,7 +57,9 @@ void main() {
     expect(cubit.state.status, QiblaStatus.loading);
     expect(source.lastTarget?.lat, _mansoura.latitude);
 
+    debugPrint('QT facing: before 139');
     await heading(tester, 139);
+    debugPrint('QT facing: after 139');
     expect(cubit.state.status, QiblaStatus.live);
     expect(cubit.state.delta, closeTo(0.9, 0.2));
     expect(cubit.state.aligned, isTrue);
