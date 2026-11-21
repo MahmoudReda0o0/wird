@@ -23,6 +23,7 @@ Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences
   | `CityCubit` (`features/prayer_times/cubit`) | `PrayerCity`، key: `prayer_city` | root |
   | `AdhanCubit` (`features/adhan/cubit`) | `AdhanSettings`، keys: `adhan_enabled` و`adhan_prayers`. بيطلب الإذن عن طريق `requestPermission` اللي بيتباصى له | root |
   | `AppVersionCubit` (`features/about/cubit`) | النسخة و`isNew`، key: `app_version_seen` | root |
+  | `QiblaCubit` (`features/qibla/cubit`) | اتجاه الموبايل والقبلة، والمعايرة، والحديد القريب، والشمس، ويوم الشمس فوق الكعبة | شاشة القبلة |
   | `AzkarProgressCubit` (`features/azkar/cubit`) | العدد الباقي لكل ذكر، ومحفوظ لليوم (`AzkarProgress`) | كل صفحة أذكار، وهو نفس الـ instance اللي السبحة بتستخدمه |
   | `SabhaCubit` (`features/azkar/cubit`) | الذكر الظاهر، و`finishedCount` عشان رسالة «تمّ ✓» | شاشة السبحة |
 - اللوجيك الصافي، ومن غير Flutter state: `PrayerTimingData` فيه `forDay` و`next` و`window` و`format` و`countdown` و`dateLabel`، و`AdhanPlan.plan()`، و`AzkarProgress` للتخزين. الشاشات بتعيد الحساب من الـ state الحالي مع كل tick.
@@ -79,7 +80,7 @@ flutter pub get && flutter analyze && flutter test
 6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
 7. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
 8. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
-9. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، والقبلة، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
+9. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
 
 ## حاجات Manual على Mahmoud
 - امسح الـ branches القديمة: `feature/light-dark-theme`، `fix/review-issues`، `sabha`، `feature/new-home`، `feature/adhan`، `refactor/bloc`، `feature/app-version`.
@@ -112,6 +113,8 @@ flutter pub get && flutter analyze && flutter test
 - **صوت الـ channel على Android:** بيتثبّت أول ما الـ channel يتعمل. لو غيّرت ملف صوت، غيّر الـ channel id معاه (`adhan_v2`).
 - **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
 - **الـ Native splash:** خلفية بيضا، وفي النص السبحة (`SabhaIcon`) بلون الـ primary، والكلام ده في الوضع الفاتح والغامق. الإعدادات في آخر `pubspec.yaml` (`flutter_native_splash`). الصور في `assets/splash/`، وبتتعمل بـ `flutter test tool/render_splash_test.dart`. بعد أي تعديل شغّل `dart run flutter_native_splash:create`، وما تعدّلش ملفات الـ splash في android/ios بإيدك.
+- **القبلة:** من إحداثيات المدينة المختارة (مفيش GPS). البوصلة `true_compass` (شمال حقيقي من موديل WMM2025) ورا `HeadingSource`، فلو حبيت تبدّل الـ package غيّر `DeviceHeadingSource` بس. ده خلّى أقل نسخة iOS بقت **15**. تحذير الحديد من `sensors_plus` على Android بس. التصميم في كانفاس «Wird — القبلة»: https://claude.ai/artifact/RpBu25V8JMBVydr7ixRWgQ. الخطة والـ design في `docs/superpowers/`.
+- **Widget tests والـ Cubits اللي بتسمع لـ streams:** اقفل الـ Cubit جوه جسم التيست نفسه، مش في `tearDown` (بيعلّق)، وما تعملش `await` على `cancel()` للـ subscriptions في `close()`.
 - **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.
 - **`math.min` و`math.max`** بيرجّعوا `num`. في العدّ استخدم `countedOf()`، اللي بيرجّع `int`.
 - **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests شغّالة: استخدم `testApp()` و`TestCubits` و`mockPrefs()` و`usePhoneSize()` من `test/helpers/test_app.dart`. الخطوط ما بتتحمّلش في التيستات، فالنص بيظهر بخط التيست، وده عادي. خط التيست أعرض من الحقيقي، فأي overflow بيطلع في التيست بيبقى حقيقي مع النص الكبير (accessibility) أو الموبايل الضيق.
