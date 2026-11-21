@@ -152,8 +152,10 @@ class QiblaCubit extends Cubit<QiblaState> {
   Future<void> close() async {
     _startTimer?.cancel();
     _interferenceTimer?.cancel();
-    await _readings?.cancel();
-    await _field?.cancel();
+    // Not awaited: in widget tests (fake async) awaiting a cancelled
+    // sensor subscription never completes, and nothing here depends on it.
+    unawaited(_readings?.cancel());
+    unawaited(_field?.cancel());
     await _source.dispose();
     return super.close();
   }
