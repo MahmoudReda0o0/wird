@@ -68,7 +68,7 @@ flutter pub get && flutter analyze && flutter test
 
 ## المطلوب، بالأولوية
 1. **تأكد إن الأساس سليم:** `analyze` و`test` و`run` على موبايل حقيقي. جرّب الأذان، وزرار السبحة، والـ badge الدهبي: غيّر `version:` لـ `1.0.1+2` وشغّل تاني.
-2. ~~**CI**~~ ✅ `.github/workflows/ci.yml`: بيشغّل `flutter pub get` و`flutter analyze` و`flutter test` على كل PR وكل push على `main`، على آخر Flutter stable. لازم يبقى أخضر قبل أي merge.
+2. ~~**CI**~~ ✅ `.github/workflows/ci.yml`: بيشغّل `flutter pub get` و`flutter analyze` و`flutter test` على كل PR وكل push على `main`، على **Flutter 3.44.1** (نفس نسخة المشروع). لازم يبقى أخضر قبل أي merge. ابتداءً من Flutter 3.47، `package:flutter/material.dart` بقى deprecated لصالح `package:material_ui`، فالترقية ليها PR لوحدها: غيّر `flutter-version` في الـ workflow، ونقل الـ imports في نفس الـ PR.
 3. **الخطوط جوه التطبيق:** حط IBM Plex Sans Arabic وAmiri في `assets/fonts/`، وخلّي `GoogleFonts.config.allowRuntimeFetching = false`. التطبيق offline. (الـ widget tests مش مستنية الخطوة دي، هي شغّالة خلاص.)
 4. ~~**تنضيف**~~ ✅ اتعمل على `chore/cleanup`: اتشال `flutter_screenutil` و`navigatorKey`، واتمسح `MainActivity.kt` القديم، واتضافت الـ lints الـ 3، و`flutter analyze` بقى «No issues found».
 5. **الأذان بيقف لو التطبيق ما اتفتحش 10 أيام:** يومي في الخلفية بـ `workmanager` يعيد الجدولة. ومعاه اختيار إن الأذان يشتغل كصوت منبّه عشان يأذّن والموبايل صامت.

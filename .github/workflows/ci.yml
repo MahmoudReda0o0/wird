@@ -27,12 +27,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # pubspec.lock needs Flutter >= 3.44 (Dart >= 3.12.1); latest stable
-      # satisfies it. Pin flutter-version here if a new stable ever breaks.
+      # Pinned to the Flutter the project is built with (.metadata revision
+      # 924134a = 3.44.1). Newer stables (3.47+) deprecate
+      # package:flutter/material.dart, which fails `flutter analyze`. Bump
+      # this together with the local Flutter, in its own PR.
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: 3.44.1
           cache: true
 
       - name: Flutter version
