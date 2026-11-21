@@ -24,14 +24,15 @@ Works fully offline. Both fonts ship in the app (`assets/fonts/`, SIL OFL): **IB
 - The next prayer is highlighted, with a countdown to it. After Isha it shows tomorrow's Fajr.
 - The times update by themselves after midnight.
 
-**Adhan**: a «صوت الأذان» switch on the prayer-times screen, with a bell per prayer, and a chip on the home next-prayer card that shows whether it's on and opens that screen. Each enabled prayer gets a notification with the adhan sound at its time: a Fajr adhan for Fajr and the regular adhan for the others. Adhans are scheduled 10 days ahead, and again on every app start or city change. Turning the adhan on asks for notification permission, and for exact alarms on Android.
+**Adhan**: a «صوت الأذان» switch on the prayer-times screen, with a bell per prayer, and a chip on the home next-prayer card that shows whether it's on and opens that screen. Each enabled prayer gets a notification with the adhan sound at its time: a Fajr adhan for Fajr and the regular adhan for the others. Adhans are scheduled 10 days ahead, and again on every app start or city change. On Android a daily background task (`workmanager`, `app/background_refresh.dart`) schedules them again, so they don't stop if the app isn't opened. A second switch, «يأذّن والموبايل صامت» (Android), plays the adhan on the alarm volume through its own channels, so it sounds on silent too. Turning the adhan on asks for notification permission, and for exact alarms on Android.
 
 Sounds:
 - Android: `res/raw/adhan.mp3` and `res/raw/adhan_fajr.mp3` at full length. `res/raw/keep.xml` keeps them in release builds.
 - iOS: `ios/Runner/adhan.caf` and `adhan_fajr.caf`, already in the Runner target. iOS plays at most 30 seconds of a notification sound, so these are the first 30 seconds with a fade-out.
 
 **About / version**: the installed version (from `version:` in pubspec.yaml) sits beside the home title and opens «عن التطبيق».
-- On every launch the app reads `release/latest.json` from the `new_version` branch on GitHub (`AppInfo.latestReleaseUrl`, the raw file of the public repo). If it names a newer version, the badge turns green «تحديث 1.1.0», home shows a message once for that version, and «عن التطبيق» shows the new version, its notes and a «تنزيل النسخة الجديدة» button that opens the Drive folder. The last file read is saved, so a known update still shows offline; no internet or no file just means no update section.
+- On launch, when the app comes back after 30 minutes, and every 2 minutes while there's no internet, the app reads `release/latest.json` from the `new_version` branch on GitHub (`AppInfo.latestReleaseUrl`, the raw file of the public repo). If it names a newer version, the badge turns green «تحديث 1.1.0», home shows a message once for that version, and «عن التطبيق» shows the new version, its notes and a «تنزيل النسخة الجديدة» button that opens the Drive folder. The last file read is saved, so a known update still shows offline; no internet or no file just means no update section.
+- On Android a background task checks every few hours once there's internet, even if the app isn't opened, and posts «نسخة جديدة من وِرْد» once per version.
 - Right after installing an update the badge turns gold «جديد» until «عن التطبيق» is opened.
 - «عن التطبيق» also shows the installed version and what's new in it (`AppInfo.releaseNotes`), and the Drive folder link (`AppInfo.downloadUrl`) with a QR code, an open button and a copy button.
 

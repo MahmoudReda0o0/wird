@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
@@ -132,18 +133,51 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
             ),
           ),
           const SizedBox(height: AppSpace.s4),
-          _AdhanSwitch(on: adhan.enabled, onChanged: _setAdhan),
+          _SettingSwitch(
+            on: adhan.enabled,
+            onChanged: _setAdhan,
+            icon: adhan.enabled
+                ? Icons.notifications_active_rounded
+                : Icons.notifications_none_rounded,
+            title: 'صوت الأذان',
+            subtitle: adhan.enabled
+                ? 'هيأذّن في وقت كل صلاة عليها الجرس'
+                : 'شغّله عشان يأذّن في وقت كل صلاة',
+          ),
+          // Android only: iOS can't play past silent mode.
+          if (adhan.enabled &&
+              defaultTargetPlatform == TargetPlatform.android) ...[
+            const SizedBox(height: AppSpace.s3),
+            _SettingSwitch(
+              on: adhan.asAlarm,
+              onChanged: context.read<AdhanCubit>().setAsAlarm,
+              icon: Icons.alarm_rounded,
+              title: 'يأذّن والموبايل صامت',
+              subtitle: adhan.asAlarm
+                  ? 'الأذان على صوت المنبّه، فبيشتغل حتى في الصامت'
+                  : 'شغّله عشان الأذان يطلع على صوت المنبّه',
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// "صوت الأذان" with a switch for all prayers.
-class _AdhanSwitch extends StatelessWidget {
-  const _AdhanSwitch({required this.on, required this.onChanged});
+/// A raised card with a setting's icon, title, subtitle and switch.
+class _SettingSwitch extends StatelessWidget {
+  const _SettingSwitch({
+    required this.on,
+    required this.onChanged,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
   final bool on;
   final ValueChanged<bool> onChanged;
+  final IconData icon;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -166,20 +200,10 @@ class _AdhanSwitch extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          secondary: Icon(
-            on
-                ? Icons.notifications_active_rounded
-                : Icons.notifications_none_rounded,
-            color: c.primary,
-          ),
-          title: Text(
-            'صوت الأذان',
-            style: AppText.heading.copyWith(color: c.ink),
-          ),
+          secondary: Icon(icon, color: c.primary),
+          title: Text(title, style: AppText.heading.copyWith(color: c.ink)),
           subtitle: Text(
-            on
-                ? 'هيأذّن في وقت كل صلاة عليها الجرس'
-                : 'شغّله عشان يأذّن في وقت كل صلاة',
+            subtitle,
             style: AppText.body.copyWith(color: c.inkMuted),
           ),
         ),

@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_guide/app/app.dart';
+import 'package:my_guide/app/background_refresh.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
+import 'package:my_guide/features/about/cubit/update_checker.dart';
 import 'package:my_guide/features/about/data/app_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
@@ -35,6 +37,10 @@ Future<void> bootstrap() async {
     version: package.version,
     buildNumber: package.buildNumber,
   );
+  final updates = UpdateChecker(
+    appVersion,
+    const HttpReleaseSource(AppInfo.latestReleaseUrl),
+  );
 
   runApp(
     MyApp(
@@ -43,19 +49,21 @@ Future<void> bootstrap() async {
       city: city,
       adhan: adhan,
       appVersion: appVersion,
+      updates: updates,
     ),
   );
 
   // Schedules the coming days' adhans (setting up notifications first);
   // never blocks the first frame. After this, MyApp's listeners reschedule
   // on every city or adhan change, and when the app comes back.
-  // Looks for a newer version on the new_version branch; shows a known one
-  // offline too.
+  // Looks for a newer version on the new_version branch (a known one shows
+  // offline too); MyApp checks again when the app comes back, and retries
+  // while there's no internet.
+  // Android also keeps both going while the app is closed (BackgroundRefresh).
   await Future.wait([
     AdhanService.reschedule(city.state, adhan.state),
-    appVersion.checkForUpdate(
-      const HttpReleaseSource(AppInfo.latestReleaseUrl),
-    ),
+    updates.check(),
+    BackgroundRefresh.register(),
   ]);
 }
 

@@ -58,9 +58,13 @@ class AppVersionState {
 /// The cycle:
 /// 1. A new APK is put on Drive, and its version in `release/latest.json`
 ///    is pushed to the `new_version` branch.
-/// 2. [checkForUpdate] (on every launch) finds a version newer than the
-///    installed one: the badge says «تحديث», home announces it once, and
-///    «عن التطبيق» shows its notes with a download button.
+/// 2. [checkForUpdate] finds a version newer than the installed one: the
+///    badge says «تحديث», home announces it once, and «عن التطبيق» shows
+///    its notes with a download button. It runs on launch, when the app
+///    comes back, and again every couple of minutes while it failed (no
+///    internet yet), see `UpdateChecker`. On Android a background task
+///    also checks whenever there's internet and posts a notification
+///    ([takeBackgroundNotice]), even if the app isn't opened.
 /// 3. The user installs it: no newer version any more, and the badge turns
 ///    gold «جديد» ([AppVersionState.isNew]) until «عن التطبيق» is opened.
 class AppVersionCubit extends Cubit<AppVersionState> {
@@ -78,6 +82,9 @@ class AppVersionCubit extends Cubit<AppVersionState> {
 
   /// The update (`version+build`) home already announced.
   static const _announcedKey = 'update_announced';
+
+  /// The update (`version+build`) the background task already notified.
+  static const _notifiedKey = 'update_notified';
 
   static AppVersionState _initial(
     SharedPreferences prefs,
@@ -136,12 +143,25 @@ class AppVersionCubit extends Cubit<AppVersionState> {
   }
 
   /// Reads the latest published version from [source]. Keeps the last
-  /// known one when it can't be read (offline).
-  Future<void> checkForUpdate(ReleaseSource source) async {
+  /// known one when it can't be read (offline). Returns whether it was
+  /// read, so a failed check can be tried again.
+  Future<bool> checkForUpdate(ReleaseSource source) async {
     final latest = await source.latest();
-    if (latest == null || isClosed) return;
+    if (latest == null || isClosed) return false;
     await _prefs.setString(_latestKey, jsonEncode(latest.toJson()));
     if (!isClosed) emit(_withUpdate(_prefs, state, latest));
+    return true;
+  }
+
+  /// For the background task: the newer version to notify about, once per
+  /// version, or null. Marks it as notified.
+  Future<ReleaseInfo?> takeBackgroundNotice() async {
+    final update = state.update;
+    if (update == null || _prefs.getString(_notifiedKey) == _key(update)) {
+      return null;
+    }
+    await _prefs.setString(_notifiedKey, _key(update));
+    return update;
   }
 
   /// Home showed the update message: don't show it again for this version.
