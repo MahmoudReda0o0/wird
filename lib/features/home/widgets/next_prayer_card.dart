@@ -125,16 +125,30 @@ class NextPrayerCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpace.s2),
+            // Previous and next prayer under the bar. Each may take up to
+            // half the row and shrinks (with …) instead of overflowing:
+            // some pairs, like «العصر 2:38 م» and «المغرب 4:59 م», don't
+            // fit side by side with large text or a wide font.
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${previous.name} ${PrayerTimingData.format(previous.time)}',
-                  style: AppText.caption.copyWith(color: sub),
+                Flexible(
+                  child: Text(
+                    '${previous.name} ${PrayerTimingData.format(previous.time)}',
+                    style: AppText.caption.copyWith(color: sub),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Spacer(),
-                Text(
-                  '${next.entry.name} ${PrayerTimingData.format(next.entry.time)}',
-                  style: AppText.caption.copyWith(color: sub),
+                const SizedBox(width: AppSpace.s3),
+                Flexible(
+                  child: Text(
+                    '${next.entry.name} ${PrayerTimingData.format(next.entry.time)}',
+                    style: AppText.caption.copyWith(color: sub),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                  ),
                 ),
               ],
             ),
