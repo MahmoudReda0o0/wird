@@ -6,7 +6,7 @@ String sunTurnText(double sunDelta) =>
     '${sunDelta > 0 ? 'يمين' : 'شمال'} ${sunDelta.abs().round()}°';
 
 /// «القبلة بالشمس»: works on any phone, compass or not. Tapping it explains
-/// the method; at night it only says the sun has set.
+/// the method, at night too (with a note that the sun has set).
 class SunCard extends StatelessWidget {
   const SunCard({
     super.key,
@@ -43,7 +43,7 @@ class SunCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          onTap: sunUp ? onTap : null,
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpace.s4,
@@ -83,8 +83,7 @@ class SunCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (sunUp)
-                  Icon(
+                Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 16,
                     color: c.primary,

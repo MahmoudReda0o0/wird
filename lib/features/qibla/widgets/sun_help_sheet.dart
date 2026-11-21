@@ -5,21 +5,28 @@ import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/features/qibla/widgets/sun_card.dart';
 
 /// Opens [SunHelpSheet] from the bottom.
-Future<void> showSunHelp(BuildContext context, double sunDelta) =>
+Future<void> showSunHelp(
+  BuildContext context,
+  double sunDelta, {
+  bool sunUp = true,
+}) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: context.wird.surfaceRaised,
-      builder: (_) => SunHelpSheet(sunDelta: sunDelta),
+      builder: (_) => SunHelpSheet(sunDelta: sunDelta, sunUp: sunUp),
     );
 
 /// Step by step: face the sun, turn by the angle, that's the qibla.
 class SunHelpSheet extends StatelessWidget {
-  const SunHelpSheet({super.key, required this.sunDelta});
+  const SunHelpSheet({super.key, required this.sunDelta, this.sunUp = true});
 
   /// From the sun to the qibla; positive = turn right.
   final double sunDelta;
+
+  /// At night the steps stay, with a note and no angle.
+  final bool sunUp;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +35,11 @@ class SunHelpSheet extends StatelessWidget {
     final side = sunDelta > 0 ? 'يمين' : 'شمال';
     final steps = [
       'اقف في مكان مفتوح ووشّك ناحية الشمس. ما تبصّش عليها مباشرة.',
-      'لفّ ناحية $sideك $n°، يعني ${n < 90 ? 'أقل' : 'أكتر'} من ربع لفّة '
-          '(ربع اللفّة 90°). الكعبة هتبقى قدامك.',
+      sunUp
+          ? 'لفّ ناحية $sideك $n°، يعني ${n < 90 ? 'أقل' : 'أكتر'} من ربع لفّة '
+                '(ربع اللفّة 90°). الكعبة هتبقى قدامك.'
+          : 'لفّ بالزاوية اللي هتظهر في الكارت وقت النهار، وهي بتتغيّر طول '
+                'اليوم. الكعبة هتبقى قدامك.',
       'كده إنت في اتجاه القبلة.',
     ];
     return SafeArea(
@@ -50,6 +60,28 @@ class SunHelpSheet extends StatelessWidget {
                 style: AppText.title.copyWith(color: c.ink),
               ),
             ),
+            if (!sunUp) ...[
+              const SizedBox(height: AppSpace.s3),
+              Container(
+                padding: const EdgeInsets.all(AppSpace.s3),
+                decoration: BoxDecoration(
+                  color: c.surfaceSunken,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.nightlight_outlined, color: c.goldInk, size: 20),
+                    const SizedBox(width: AppSpace.s2),
+                    Expanded(
+                      child: Text(
+                        'ملحوظة: الشمس غابت دلوقتي، الطريقة دي بتشتغل وقت النهار.',
+                        style: AppText.label.copyWith(color: c.ink),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpace.s3),
             Container(
               padding: const EdgeInsets.all(AppSpace.s2),

@@ -171,7 +171,7 @@ class _Body extends StatelessWidget {
             hasCompass: s.status != QiblaStatus.noSensor,
             sunUp: s.sun.isUp,
             sunDelta: s.sunDelta,
-            onTap: () => showSunHelp(context, s.sunDelta),
+            onTap: () => showSunHelp(context, s.sunDelta, sunUp: s.sun.isUp),
           ),
           const SizedBox(height: AppSpace.s3),
           _NextPrayer(city: s.city, color: c.inkMuted),
