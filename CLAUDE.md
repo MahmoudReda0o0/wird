@@ -11,7 +11,7 @@
 - طريقة الشغل والـ branches في قسم «طريقة الشغل» تحت. الخلاصة: كل الشغل بيتجمّع على `main`، و`new_version` هو اللي بيوصّل النسخة للناس.
 
 ## الـ Stack
-Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences`، و`adhan_dart` لحساب المواقيت، و`timezone`، و`flutter_local_notifications` 22.x للأذان، و`package_info_plus`، و`url_launcher`، و`qr_flutter`، و`google_fonts` (IBM Plex Sans Arabic للواجهة وAmiri لنص الأذكار).
+Flutter (Dart `^3.12.1`)، و`flutter_bloc` للحالة، و`shared_preferences`، و`adhan_dart` لحساب المواقيت، و`timezone`، و`flutter_local_notifications` 22.x للأذان، و`package_info_plus`، و`url_launcher`، و`qr_flutter`، والخطوط جوه التطبيق في `assets/fonts/`: IBM Plex Sans Arabic للواجهة، وNoto Naskh Arabic لنص الأذكار. ومفيش `google_fonts`.
 
 ## الـ Architecture
 - **الـ structure:** feature-first. `lib/app/` فيه `bootstrap.dart` و`app.dart` و`router/`، و`lib/core/` فيه `theme/` و`widgets/` و`time/` (`AppClock`: الوقت دايمًا بتوقيت القاهرة) و`notifications/` (`NotificationScheduler`، المكان الوحيد اللي بيكلّم plugin الإشعارات)، ومش بيعمل import لأي feature، و`lib/features/<name>/` فيه `data/` و`cubit/` و`view/` و`widgets/`. التيستات في `test/features/<name>/`. الـ imports ماشية في اتجاه واحد: view ثم cubit ثم data ثم core. التفاصيل في README («Project layout»).
@@ -69,7 +69,7 @@ flutter pub get && flutter analyze && flutter test
 ## المطلوب، بالأولوية
 1. **تأكد إن الأساس سليم:** `analyze` و`test` و`run` على موبايل حقيقي. جرّب الأذان، وزرار السبحة، والـ badge الدهبي: غيّر `version:` لـ `1.0.1+2` وشغّل تاني.
 2. ~~**CI**~~ ✅ `.github/workflows/ci.yml`: بيشغّل `flutter pub get` و`flutter analyze` و`flutter test` على كل PR وكل push على `main`، على **Flutter 3.44.1** (نفس نسخة المشروع). لازم يبقى أخضر قبل أي merge. ابتداءً من Flutter 3.47، `package:flutter/material.dart` بقى deprecated لصالح `package:material_ui`، فالترقية ليها PR لوحدها: غيّر `flutter-version` في الـ workflow، ونقل الـ imports في نفس الـ PR.
-3. **الخطوط جوه التطبيق:** حط IBM Plex Sans Arabic وAmiri في `assets/fonts/`، وخلّي `GoogleFonts.config.allowRuntimeFetching = false`. التطبيق offline. (الـ widget tests مش مستنية الخطوة دي، هي شغّالة خلاص.)
+3. ~~**الخطوط جوه التطبيق**~~ ✅ `google_fonts` اتشال. الخطوط في `assets/fonts/` ومتعرّفة في `pubspec.yaml`: الواجهة بـ `IBMPlexSansArabic` (400 و500 و600)، والأذكار بـ `NotoNaskhArabic` (400 و500 و600 و700). Mahmoud اختار Noto Naskh بعد مقارنة مع Amiri وScheherazade New، والمقارنة في الكانفاس «Wird — مقارنة خطوط الأذكار». أوزان Noto الثابتة مقطوعة من الملف الـ variable بـ `fontTools`، والرخص (OFL) بتظهر في صفحة الرخص عن طريق `LicenseRegistry` في `bootstrap.dart`.
 4. ~~**تنضيف**~~ ✅ اتعمل على `chore/cleanup`: اتشال `flutter_screenutil` و`navigatorKey`، واتمسح `MainActivity.kt` القديم، واتضافت الـ lints الـ 3، و`flutter analyze` بقى «No issues found».
 5. **الأذان بيقف لو التطبيق ما اتفتحش 10 أيام:** يومي في الخلفية بـ `workmanager` يعيد الجدولة. ومعاه اختيار إن الأذان يشتغل كصوت منبّه عشان يأذّن والموبايل صامت.
 6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
@@ -110,5 +110,5 @@ flutter pub get && flutter analyze && flutter test
 - **الـ Native splash:** خلفية بيضا، وفي النص السبحة (`SabhaIcon`) بلون الـ primary، والكلام ده في الوضع الفاتح والغامق. الإعدادات في آخر `pubspec.yaml` (`flutter_native_splash`). الصور في `assets/splash/`، وبتتعمل بـ `flutter test tool/render_splash_test.dart`. بعد أي تعديل شغّل `dart run flutter_native_splash:create`، وما تعدّلش ملفات الـ splash في android/ios بإيدك.
 - **RTL:** `Icons.arrow_back_ios_new_rounded` و`arrow_forward_ios_rounded` بيتعكسوا لوحدهم. في الـ RTL، الـ `startFloat` بيبقى على اليمين.
 - **`math.min` و`math.max`** بيرجّعوا `num`. في العدّ استخدم `countedOf()`، اللي بيرجّع `int`.
-- **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests شغّالة: استخدم `testApp()` و`TestCubits` و`mockPrefs()` و`usePhoneSize()` من `test/helpers/test_app.dart`. الـ helper بيقفل تحميل `google_fonts` من النت، فالنص بيظهر بخط التيست، وده عادي. خط التيست أعرض من الحقيقي، فأي overflow بيطلع في التيست بيبقى حقيقي مع النص الكبير (accessibility) أو الموبايل الضيق.
+- **الـ tests:** استخدم `SharedPreferences.setMockInitialValues`. الـ widget tests شغّالة: استخدم `testApp()` و`TestCubits` و`mockPrefs()` و`usePhoneSize()` من `test/helpers/test_app.dart`. الخطوط ما بتتحمّلش في التيستات، فالنص بيظهر بخط التيست، وده عادي. خط التيست أعرض من الحقيقي، فأي overflow بيطلع في التيست بيبقى حقيقي مع النص الكبير (accessibility) أو الموبايل الضيق.
 - **الـ commits:** رسايل واضحة. تقدر تشتغل على `main` على طول، أو على branch جانبي وبعدين تعمله merge في `main`. و`new_version` ما بيتحرّكش غير في الـ release (قسم «طريقة الشغل»).

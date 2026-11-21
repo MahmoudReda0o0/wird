@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_guide/app/router/app_router.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
@@ -50,15 +49,15 @@ class TestCubits {
 /// real app: Arabic, right-to-left, the Wird light theme, the app-wide
 /// Cubits and [SharedPreferences] provided.
 ///
-/// Fonts are never fetched from the network in tests; text falls back to
-/// the test font, which is fine for finding and tapping.
+/// The app's fonts aren't loaded in tests (only bundled assets the test
+/// loads itself would be), so text uses the test font. That's fine for
+/// finding and tapping, and its wider glyphs make overflows show early.
 Widget testApp(
   TestCubits cubits, {
   Widget? home,
   String? initialRoute,
   RouteFactory? onGenerateRoute,
 }) {
-  GoogleFonts.config.allowRuntimeFetching = false;
   return RepositoryProvider.value(
     value: cubits.prefs,
     child: MultiBlocProvider(

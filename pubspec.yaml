@@ -34,7 +34,6 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
   shared_preferences: ^2.3.2
   flutter_bloc: ^9.1.1
   # App version screen: installed version, download link and its QR code.
@@ -103,6 +102,36 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # The app's two fonts ship inside the app (it works offline from the first
+  # launch). Both are SIL Open Font License; the license texts are shown on
+  # the licenses page (see LicenseRegistry in lib/app/bootstrap.dart).
+  # - IBM Plex Sans Arabic: everything except zikr text.
+  # - Noto Naskh Arabic: zikr text. Static weights cut from Google Fonts'
+  #   variable NotoNaskhArabic[wght].ttf with fontTools' instancer.
+  fonts:
+    - family: IBMPlexSansArabic
+      fonts:
+        - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
+    - family: NotoNaskhArabic
+      fonts:
+        - asset: assets/fonts/NotoNaskhArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoNaskhArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoNaskhArabic-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoNaskhArabic-Bold.ttf
+          weight: 700
+
+  assets:
+    - assets/fonts/OFL-IBMPlexSansArabic.txt
+    - assets/fonts/OFL-NotoNaskhArabic.txt
 
 # Native splash: white background with the sabha (SabhaIcon) in brand green,
 # in light and dark mode. The images come from tool/render_splash_test.dart.

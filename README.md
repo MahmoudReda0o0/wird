@@ -6,6 +6,8 @@ Flutter app for daily azkar and prayer times. Arabic, right-to-left, with light 
 
 ## Features
 
+Works fully offline. Both fonts ship in the app (`assets/fonts/`, SIL OFL): **IBM Plex Sans Arabic** for the interface and **Noto Naskh Arabic** for zikr text, chosen for clarity on screen.
+
 **Home**: today's date and city, a card with a live countdown (HH:MM:SS) to the next prayer and a bar showing how much of the wait has passed, then a two-column grid of sections.
 
 **Azkar**: 97 azkar in five sections: morning, evening, tasabih, before sleep and on waking.
