@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Wird design system — color tokens for the Parchment (light) and
 /// Night (dark) themes. Read them with `context.wird`.
@@ -185,20 +184,32 @@ extension WirdThemeContext on BuildContext {
   WirdColors get wird => Theme.of(this).extension<WirdColors>() ?? WirdColors.light;
 }
 
-/// Wird type scale. UI text is IBM Plex Sans Arabic, zikr text is Amiri.
+/// Wird type scale. UI text is IBM Plex Sans Arabic, zikr text is Noto
+/// Naskh Arabic (picked for clarity on screen). Both ship in the app
+/// (`assets/fonts`, declared in pubspec.yaml), so nothing is downloaded.
 /// Apply a color with `.copyWith(color: context.wird.ink)`.
 class AppText {
   AppText._();
 
+  /// Font family names, as declared in pubspec.yaml.
+  static const uiFamily = 'IBMPlexSansArabic';
+  static const readingFamily = 'NotoNaskhArabic';
+
   static TextStyle _ui(double size, double line, FontWeight weight) =>
-      GoogleFonts.ibmPlexSansArabic(
+      TextStyle(
+        fontFamily: uiFamily,
         fontSize: size,
         height: line / size,
         fontWeight: weight,
       );
 
   static TextStyle _reading(double size, double line, FontWeight weight) =>
-      GoogleFonts.amiri(fontSize: size, height: line / size, fontWeight: weight);
+      TextStyle(
+        fontFamily: readingFamily,
+        fontSize: size,
+        height: line / size,
+        fontWeight: weight,
+      );
 
   /// The live countdown on the home next-prayer card ("01:24:37").
   static TextStyle get countdown =>
@@ -301,9 +312,12 @@ class AppTheme {
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: c.surface,
-      textTheme: GoogleFonts.ibmPlexSansArabicTextTheme(
-        baseText,
-      ).apply(bodyColor: c.ink, displayColor: c.ink),
+      fontFamily: AppText.uiFamily,
+      textTheme: baseText.apply(
+        fontFamily: AppText.uiFamily,
+        bodyColor: c.ink,
+        displayColor: c.ink,
+      ),
       extensions: [c],
       appBarTheme: AppBarTheme(
         backgroundColor: c.surfaceRaised,

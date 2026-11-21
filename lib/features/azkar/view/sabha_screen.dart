@@ -233,7 +233,9 @@ class _SabhaScreenState extends State<SabhaScreen> {
                       style: AppText.zikr.copyWith(
                         fontSize: 26,
                         height: 48 / 26,
-                        fontWeight: FontWeight.w700,
+                        // Medium: clear at a distance, lighter on the eye
+                        // than Bold for long azkar.
+                        fontWeight: FontWeight.w500,
                         color: c.zikr,
                       ),
                     ),

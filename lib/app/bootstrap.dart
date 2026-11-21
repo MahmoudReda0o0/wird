@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:my_guide/app/app.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
@@ -16,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// A new app-wide feature creates its Cubit here and passes it to [MyApp].
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _registerFontLicenses();
   final prefs = await SharedPreferences.getInstance();
   final package = await PackageInfo.fromPlatform();
 
@@ -54,4 +57,16 @@ Future<void> bootstrap() async {
       const HttpReleaseSource(AppInfo.latestReleaseUrl),
     ),
   ]);
+}
+
+/// Shows the bundled fonts' licenses (SIL OFL 1.1) on the licenses page.
+void _registerFontLicenses() {
+  for (final (font, file) in const [
+    ('IBM Plex Sans Arabic', 'assets/fonts/OFL-IBMPlexSansArabic.txt'),
+    ('Noto Naskh Arabic', 'assets/fonts/OFL-NotoNaskhArabic.txt'),
+  ]) {
+    LicenseRegistry.addLicense(() async* {
+      yield LicenseEntryWithLineBreaks([font], await rootBundle.loadString(file));
+    });
+  }
 }
