@@ -41,9 +41,13 @@ void main() {
   // Closes inside the test's fake-async zone: a tearDown would await the
   // cubit's stream controllers outside it and never finish.
   void qiblaTest(String name, Future<void> Function(WidgetTester) body) =>
-      testWidgets(name, (tester) async {
+      testWidgets(name, timeout: const Timeout(Duration(seconds: 30)), (
+        tester,
+      ) async {
         await body(tester);
+        debugPrint('QT[$name] closing');
         await cubit.close();
+        debugPrint('QT[$name] closed');
       });
 
   qiblaTest('no compass → noSensor', (tester) async {
@@ -65,10 +69,13 @@ void main() {
     expect(cubit.state.aligned, isTrue);
     expect(cubit.state.alignedCount, 1);
 
+    debugPrint('QT facing: before 140');
     await heading(tester, 140);
+    debugPrint('QT facing: after 140');
     expect(cubit.state.alignedCount, 1, reason: 'still aligned');
 
     await heading(tester, 100);
+    debugPrint('QT facing: after 100');
     expect(cubit.state.delta, closeTo(39.9, 0.2));
     expect(cubit.state.aligned, isFalse);
 
