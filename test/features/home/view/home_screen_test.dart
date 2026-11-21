@@ -50,6 +50,21 @@ void main() {
     }
   });
 
+  testWidgets('the qibla tile opens the qibla', (tester) async {
+    await pumpHome(tester);
+    expect(find.text('اتجاه الكعبة'), findsOneWidget);
+    await tester.ensureVisible(find.text('القبلة'));
+    await tester.tap(find.text('القبلة'));
+    // No compass plugin in tests: the screen gives up on it within 2 s and
+    // shows the angle. (Not pumpAndSettle: the spinner never settles.)
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    expect(find.text('الموبايل ده مفيهوش بوصلة'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+  });
+
   testWidgets('the prayer-times tile opens prayer times', (tester) async {
     await pumpHome(tester);
     await tester.tap(find.text('مواقيت الصلاة'));

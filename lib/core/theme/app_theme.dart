@@ -20,6 +20,10 @@ class WirdColors extends ThemeExtension<WirdColors> {
     required this.onGold,
     required this.goldSoft,
     required this.goldInk,
+    required this.warning,
+    required this.warningSoft,
+    required this.onWarning,
+    required this.kaaba,
     required this.focus,
     required this.scrim,
     required this.cardShadow,
@@ -60,6 +64,14 @@ class WirdColors extends ThemeExtension<WirdColors> {
   /// The opening line of a zikr (basmala, isti'adha).
   final Color goldInk;
 
+  /// Orange: "don't trust this right now" (the Qibla compass warnings).
+  final Color warning;
+  final Color warningSoft;
+  final Color onWarning;
+
+  /// The Kaaba drawn on the Qibla dial.
+  final Color kaaba;
+
   final Color focus;
   final Color scrim;
   final List<BoxShadow> cardShadow;
@@ -80,6 +92,10 @@ class WirdColors extends ThemeExtension<WirdColors> {
     onGold: Color(0xFF2B1F06),
     goldSoft: Color(0xFFFBF0D6),
     goldInk: Color(0xFF835500),
+    warning: Color(0xFFB5531A),
+    warningSoft: Color(0xFFFBE3D3),
+    onWarning: Color(0xFF3A1A06),
+    kaaba: Color(0xFF1C2623),
     focus: Color(0xFF0B6B5D),
     scrim: Color(0x521C2623),
     cardShadow: [
@@ -104,6 +120,10 @@ class WirdColors extends ThemeExtension<WirdColors> {
     onGold: Color(0xFF241A04),
     goldSoft: Color(0xFF33280F),
     goldInk: Color(0xFFECC266),
+    warning: Color(0xFFF0A36B),
+    warningSoft: Color(0xFF33190A),
+    onWarning: Color(0xFFF8C9A6),
+    kaaba: Color(0xFF0B1210),
     focus: Color(0xFF7FE0CD),
     scrim: Color(0x8F000000),
     cardShadow: [BoxShadow(color: Color(0x0AE8EFEC), spreadRadius: 1)],
@@ -126,6 +146,10 @@ class WirdColors extends ThemeExtension<WirdColors> {
     Color? onGold,
     Color? goldSoft,
     Color? goldInk,
+    Color? warning,
+    Color? warningSoft,
+    Color? onWarning,
+    Color? kaaba,
     Color? focus,
     Color? scrim,
     List<BoxShadow>? cardShadow,
@@ -146,6 +170,10 @@ class WirdColors extends ThemeExtension<WirdColors> {
       onGold: onGold ?? this.onGold,
       goldSoft: goldSoft ?? this.goldSoft,
       goldInk: goldInk ?? this.goldInk,
+      warning: warning ?? this.warning,
+      warningSoft: warningSoft ?? this.warningSoft,
+      onWarning: onWarning ?? this.onWarning,
+      kaaba: kaaba ?? this.kaaba,
       focus: focus ?? this.focus,
       scrim: scrim ?? this.scrim,
       cardShadow: cardShadow ?? this.cardShadow,
@@ -172,6 +200,10 @@ class WirdColors extends ThemeExtension<WirdColors> {
       onGold: l(onGold, other.onGold),
       goldSoft: l(goldSoft, other.goldSoft),
       goldInk: l(goldInk, other.goldInk),
+      warning: l(warning, other.warning),
+      warningSoft: l(warningSoft, other.warningSoft),
+      onWarning: l(onWarning, other.onWarning),
+      kaaba: l(kaaba, other.kaaba),
       focus: l(focus, other.focus),
       scrim: l(scrim, other.scrim),
       cardShadow: t < 0.5 ? cardShadow : other.cardShadow,

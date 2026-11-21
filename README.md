@@ -24,6 +24,8 @@ Works fully offline. Both fonts ship in the app (`assets/fonts/`, SIL OFL): **IB
 - The next prayer is highlighted, with a countdown to it. After Isha it shows tomorrow's Fajr.
 - The times update by themselves after midnight.
 
+**Qibla** (`features/qibla`): from the chosen city, a dial that turns with the phone (true north via `true_compass`, behind `HeadingSource`) with «لفّ يمين/شمال N°» until the Kaaba is under the pointer, and a light haptic when aligned. It says plainly when not to trust it: calibration needed, or iron/a magnet nearby (Android, from the magnetometer). «القبلة بالشمس» gives the turn from the sun on any phone, with a step-by-step sheet; on the two days a year the sun passes over the Kaaba a card gives the time. Phones without a compass get the angle («140° جنوب شرق»). The screen stays on while open. iOS 15+.
+
 **Adhan**: a «صوت الأذان» switch on the prayer-times screen, with a bell per prayer, and a chip on the home next-prayer card that shows whether it's on and opens that screen. Each enabled prayer gets a notification with the adhan sound at its time: a Fajr adhan for Fajr and the regular adhan for the others. Adhans are scheduled 10 days ahead, and again on every app start or city change. On Android a daily background task (`workmanager`, `app/background_refresh.dart`) schedules them again, so they don't stop if the app isn't opened. A second switch, «يأذّن والموبايل صامت» (Android), plays the adhan on the alarm volume through its own channels, so it sounds on silent too. Turning the adhan on asks for notification permission, and for exact alarms on Android.
 
 Sounds:
@@ -70,6 +72,7 @@ lib/
     azkar/             data (azkar, saved progress), cubits, screens, sabha mode
     prayer_times/      cities, calculation, prayer-times screen, city picker
     adhan/             settings, plan, scheduling the notifications
+    qibla/             bearing + sun math, compass source, QiblaCubit, dial and screen
     about/             app info, version badge, «عن التطبيق» screen
 test/                  mirrors lib/: test/features/<feature>/…
 ```
