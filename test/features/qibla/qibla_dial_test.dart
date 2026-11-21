@@ -74,4 +74,30 @@ void main() {
     );
     expect(opacity.opacity, 0.45);
   });
+
+  testWidgets('a narrow phone scales the whole dial down', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 280,
+              child: QiblaDial(
+                heading: 0,
+                qibla: 90,
+                aligned: false,
+                dimmed: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final dial = find.byType(QiblaDial);
+    expect(tester.getSize(dial).width, lessThanOrEqualTo(280));
+    // The painter keeps its full design size and is scaled, not clipped.
+    final paint = find.descendant(of: dial, matching: find.byType(CustomPaint));
+    expect(tester.getSize(paint.first), const Size(300, 316));
+  });
 }

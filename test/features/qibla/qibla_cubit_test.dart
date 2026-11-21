@@ -120,6 +120,7 @@ void main() {
     source.fieldCtrl.add(4);
     await tester.pump(const Duration(milliseconds: 1100));
     expect(cubit.state.interference, isFalse);
+    await heading(tester, 139.9);
     expect(cubit.state.aligned, isTrue);
   });
 
@@ -178,5 +179,53 @@ void main() {
     await startWith(tester);
     await cubit.close();
     expect(source.disposed, isTrue);
+  });
+
+  qiblaTest('readings that stop are not trusted', (tester) async {
+    await startWith(tester);
+    await heading(tester, 139.9);
+    expect(cubit.state.aligned, isTrue);
+    await tester.pump(const Duration(milliseconds: 1100));
+    expect(cubit.state.stale, isTrue);
+    expect(cubit.state.unreliable, isTrue);
+    expect(cubit.state.aligned, isFalse);
+    await heading(tester, 139.9);
+    expect(cubit.state.stale, isFalse);
+    expect(cubit.state.aligned, isTrue);
+  });
+
+  qiblaTest('a stream that ends → noSensor', (tester) async {
+    await startWith(tester);
+    await heading(tester, 139.9);
+    await source.readingsCtrl.close();
+    await tester.pump();
+    expect(cubit.state.status, QiblaStatus.noSensor);
+  });
+
+  qiblaTest('no flicker at the edge: in at 3°, out only past 4°', (tester) async {
+    await startWith(tester);
+    await heading(tester, 139.9);
+    expect(cubit.state.alignedCount, 1);
+    await heading(tester, 143.4); // 3.5° off: stays aligned
+    expect(cubit.state.aligned, isTrue);
+    await heading(tester, 144.5); // 4.6° off: out
+    expect(cubit.state.aligned, isFalse);
+    await heading(tester, 143.4); // 3.5° off: not back in yet
+    expect(cubit.state.aligned, isFalse);
+    await heading(tester, 142.5); // 2.6° off: in again
+    expect(cubit.state.aligned, isTrue);
+    expect(cubit.state.alignedCount, 2);
+  });
+
+  qiblaTest('the sun keeps moving without a compass', (tester) async {
+    var now = DateTime.utc(2026, 11, 21, 12);
+    source = FakeHeadingSource(isAvailable: false);
+    cubit = QiblaCubit(source, _mansoura, nowUtc: () => now);
+    await cubit.start();
+    await tester.pump();
+    final before = cubit.state.sun.azimuth;
+    now = now.add(const Duration(hours: 1));
+    await tester.pump(const Duration(seconds: 31));
+    expect(cubit.state.sun.azimuth, greaterThan(before + 5));
   });
 }

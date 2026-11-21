@@ -114,6 +114,28 @@ void main() {
     await done(tester);
   });
 
+  testWidgets('no compass at night: no «use the compass» advice', (
+    tester,
+  ) async {
+    await pumpQibla(
+      tester,
+      available: false,
+      now: DateTime.utc(2026, 11, 21, 22),
+    );
+    expect(find.text('الشمس غابت، استخدم البوصلة'), findsNothing);
+    expect(find.text('الشمس غابت، استخدم الزاوية فوق'), findsOneWidget);
+    await done(tester);
+  });
+
+  testWidgets('frozen readings ask to hold the phone flat', (tester) async {
+    await pumpQibla(tester);
+    await heading(tester, 139.9);
+    await tester.pump(const Duration(milliseconds: 1100));
+    expect(find.text('إنت في اتجاه القبلة'), findsNothing);
+    expect(find.text('خلّي الموبايل مفرود'), findsOneWidget);
+    await done(tester);
+  });
+
   for (final variant in ['live', 'calibrate', 'noSensor']) {
     testWidgets('narrow phone, large text: $variant fits', (tester) async {
       tester.view.physicalSize = const Size(960, 1920);
