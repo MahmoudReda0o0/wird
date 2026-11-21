@@ -149,11 +149,13 @@ void main() {
     expect(cubit.state.sun.isUp, isTrue);
     expect(cubit.state.sun.azimuth, closeTo(218, 1.5));
     expect(cubit.state.sunDelta, closeTo(-78, 2));
+    await cubit.close(); // its start-up timer
   });
 
   testWidgets('at night the sun is down', (tester) async {
     await startWith(tester, now: DateTime.utc(2026, 11, 21, 22));
     expect(cubit.state.sun.isUp, isFalse);
+    await cubit.close(); // its start-up timer
   });
 
   testWidgets('the Kaaba sun day is known only on that day', (tester) async {
@@ -164,6 +166,7 @@ void main() {
 
     await startWith(tester, now: transit.subtract(const Duration(days: 1)));
     expect(cubit.state.kaabaSunToday, isNull);
+    await cubit.close(); // its start-up timer
   });
 
   testWidgets('closing disposes the source', (tester) async {
