@@ -47,7 +47,12 @@ class QiblaCubit extends Cubit<QiblaState> {
 
   Future<void> start() async {
     _sunAt = _now();
-    if (!await _source.available()) {
+    // A plugin that never answers counts as no compass.
+    final available = await _source.available().timeout(
+      startTimeout,
+      onTimeout: () => false,
+    );
+    if (!available) {
       if (!isClosed) emit(state.copyWith(status: QiblaStatus.noSensor));
       return;
     }

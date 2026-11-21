@@ -121,10 +121,14 @@ class _Body extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          // Wraps under the chip on a narrow phone with large text.
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpace.s3,
+            runSpacing: AppSpace.s2,
             children: [
               PrayerCityChip(name: s.city.name),
-              const Spacer(),
               if (live) AccuracyBars(level: s.accuracy),
             ],
           ),
@@ -265,17 +269,16 @@ class _NoCompass extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppText.title.copyWith(color: c.ink),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpace.s2,
           children: [
             Text(
               '${s.qibla.round()}°',
               textDirection: TextDirection.ltr,
               style: AppText.display.copyWith(color: c.primary),
             ),
-            const SizedBox(width: AppSpace.s2),
             Text(
               QiblaMath.compassPoint(s.qibla),
               style: AppText.heading.copyWith(color: c.primary),
