@@ -6,6 +6,8 @@
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>NSMotionUsageDescription</key>
+		<string>وِرْد بيستخدم حساسات الموبايل عشان يعرف اتجاه القبلة.</string>
 		<key>CFBundleDisplayName</key>
 		<string>وِرْد</string>
 		<key>CFBundleExecutable</key>
