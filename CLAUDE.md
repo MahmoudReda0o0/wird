@@ -1,9 +1,10 @@
 # وِرْد (Wird) — ملخص المشروع للشغل في Claude Code
 
 > Claude Code بيقرا الملف ده لوحده في أول كل جلسة. حدّثه لما حاجة مهمة تتغير.
-> آخر تحديث: 20 نوفمبر 2026. النسخة على `main` هي `1.0.0+2`.
+> آخر تحديث: 21 نوفمبر 2026. النسخة على `main` هي `1.0.0+2`.
 
 ## المشروع
+- **⚠️ Android بس دلوقتي.** مش هنشتغل على iOS خالص لحد ما Mahmoud يقول. ما تعملش أي حاجة تخص الآيفون: لا ملفات في `ios/`، ولا `Info.plist`، ولا pods، ولا أصوات `.caf`، ولا تجارب على iOS، ولا قرارات تصميم أو packages عشان خاطر iOS. لو feature محتاجة حاجة على iOS، اكتبها في الـ PR كـ «مؤجل لـ iOS» وكمّل Android. الإعدادات اللي موجودة دلوقتي في `ios/` (أقل نسخة 15، والأصوات، و`NSMotionUsageDescription`) تفضل زي ما هي، بس ما تتعدّلش.
 - تطبيق Flutter عربي (RTL) للأذكار ومواقيت الصلاة. الـ repo: `MahmoudReda0o0/wird`. اسم الـ Dart package `my_guide`، ومش هنغيّره دلوقتي.
 - الـ App ID `com.mahmoudreda.wird` على Android وiOS، والاسم الظاهر «وِرْد». النسخة الحالية `1.0.0+2`.
 - التصميم (Claude Design canvas): https://claude.ai/artifact/GUnUgbYYBFF7WRFV5giQX5. فيه الهوم (فاتح وغامق وبعد العشاء)، وإضافات الـ design system، وصفحة الأذكار، ووضع السبحة.
@@ -111,7 +112,7 @@ flutter pub get && flutter analyze && flutter test
 - **`flutter_local_notifications` 22:** الـ parameters كلها named، زي `initialize(settings:)` و`zonedSchedule(id:, title:, body:, scheduledDate:, notificationDetails:, androidScheduleMode:)`.
 - **الإشعارات:** كل feature ليه نطاق ids في `core/notifications/notification_ids.dart`، والأذان واخد 1000–1999، وإشعار التحديث 9000. أي feature بيلغي النطاق بتاعه بس بـ `cancelRanges`، وممنوع `cancelAll`. الشاشات اللي بتعمل Cubit بنفسها بتاخد الـ prefs من `context.read<SharedPreferences>()`.
 - **صوت الـ channel على Android:** بيتثبّت أول ما الـ channel يتعمل. لو غيّرت ملف صوت، غيّر الـ channel id معاه (`adhan_v2`).
-- **iOS:** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
+- **iOS (مؤجل، مرجع بس):** صوت الإشعار أقصاه 30 ثانية، والصيغة لازم caf أو wav أو aiff مش mp3.
 - **الـ Native splash:** خلفية بيضا، وفي النص السبحة (`SabhaIcon`) بلون الـ primary، والكلام ده في الوضع الفاتح والغامق. الإعدادات في آخر `pubspec.yaml` (`flutter_native_splash`). الصور في `assets/splash/`، وبتتعمل بـ `flutter test tool/render_splash_test.dart`. بعد أي تعديل شغّل `dart run flutter_native_splash:create`، وما تعدّلش ملفات الـ splash في android/ios بإيدك.
 - **القبلة:** من إحداثيات المدينة المختارة (مفيش GPS). البوصلة `true_compass` (شمال حقيقي من موديل WMM2025) ورا `HeadingSource`، فلو حبيت تبدّل الـ package غيّر `DeviceHeadingSource` بس. ده خلّى أقل نسخة iOS بقت **15**. تحذير الحديد من `sensors_plus` على Android بس. التصميم في كانفاس «Wird — القبلة»: https://claude.ai/artifact/RpBu25V8JMBVydr7ixRWgQ. الخطة والـ design في `docs/superpowers/`.
 - **Widget tests والـ Cubits اللي بتسمع لـ streams:** اقفل الـ Cubit جوه جسم التيست نفسه، مش في `tearDown` (بيعلّق)، وما تعملش `await` على `cancel()` للـ subscriptions في `close()`.
