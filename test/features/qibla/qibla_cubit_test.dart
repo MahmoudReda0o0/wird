@@ -40,7 +40,7 @@ void main() {
   // Closes inside the test's fake-async zone: a tearDown would await the
   // cubit's stream controllers outside it and never finish.
   void qiblaTest(String name, Future<void> Function(WidgetTester) body) =>
-      qiblaTest(name, (tester) async {
+      testWidgets(name, (tester) async {
         await body(tester);
         await cubit.close();
       });
