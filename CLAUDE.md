@@ -83,10 +83,15 @@ flutter pub get && flutter analyze && flutter test
    - `UpdateChecker` (`features/about/cubit`): بيشيك عند الفتح، وتاني لما التطبيق يرجع للـ foreground لو آخر شيك ناجح أقدم من 30 دقيقة، وبيعيد كل دقيقتين طول ما الشيك فاشل (مفيش نت) والتطبيق مفتوح.
    - «يأذّن والموبايل صامت» (`AdhanSettings.asAlarm`، key: `adhan_as_alarm`): channels جديدة `adhan_alarm_v1` و`adhan_fajr_alarm_v1` بـ `AudioAttributesUsage.alarm`. على iOS مش متاح (محتاج critical alerts من Apple).
    - الـ CI فيه job تاني «Build APK (debug)» عشان أخطاء Gradle والـ plugins تبان في الـ PR.
-6. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
-7. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
-8. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
-9. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
+6. **الأذان كامل أو التكبيرة بس:** اختيار في شاشة المواقيت جنب «يأذّن والموبايل صامت»: الأذان كامل، أو أول مقطع بس («الله أكبر، الله أكبر») ويقف لوحده.
+   - محتاج ملفات صوت قصيرة لكل أذان (العادي والفجر)، تتقص من الملفات الحالية في `android/app/src/main/res/raw/` بـ ffmpeg، ومعاها fade صغير في الآخر.
+   - صوت الـ channel على Android بيتثبّت أول ما الـ channel يتعمل، فالنسخة القصيرة محتاجة channels جديدة لكل مجموعة: عادي/فجر × إشعار/منبّه (`adhan_short_v1`، `adhan_fajr_short_v1`، `adhan_alarm_short_v1`، `adhan_fajr_alarm_short_v1`).
+   - setting جديد في `AdhanSettings` (key مقترح: `adhan_short`)، و`AdhanService.detailsFor` بيختار الـ channel.
+   - iOS مؤجل.
+7. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
+8. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
+9. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
+10. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
 
 ## حاجات Manual على Mahmoud
 - امسح الـ branches القديمة: `feature/light-dark-theme`، `fix/review-issues`، `sabha`، `feature/new-home`، `feature/adhan`، `refactor/bloc`، `feature/app-version`.
