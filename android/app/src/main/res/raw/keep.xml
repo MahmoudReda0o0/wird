@@ -2,4 +2,4 @@
 <!-- The adhan sounds are only referenced by name from Dart, so tell the
      resource shrinker to keep them in release builds. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@raw/adhan,@raw/adhan_fajr" />
+    tools:keep="@raw/adhan,@raw/adhan_fajr,@raw/adhan_short,@raw/adhan_fajr_short" />

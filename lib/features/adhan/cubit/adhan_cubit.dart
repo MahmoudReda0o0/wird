@@ -21,10 +21,15 @@ class AdhanCubit extends Cubit<AdhanSettings> {
   static const _prayersKey = 'adhan_prayers';
   static const _asAlarmKey = 'adhan_as_alarm';
 
+  /// Prayers that play only the opening takbir. Older installs don't have
+  /// it: everything that's on stays the full adhan.
+  static const _shortKey = 'adhan_short_prayers';
+
   /// The saved settings. Also read by the background task, which has no
   /// cubit.
   static AdhanSettings readSaved(SharedPreferences prefs) {
     final saved = prefs.getStringList(_prayersKey);
+    final short = prefs.getStringList(_shortKey) ?? const <String>[];
     return AdhanSettings(
       enabled: prefs.getBool(_enabledKey) ?? false,
       prayers: saved == null
@@ -33,6 +38,10 @@ class AdhanCubit extends Cubit<AdhanSettings> {
               for (final k in AdhanSettings.allPrayers)
                 if (saved.contains(k)) k,
             ],
+      shortPrayers: [
+        for (final k in AdhanSettings.allPrayers)
+          if (short.contains(k)) k,
+      ],
       asAlarm: prefs.getBool(_asAlarmKey) ?? false,
     );
   }
@@ -49,6 +58,10 @@ class AdhanCubit extends Cubit<AdhanSettings> {
   /// silent too.
   Future<void> setAsAlarm(bool on) => _save(state.copyWith(asAlarm: on));
 
+  /// Full adhan, opening takbir only, or silent for one prayer.
+  Future<void> setSound(String prayerKey, AdhanSound sound) =>
+      _save(state.withSound(prayerKey, sound));
+
   /// Turns one prayer's adhan on or off.
   Future<void> togglePrayer(String prayerKey) =>
       _save(state.toggle(prayerKey));
@@ -57,6 +70,7 @@ class AdhanCubit extends Cubit<AdhanSettings> {
     emit(value);
     await _prefs.setBool(_enabledKey, value.enabled);
     await _prefs.setStringList(_prayersKey, value.prayers);
+    await _prefs.setStringList(_shortKey, value.shortPrayers);
     await _prefs.setBool(_asAlarmKey, value.asAlarm);
   }
 }

@@ -33,6 +33,13 @@ class AdhanService {
   static const _alarmChannelId = 'adhan_alarm_v1';
   static const _fajrAlarmChannelId = 'adhan_fajr_alarm_v1';
 
+  /// The opening takbir only (`adhan_short`, `adhan_fajr_short`: the first
+  /// 12 seconds), on the notification or the alarm volume.
+  static const _shortChannelId = 'adhan_short_v1';
+  static const _fajrShortChannelId = 'adhan_fajr_short_v1';
+  static const _alarmShortChannelId = 'adhan_alarm_short_v1';
+  static const _fajrAlarmShortChannelId = 'adhan_fajr_alarm_short_v1';
+
   /// Asks for notification permission (and exact alarms on Android).
   /// Waits for the notifications setup, so it works right after launch.
   static Future<bool> requestPermission() =>
@@ -98,22 +105,115 @@ class AdhanService {
         title: 'حان الآن موعد أذان ${p.name}',
         body: '${city.name} · ${PrayerTimingData.format(p.time)}',
         at: p.time,
-        details: detailsFor(fajr: p.key == 'fajr', asAlarm: settings.asAlarm),
+        details: detailsFor(
+          fajr: p.key == 'fajr',
+          asAlarm: settings.asAlarm,
+          short: settings.soundOf(p.key) == AdhanSound.short,
+        ),
         exact: exact,
       );
     }
   }
 
-  /// The notification for one adhan: the Fajr or the regular sound, on
-  /// the notification volume or (Android) the alarm volume.
+  /// The notification for one adhan: the Fajr or the regular sound, whole
+  /// or the opening takbir only, on the notification volume or (Android)
+  /// the alarm volume.
   @visibleForTesting
   static NotificationDetails detailsFor({
     required bool fajr,
     required bool asAlarm,
+    bool short = false,
   }) {
+    if (short) {
+      if (asAlarm) return fajr ? _fajrAlarmShortDetails : _alarmShortDetails;
+      return fajr ? _fajrShortDetails : _shortDetails;
+    }
     if (asAlarm) return fajr ? _fajrAlarmDetails : _alarmDetails;
     return fajr ? _fajrDetails : _details;
   }
+
+  // The short adhans: Android only for now (iOS is on hold), so iOS keeps
+  // the regular sound.
+  static const _shortDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _shortChannelId,
+      'الأذان (أول مقطع)',
+      channelDescription: 'أول مقطع من الأذان: الله أكبر، الله أكبر',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan_short'),
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  static const _fajrShortDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _fajrShortChannelId,
+      'أذان الفجر (أول مقطع)',
+      channelDescription: 'أول مقطع من أذان الفجر',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan_fajr_short'),
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan_fajr.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  static const _alarmShortDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _alarmShortChannelId,
+      'الأذان (أول مقطع، صوت المنبّه)',
+      channelDescription: 'أول مقطع من الأذان بصوت المنبّه، بيأذّن والموبايل صامت',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan_short'),
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+      category: AndroidNotificationCategory.alarm,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  static const _fajrAlarmShortDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _fajrAlarmShortChannelId,
+      'أذان الفجر (أول مقطع، صوت المنبّه)',
+      channelDescription:
+          'أول مقطع من أذان الفجر بصوت المنبّه، بيأذّن والموبايل صامت',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('adhan_fajr_short'),
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+      category: AndroidNotificationCategory.alarm,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      sound: 'adhan_fajr.caf',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
 
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(

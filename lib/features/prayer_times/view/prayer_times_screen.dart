@@ -119,12 +119,12 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
                     isNext: i == nextIndex,
                     isPast: !prayers[i].time.isAfter(now),
                     trailing: adhan.enabled && prayers[i].isPrayer
-                        ? _AdhanBell(
+                        ? _AdhanSoundButton(
                             prayerName: prayers[i].name,
-                            on: adhan.isOn(prayers[i].key),
-                            onTap: () => context
+                            sound: adhan.soundOf(prayers[i].key),
+                            onSelected: (sound) => context
                                 .read<AdhanCubit>()
-                                .togglePrayer(prayers[i].key),
+                                .setSound(prayers[i].key, sound),
                           )
                         : (adhan.enabled ? const SizedBox(width: 40) : null),
                   ),
@@ -141,7 +141,7 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
                 : Icons.notifications_none_rounded,
             title: 'صوت الأذان',
             subtitle: adhan.enabled
-                ? 'هيأذّن في وقت كل صلاة عليها الجرس'
+                ? 'اختار لكل صلاة: الأذان كامل أو أول مقطع أو صامت'
                 : 'شغّله عشان يأذّن في وقت كل صلاة',
           ),
           // Android only: iOS can't play past silent mode.
@@ -213,29 +213,76 @@ class _SettingSwitch extends StatelessWidget {
 }
 
 /// Per-prayer adhan on/off, shown beside each time while the adhan is on.
-class _AdhanBell extends StatelessWidget {
-  const _AdhanBell({
+/// One prayer's adhan: full, opening takbir only, or silent.
+class _AdhanSoundButton extends StatelessWidget {
+  const _AdhanSoundButton({
     required this.prayerName,
-    required this.on,
-    required this.onTap,
+    required this.sound,
+    required this.onSelected,
   });
   final String prayerName;
-  final bool on;
-  final VoidCallback onTap;
+  final AdhanSound sound;
+  final ValueChanged<AdhanSound> onSelected;
+
+  static const _labels = {
+    AdhanSound.full: 'الأذان كامل',
+    AdhanSound.short: 'أول مقطع بس',
+    AdhanSound.silent: 'صامت',
+  };
+
+  static IconData _icon(AdhanSound s) => switch (s) {
+    AdhanSound.full => Icons.volume_up_rounded,
+    AdhanSound.short => Icons.volume_down_rounded,
+    AdhanSound.silent => Icons.volume_off_rounded,
+  };
 
   @override
   Widget build(BuildContext context) {
     final c = context.wird;
-    return IconButton(
-      onPressed: onTap,
-      tooltip: on ? 'إيقاف أذان $prayerName' : 'تشغيل أذان $prayerName',
-      iconSize: 22,
-      style: IconButton.styleFrom(fixedSize: const Size(40, 40)),
-      icon: Icon(
-        on
-            ? Icons.notifications_active_rounded
-            : Icons.notifications_off_outlined,
-        color: on ? c.primary : c.inkMuted,
+    return PopupMenuButton<AdhanSound>(
+      tooltip: 'أذان $prayerName: ${_labels[sound]}',
+      initialValue: sound,
+      onSelected: onSelected,
+      position: PopupMenuPosition.under,
+      color: c.surfaceRaised,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      itemBuilder: (_) => [
+        for (final s in AdhanSound.values)
+          PopupMenuItem(
+            value: s,
+            child: Row(
+              children: [
+                Icon(
+                  _icon(s),
+                  size: 20,
+                  color: s == AdhanSound.silent ? c.inkMuted : c.primary,
+                ),
+                const SizedBox(width: AppSpace.s3),
+                Expanded(
+                  child: Text(
+                    _labels[s]!,
+                    style: AppText.body.copyWith(
+                      color: c.ink,
+                      fontWeight: s == sound ? FontWeight.w600 : null,
+                    ),
+                  ),
+                ),
+                if (s == sound)
+                  Icon(Icons.check_rounded, size: 20, color: c.primary),
+              ],
+            ),
+          ),
+      ],
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: Icon(
+          _icon(sound),
+          size: 22,
+          color: sound == AdhanSound.silent ? c.inkMuted : c.primary,
+        ),
       ),
     );
   }

@@ -83,14 +83,13 @@ flutter pub get && flutter analyze && flutter test
    - `UpdateChecker` (`features/about/cubit`): بيشيك عند الفتح، وتاني لما التطبيق يرجع للـ foreground لو آخر شيك ناجح أقدم من 30 دقيقة، وبيعيد كل دقيقتين طول ما الشيك فاشل (مفيش نت) والتطبيق مفتوح.
    - «يأذّن والموبايل صامت» (`AdhanSettings.asAlarm`، key: `adhan_as_alarm`): channels جديدة `adhan_alarm_v1` و`adhan_fajr_alarm_v1` بـ `AudioAttributesUsage.alarm`. على iOS مش متاح (محتاج critical alerts من Apple).
    - الـ CI فيه job تاني «Build APK (debug)» عشان أخطاء Gradle والـ plugins تبان في الـ PR.
-6. **الأذان لكل صلاة: كامل / أول مقطع / صامت:**
-   - switch «صوت الأذان» الكبير يفضل زي ما هو: بيشغّل الأذان كله أو يخلّيه صامت، من غير ما اختيارات الصلوات تضيع.
-   - جنب كل صلاة اختيار من 3 بدل الجرس: الأذان كامل، أو أول مقطع بس («الله أكبر، الله أكبر») ويقف لوحده، أو صامت. الاختيار خاص بكل صلاة لوحدها.
-   - تحت خالص يفضل switch «يأذّن والموبايل صامت» (صوت المنبّه) زي ما هو، وبيسري على كل الصلوات.
-   - Mahmoud هيبعت توقيت نهاية أول مقطع لكل ملف (العادي والفجر). الملفات القصيرة تتقص من `android/app/src/main/res/raw/` بـ ffmpeg عند التوقيت ده، ومعاها fade صغير في الآخر، ويسمعها قبل ما تدخل التطبيق.
-   - صوت الـ channel على Android بيتثبّت أول ما الـ channel يتعمل، فالنسخة القصيرة محتاجة channels جديدة: عادي/فجر × إشعار/منبّه (`adhan_short_v1`، `adhan_fajr_short_v1`، `adhan_alarm_short_v1`، `adhan_fajr_alarm_short_v1`).
-   - `AdhanSettings`: اختيار لكل صلاة (key مقترح: `adhan_modes`) بدل قايمة `adhan_prayers`. القديم يتنقل: الصلاة اللي كان جرسها شغال تبقى «كامل»، والباقي «صامت». `AdhanPlan` بيتخطى الصامت، و`AdhanService.detailsFor` بيختار الـ channel.
-   - iOS مؤجل.
+6. ~~**الأذان لكل صلاة: كامل / أول مقطع / صامت**~~ ✅ (من غير تيستات لسه):
+   - switch «صوت الأذان» الكبير زي ما هو. جنب كل صلاة `_AdhanSoundButton` (قايمة من 3: الأذان كامل، أول مقطع بس، صامت) بدل الجرس. و«يأذّن والموبايل صامت» تحت زي ما هو.
+   - `AdhanSound { full, short, silent }`. `AdhanSettings.prayers` لسه معناها «مش صامت» (key: `adhan_prayers`)، و`shortPrayers` (key: `adhan_short_prayers`) اللي على أول مقطع. كده الإعدادات القديمة شغالة من غير نقل. `soundOf(key)` و`withSound(key, sound)` و`AdhanCubit.setSound`.
+   - الأصوات القصيرة: `res/raw/adhan_short.mp3` و`adhan_fajr_short.mp3` (أول 12 ثانية، و fade آخر 0.6 ثانية، 16kHz mono 16kbps زي الأصل)، ومتضافين في `keep.xml`.
+   - channels جديدة: `adhan_short_v1`، `adhan_fajr_short_v1`، `adhan_alarm_short_v1`، `adhan_fajr_alarm_short_v1`. `AdhanService.detailsFor(fajr:, asAlarm:, short:)`.
+   - **التيستات القديمة اللي هتحتاج تتعدّل:** `prayer_times_screen_test` بتدوّر على tooltip «إيقاف/تشغيل أذان الفجر» (الـ tooltip بقى «أذان الفجر: الأذان كامل»).
+   - iOS مؤجل (بيشغّل الأذان الكامل).
 7. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
 8. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
 9. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
