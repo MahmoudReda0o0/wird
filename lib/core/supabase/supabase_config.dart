@@ -14,7 +14,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract final class SupabaseConfig {
   static const url = 'https://eyiwzvfkyhiuuibavwpv.supabase.co';
 
-  static const _bundledKey = '';
+  static const _bundledKey = 'sb_publishable_N19IiZEn14eZAgLElP-SLw_F3Z8ydsR';
 
   static const publishableKey = String.fromEnvironment(
     'SUPABASE_PUBLISHABLE_KEY',
