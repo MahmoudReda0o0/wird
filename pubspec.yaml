@@ -45,6 +45,10 @@ dependencies:
   flutter_local_notifications: ^22.3.0
   workmanager: ^0.10.10
   true_compass: ^0.0.2
+  # Temporary, for the compass comparison screen.
+  flutter_compass: ^0.8.1
+  precise_compass: ^0.2.0
+  flutter_rotation_sensor: ^0.4.1
   sensors_plus: ^7.0.0
   wakelock_plus: ^1.6.0
 

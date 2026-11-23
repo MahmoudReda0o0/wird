@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_guide/app/router/app_routes.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/core/time/app_clock.dart';
 import 'package:my_guide/core/widgets/custom_appbar.dart';
@@ -81,6 +82,13 @@ class _QiblaScreenState extends State<QiblaScreen> {
           appBar: CustomAppBar(
             title: 'القبلة',
             actions: [
+              // Temporary: compare the compass packages on a real phone.
+              IconButton(
+                tooltip: 'مقارنة البوصلات',
+                icon: Icon(Icons.compare_arrows_rounded, color: c.primary),
+                onPressed: () =>
+                    Navigator.pushNamed(context, AppRoutes.qiblaCompare),
+              ),
               Tooltip(
                 message: 'الشاشة هتفضل منوّرة طول ما إنت هنا',
                 child: Padding(
