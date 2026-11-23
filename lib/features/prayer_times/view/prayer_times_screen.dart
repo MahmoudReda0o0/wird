@@ -43,6 +43,9 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
   Widget build(BuildContext context) {
     return CustomScreen(
       appBar: const CustomAppBar(title: 'مواقيت الصلاة'),
+      // The padding lives inside the scroll view, so content scrolls to the
+      // screen edge instead of being cut off 20px short of it.
+      screenPadding: 0,
       body: Builder(
         builder: (context) => _buildBody(
           context,
@@ -79,7 +82,15 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
         : prayers.indexWhere((p) => p.name == next.entry.name);
 
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        20,
+        20,
+        20 + MediaQuery.viewPaddingOf(context).bottom,
+      ),
       child: Column(
         children: [
           PrayerCityChip(name: city.name),
@@ -140,9 +151,7 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
                 ? Icons.notifications_active_rounded
                 : Icons.notifications_none_rounded,
             title: 'صوت الأذان',
-            subtitle: adhan.enabled
-                ? 'اختار لكل صلاة: الأذان كامل أو أول مقطع أو صامت'
-                : 'شغّله عشان يأذّن في وقت كل صلاة',
+            subtitle: adhan.enabled ? "تم تشغيل صوت الأذان" : "الأذان صامت",
           ),
           // Android only: iOS can't play past silent mode.
           if (adhan.enabled &&
@@ -152,10 +161,8 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
               on: adhan.asAlarm,
               onChanged: context.read<AdhanCubit>().setAsAlarm,
               icon: Icons.alarm_rounded,
-              title: 'يأذّن والموبايل صامت',
-              subtitle: adhan.asAlarm
-                  ? 'الأذان على صوت المنبّه، فبيشتغل حتى في الصامت'
-                  : 'شغّله عشان الأذان يطلع على صوت المنبّه',
+              title: "الأذان في الوضع الصامت",
+              subtitle: adhan.asAlarm ? "تشغيل صوت الأذان" : "تم إيقاف الأذان",
             ),
           ],
         ],
@@ -226,7 +233,7 @@ class _AdhanSoundButton extends StatelessWidget {
 
   static const _labels = {
     AdhanSound.full: 'الأذان كامل',
-    AdhanSound.short: 'أول مقطع بس',
+    AdhanSound.short: 'أول مقطع',
     AdhanSound.silent: 'صامت',
   };
 
