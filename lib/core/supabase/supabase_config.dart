@@ -35,7 +35,7 @@ abstract final class SupabaseConfig {
   static Future<void> init() async {
     if (!isConfigured || _ready) return;
     try {
-      await Supabase.initialize(url: url, anonKey: publishableKey);
+      await Supabase.initialize(url: url, publishableKey: publishableKey);
       _ready = true;
     } catch (e) {
       debugPrint('Supabase init failed: $e');

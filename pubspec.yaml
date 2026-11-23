@@ -48,7 +48,7 @@ dependencies:
   # Temporary, for the compass comparison screen.
   flutter_compass: ^0.8.1
   precise_compass: ^0.2.0
-  flutter_rotation_sensor: ^0.4.1
+  flutter_rotation_sensor: ^0.3.1
   sensors_plus: ^7.0.0
   wakelock_plus: ^1.6.0
   # Backend: seasonal themes (Ramadan, Eid). Config in core/supabase.
