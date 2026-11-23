@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_guide/app/app.dart';
 import 'package:my_guide/app/background_refresh.dart';
+import 'package:my_guide/core/supabase/supabase_config.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/about/cubit/update_checker.dart';
@@ -23,6 +24,8 @@ Future<void> bootstrap() async {
   _registerFontLicenses();
   final prefs = await SharedPreferences.getInstance();
   final package = await PackageInfo.fromPlatform();
+  // Local setup only (no network); skipped until a key is set.
+  await SupabaseConfig.init();
 
   // App-wide state, read from preferences once. Screens get these through
   // the MultiBlocProvider in MyApp.
