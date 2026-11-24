@@ -19,6 +19,7 @@ class SeasonStore {
   static const _themesKey = 'season_themes';
   static const _imagesKey = 'season_images';
   static const _notesKey = 'season_notes_seen';
+  static const _hijriOffsetKey = 'hijri_offset';
 
   /// How many days ahead a theme (or its countdown) is downloaded.
   static const window = 15;
@@ -58,6 +59,10 @@ class SeasonStore {
     }
   }
 
+  /// Days added to the Hijri date (`app_config.hijri_offset`), as last read.
+  static int hijriOffset(SharedPreferences prefs) =>
+      prefs.getInt(_hijriOffsetKey) ?? 0;
+
   /// Whether the note dialog of [slug] was already shown.
   static bool noteSeen(SharedPreferences prefs, String slug) =>
       (prefs.getStringList(_notesKey) ?? const []).contains(slug);
@@ -83,6 +88,7 @@ class SeasonStore {
   /// False when Supabase couldn't be read (nothing saved is lost then,
   /// except themes that are over).
   static Future<bool> refresh(SharedPreferences prefs, DateTime today) async {
+    await _refreshHijriOffset(prefs);
     final rows = await _getJson(
       Uri.parse('${SupabaseConfig.url}/rest/v1/themes').replace(
         queryParameters: {
@@ -115,6 +121,19 @@ class SeasonStore {
     }
     await _save(prefs, themes, images);
     return true;
+  }
+
+  static Future<void> _refreshHijriOffset(SharedPreferences prefs) async {
+    final rows = await _getJson(
+      Uri.parse('${SupabaseConfig.url}/rest/v1/app_config').replace(
+        queryParameters: {'select': 'hijri_offset', 'id': 'eq.1'},
+      ),
+    );
+    if (rows is! List || rows.isEmpty || rows.first is! Map) return;
+    final offset = (rows.first as Map)['hijri_offset'];
+    if (offset is int && offset.abs() <= 2) {
+      await prefs.setInt(_hijriOffsetKey, offset);
+    }
   }
 
   static Future<void> _save(

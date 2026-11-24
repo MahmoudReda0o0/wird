@@ -16,6 +16,7 @@ class SeasonState {
     this.daysLeft = 0,
     this.images = const {},
     this.noteSeen = true,
+    this.hijriOffset = 0,
   });
 
   /// The theme that's on today (the highest priority one), if any.
@@ -32,6 +33,9 @@ class SeasonState {
 
   /// Whether [active]'s note dialog was already shown.
   final bool noteSeen;
+
+  /// Days added to the Hijri date (`app_config.hijri_offset`).
+  final int hijriOffset;
 
   ImageProvider? image(String? path) => path == null ? null : images[path];
 
@@ -108,6 +112,7 @@ class SeasonCubit extends Cubit<SeasonState> {
       daysLeft: upcoming?.daysUntil(today) ?? 0,
       images: _images,
       noteSeen: active == null || SeasonStore.noteSeen(_prefs, active.slug),
+      hijriOffset: SeasonStore.hijriOffset(_prefs),
     );
   }
 }

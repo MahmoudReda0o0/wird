@@ -53,6 +53,8 @@ dependencies:
   wakelock_plus: ^1.6.0
   # Backend: seasonal themes (Ramadan, Eid). Config in core/supabase.
   supabase_flutter: ^2.12.0
+  # Hijri date (Umm al-Qura), see core/time/hijri_date.dart.
+  hijri: ^3.0.1
 
   flutter_localizations:
     sdk: flutter

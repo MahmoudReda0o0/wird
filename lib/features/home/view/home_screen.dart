@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/app/router/app_routes.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
+import 'package:my_guide/core/time/hijri_date.dart';
 import 'package:my_guide/core/widgets/custom_appbar.dart';
 import 'package:my_guide/core/widgets/custom_screen.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
@@ -175,9 +176,18 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           children: [
             Expanded(
-              child: Text(
-                PrayerTimingData.dateLabel(now),
-                style: AppText.body.copyWith(color: c.inkMuted),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    PrayerTimingData.dateLabel(now),
+                    style: AppText.body.copyWith(color: c.inkMuted),
+                  ),
+                  Text(
+                    HijriDate.of(now, offset: season.hijriOffset).label,
+                    style: AppText.caption.copyWith(color: c.inkMuted),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: AppSpace.s3),
