@@ -7,7 +7,6 @@ import 'package:my_guide/core/supabase/supabase_config.dart';
 import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/about/cubit/update_checker.dart';
-import 'package:my_guide/features/about/data/app_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
@@ -42,7 +41,7 @@ Future<void> bootstrap() async {
   );
   final updates = UpdateChecker(
     appVersion,
-    const HttpReleaseSource(AppInfo.latestReleaseUrl),
+    appReleaseSource,
   );
 
   runApp(

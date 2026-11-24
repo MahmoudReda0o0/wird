@@ -5,7 +5,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_guide/core/notifications/notification_ids.dart';
 import 'package:my_guide/core/notifications/notification_scheduler.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
-import 'package:my_guide/features/about/data/app_info.dart';
 import 'package:my_guide/features/about/data/release_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
@@ -71,7 +70,7 @@ class BackgroundRefresh {
           prefs,
           version: package.version,
           buildNumber: package.buildNumber,
-          source: const HttpReleaseSource(AppInfo.latestReleaseUrl),
+          source: appReleaseSource,
           notify: showUpdateNotice,
         );
       default:
