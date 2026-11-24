@@ -9,7 +9,10 @@ import 'package:my_guide/features/about/data/release_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/core/time/app_clock.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
+import 'package:my_guide/features/seasons/data/season_store.dart';
+import 'package:my_guide/features/seasons/data/season_theme.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -19,7 +22,8 @@ import 'package:workmanager/workmanager.dart';
 /// * [adhanTask], once a day: schedules the coming days' adhans again, so
 ///   they keep going even if the app isn't opened for more than 10 days.
 /// * [updateTask], every few hours once there's internet: reads the
-///   latest version and, if it's newer, posts «نسخة جديدة من وِرْد».
+///   latest version and, if it's newer, posts «نسخة جديدة من وِرْد»; and
+///   saves the coming seasonal themes ([SeasonStore]).
 class BackgroundRefresh {
   BackgroundRefresh._();
 
@@ -65,6 +69,9 @@ class BackgroundRefresh {
         );
         return true;
       case updateTask:
+        // Seasonal themes (and their images) are saved before they start,
+        // so they show on time even offline.
+        await SeasonStore.refresh(prefs, SeasonTheme.day(AppClock.now()));
         final package = await PackageInfo.fromPlatform();
         return checkForUpdate(
           prefs,

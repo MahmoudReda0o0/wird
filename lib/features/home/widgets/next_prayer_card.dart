@@ -14,6 +14,8 @@ class NextPrayerCard extends StatelessWidget {
     required this.now,
     required this.adhanOn,
     required this.onAdhanTap,
+    this.art,
+    this.greeting,
   });
 
   final PrayerWindow window;
@@ -23,6 +25,12 @@ class NextPrayerCard extends StatelessWidget {
   /// The switch itself lives on the prayer-times screen; this only opens it.
   final bool adhanOn;
   final VoidCallback onAdhanTap;
+
+  /// Seasonal art at the end side of the card (the Ramadan lantern).
+  final ImageProvider? art;
+
+  /// A short seasonal line above «الصلاة القادمة» («رمضان كريم»).
+  final String? greeting;
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +49,65 @@ class NextPrayerCard extends StatelessWidget {
       container: true,
       label: 'الصلاة القادمة',
       child: Container(
-        padding: const EdgeInsets.all(AppSpace.s5),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: c.primary,
           borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
-        child: Column(
+        child: Stack(
+          children: [
+            if (art != null)
+              PositionedDirectional(
+                end: AppSpace.s2,
+                top: AppSpace.s6,
+                child: ExcludeSemantics(
+                  child: Image(image: art!, width: 132, height: 118),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpace.s5),
+              child: _content(
+                context,
+                c,
+                sub,
+                tint,
+                next,
+                left,
+                hours,
+                minutes,
+                previous,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _content(
+    BuildContext context,
+    WirdColors c,
+    Color sub,
+    Color tint,
+    NextPrayer next,
+    Duration left,
+    int hours,
+    int minutes,
+    PrayerEntry previous,
+  ) {
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (greeting != null) ...[
+              Text(
+                greeting!,
+                style: AppText.caption.copyWith(
+                  color: c.gold,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: AppSpace.s1),
+            ],
             Row(
               children: [
                 // Shrinks (with …) rather than overflow on a narrow phone or
@@ -153,9 +212,7 @@ class NextPrayerCard extends StatelessWidget {
               ],
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 }
 

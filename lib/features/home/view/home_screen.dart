@@ -16,6 +16,8 @@ import 'package:my_guide/features/home/widgets/next_prayer_card.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 import 'package:my_guide/features/prayer_times/widgets/prayer_city_picker.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_timing_data.dart';
+import 'package:my_guide/features/seasons/cubit/season_cubit.dart';
+import 'package:my_guide/features/seasons/widgets/season_widgets.dart';
 
 /// Home: today's date and city, the next prayer with a live countdown,
 /// and a two-column grid of sections.
@@ -43,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // An update already known from the last check (e.g. offline) is
     // announced as soon as home shows.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _announceUpdate(context.read<AppVersionCubit>().state);
+      if (!mounted) return;
+      _announceUpdate(context.read<AppVersionCubit>().state);
+      _showSeasonNote(context.read<SeasonCubit>().state);
     });
   }
 
@@ -68,6 +72,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  bool _noteOpen = false;
+
+  /// «رمضان كريم», once, on the first day a seasonal theme is on.
+  Future<void> _showSeasonNote(SeasonState season) async {
+    if (!season.showNote || _noteOpen) return;
+    _noteOpen = true;
+    final cubit = context.read<SeasonCubit>();
+    await showSeasonNote(context, season);
+    _noteOpen = false;
+    await cubit.markNoteSeen();
+  }
+
   @override
   void dispose() {
     _ticker?.cancel();
@@ -76,21 +92,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AppVersionCubit, AppVersionState>(
-      listenWhen: (prev, next) => next.announceUpdate && !prev.announceUpdate,
-      listener: (_, version) => _announceUpdate(version),
-      child: _buildScreen(),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AppVersionCubit, AppVersionState>(
+          listenWhen: (prev, next) =>
+              next.announceUpdate && !prev.announceUpdate,
+          listener: (_, version) => _announceUpdate(version),
+        ),
+        BlocListener<SeasonCubit, SeasonState>(
+          listenWhen: (prev, next) => next.showNote && !prev.showNote,
+          listener: (_, season) => _showSeasonNote(season),
+        ),
+      ],
+      child: BlocBuilder<SeasonCubit, SeasonState>(
+        builder: (context, season) => _buildScreen(season),
+      ),
     );
   }
 
-  Widget _buildScreen() {
+  Widget _buildScreen(SeasonState season) {
     return CustomScreen(
-      appBar: const CustomAppBar(
+      backdrop: SeasonBackdrop(state: season),
+      appBar: CustomAppBar(
+        background: SeasonAppBarArt(state: season),
         title: 'وِرْد',
         showBackButton: false,
         // The installed version; «تحديث» when a newer one is on Drive,
         // «جديد» right after updating. Opens «عن التطبيق».
-        leadingWidget: VersionBadge(),
+        leadingWidget: const VersionBadge(),
         leadingWidth: 112,
       ),
       body: Builder(
@@ -98,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
           context,
           context.watch<CityCubit>().state,
           context.watch<AdhanCubit>().state,
+          season,
         ),
       ),
     );
@@ -107,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context,
     PrayerCity city,
     AdhanSettings adhan,
+    SeasonState season,
   ) {
     final c = context.wird;
     final now = PrayerTimingData.now();
@@ -153,10 +184,17 @@ class _HomeScreenState extends State<HomeScreen> {
             PrayerCityChip(name: city.name),
           ],
         ),
-        const SizedBox(height: AppSpace.s6),
+        if (season.upcoming != null) ...[
+          const SizedBox(height: AppSpace.s4),
+          SeasonCountdownBanner(state: season),
+          const SizedBox(height: AppSpace.s4),
+        ] else
+          const SizedBox(height: AppSpace.s6),
         NextPrayerCard(
           window: window,
           now: now,
+          art: season.image(season.active?.heroImage),
+          greeting: season.active?.heroOverline,
           adhanOn: adhan.enabled,
           onAdhanTap: () =>
               Navigator.pushNamed(context, AppRoutes.prayerTiming),

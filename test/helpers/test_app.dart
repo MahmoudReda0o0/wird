@@ -8,6 +8,7 @@ import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
+import 'package:my_guide/features/seasons/cubit/season_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Fresh in-memory preferences for one test.
@@ -36,13 +37,15 @@ class TestCubits {
          prefs,
          version: version,
          buildNumber: buildNumber,
-       );
+       ),
+       season = SeasonCubit(prefs);
 
   final SharedPreferences prefs;
   final ThemeCubit theme;
   final CityCubit city;
   final AdhanCubit adhan;
   final AppVersionCubit appVersion;
+  final SeasonCubit season;
 }
 
 /// Wraps [home] (or the app's own routes from [initialRoute]) like the
@@ -66,6 +69,7 @@ Widget testApp(
         BlocProvider.value(value: cubits.city),
         BlocProvider.value(value: cubits.adhan),
         BlocProvider.value(value: cubits.appVersion),
+        BlocProvider.value(value: cubits.season),
       ],
       child: MaterialApp(
         locale: const Locale('ar'),

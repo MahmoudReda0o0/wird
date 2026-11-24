@@ -14,6 +14,7 @@ import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
+import 'package:my_guide/features/seasons/cubit/season_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The app root. Provides the app-wide Cubits, and [SharedPreferences] for
@@ -27,6 +28,7 @@ class MyApp extends StatefulWidget {
     required this.adhan,
     required this.appVersion,
     required this.updates,
+    required this.season,
   });
 
   final SharedPreferences prefs;
@@ -37,6 +39,10 @@ class MyApp extends StatefulWidget {
 
   /// Checks for a new version again when the app comes back.
   final UpdateChecker updates;
+
+  /// Today's seasonal theme (Ramadan, Eid...), refreshed when the app
+  /// comes back.
+  final SeasonCubit season;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -57,6 +63,7 @@ class _MyAppState extends State<MyApp> {
           AdhanService.onResume(widget.city.state, widget.adhan.state),
         );
         widget.updates.onResume();
+        unawaited(widget.season.refresh());
       },
       onPause: widget.updates.onPause,
     );
@@ -79,6 +86,7 @@ class _MyAppState extends State<MyApp> {
           BlocProvider.value(value: widget.city),
           BlocProvider.value(value: widget.adhan),
           BlocProvider.value(value: widget.appVersion),
+          BlocProvider.value(value: widget.season),
         ],
         child: MultiBlocListener(
           listeners: [
@@ -98,8 +106,17 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _buildApp() {
-    return BlocBuilder<ThemeCubit, ThemeMode>(
-      builder: (context, themeMode) => MaterialApp(
+    return BlocBuilder<SeasonCubit, SeasonState>(
+      buildWhen: (a, b) => a.active != b.active,
+      builder: (context, season) => BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) => _materialApp(themeMode, season),
+      ),
+    );
+  }
+
+  Widget _materialApp(ThemeMode themeMode, SeasonState season) {
+    final active = season.active;
+    return MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar')],
         localizationsDelegates: const [
@@ -118,13 +135,26 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'Wird',
 
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
+        // A seasonal theme replaces some colors (and the Android
+        // navigation bar color) while it's on.
+        theme: active == null
+            ? AppTheme.light
+            : AppTheme.themed(
+                Brightness.light,
+                colors: active.colorsLight,
+                navBar: active.navBarLight,
+              ),
+        darkTheme: active == null
+            ? AppTheme.dark
+            : AppTheme.themed(
+                Brightness.dark,
+                colors: active.colorsDark,
+                navBar: active.navBarDark,
+              ),
         themeMode: themeMode,
 
         initialRoute: AppRoutes.home,
         routes: AppRouter.routes,
-      ),
-    );
+      );
   }
 }

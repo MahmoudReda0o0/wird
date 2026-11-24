@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Wird design system — color tokens for the Parchment (light) and
 /// Night (dark) themes. Read them with `context.wird`.
@@ -180,6 +181,36 @@ class WirdColors extends ThemeExtension<WirdColors> {
     );
   }
 
+  /// These colors with some replaced by name (the [WirdColors] field
+  /// names, e.g. `primary`). Unknown names are ignored. Used by seasonal
+  /// themes, whose colors come from the server.
+  WirdColors withOverrides(Map<String, Color> o) {
+    if (o.isEmpty) return this;
+    return copyWith(
+      surface: o['surface'],
+      surfaceRaised: o['surfaceRaised'],
+      surfaceSunken: o['surfaceSunken'],
+      line: o['line'],
+      lineStrong: o['lineStrong'],
+      ink: o['ink'],
+      inkMuted: o['inkMuted'],
+      primary: o['primary'],
+      primaryPressed: o['primaryPressed'],
+      primarySoft: o['primarySoft'],
+      onPrimary: o['onPrimary'],
+      gold: o['gold'],
+      onGold: o['onGold'],
+      goldSoft: o['goldSoft'],
+      goldInk: o['goldInk'],
+      warning: o['warning'],
+      warningSoft: o['warningSoft'],
+      onWarning: o['onWarning'],
+      kaaba: o['kaaba'],
+      focus: o['focus'],
+      scrim: o['scrim'],
+    );
+  }
+
   @override
   WirdColors lerp(ThemeExtension<WirdColors>? other, double t) {
     if (other is! WirdColors) return this;
@@ -309,7 +340,25 @@ class AppTheme {
 
   static ThemeData get dark => _build(Brightness.dark, WirdColors.dark);
 
-  static ThemeData _build(Brightness brightness, WirdColors c) {
+  /// The light or dark theme with some colors replaced by name
+  /// ([WirdColors.withOverrides]) and, when given, the Android navigation
+  /// bar colored [navBar]. Used by seasonal themes.
+  static ThemeData themed(
+    Brightness brightness, {
+    Map<String, Color> colors = const {},
+    Color? navBar,
+  }) {
+    final base = brightness == Brightness.dark
+        ? WirdColors.dark
+        : WirdColors.light;
+    return _build(brightness, base.withOverrides(colors), navBar: navBar);
+  }
+
+  static ThemeData _build(
+    Brightness brightness,
+    WirdColors c, {
+    Color? navBar,
+  }) {
     final isDark = brightness == Brightness.dark;
 
     final scheme = ColorScheme(
@@ -360,6 +409,20 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: AppText.title.copyWith(color: c.primary),
         iconTheme: IconThemeData(color: c.primary),
+        systemOverlayStyle: navBar == null
+            ? null
+            : SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: isDark
+                    ? Brightness.light
+                    : Brightness.dark,
+                statusBarBrightness: brightness,
+                systemNavigationBarColor: navBar,
+                systemNavigationBarIconBrightness:
+                    navBar.computeLuminance() > 0.5
+                    ? Brightness.dark
+                    : Brightness.light,
+              ),
       ),
       iconTheme: IconThemeData(color: c.primary),
       dividerTheme: DividerThemeData(color: c.line, thickness: 1, space: 1),

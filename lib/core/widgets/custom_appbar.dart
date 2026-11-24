@@ -17,6 +17,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leadingWidget,
     this.leadingWidth,
     this.actions = const [],
+    this.background,
   });
 
   final String title;
@@ -35,6 +36,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Shown before the theme toggle.
   final List<Widget> actions;
 
+  /// Drawn behind the title and buttons (a seasonal strip).
+  final Widget? background;
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
@@ -49,6 +53,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       shape: Border(bottom: BorderSide(color: c.line)),
+      flexibleSpace: background,
       automaticallyImplyLeading: false,
       leadingWidth: leadingWidth,
       leading:

@@ -12,12 +12,16 @@ class CustomScreen extends StatelessWidget {
     this.appBar,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
+    this.backdrop,
   });
   final String? appBarTitle;
   final Widget body;
   final PreferredSizeWidget? appBar;
   final double? screenPadding;
   final Widget? floatingActionButton;
+
+  /// Drawn behind the body, edge to edge (a seasonal pattern).
+  final Widget? backdrop;
 
   /// Defaults to a padded button docked at the bottom centre.
   final FloatingActionButtonLocation? floatingActionButtonLocation;
@@ -44,10 +48,20 @@ class CustomScreen extends StatelessWidget {
           appBar: appBarTitle != null
               ? CustomAppBar(title: appBarTitle ?? '')
               : appBar,
-          body: Padding(
-            padding: EdgeInsets.all(screenPadding ?? 20),
-            child: body,
-          ),
+          body: backdrop == null
+              ? Padding(
+                  padding: EdgeInsets.all(screenPadding ?? 20),
+                  child: body,
+                )
+              : Stack(
+                  children: [
+                    Positioned.fill(child: backdrop!),
+                    Padding(
+                      padding: EdgeInsets.all(screenPadding ?? 20),
+                      child: body,
+                    ),
+                  ],
+                ),
         ),
       ),
     );
