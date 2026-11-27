@@ -76,7 +76,9 @@ class AdhanService {
   /// allowed or taken away since the last schedule (the user went to the
   /// Android settings screen), schedules again so the adhan is on time.
   static Future<void> onResume(PrayerCity city, AdhanSettings settings) async {
-    if (!settings.enabled || _scheduledExact == null) return;
+    if ((!settings.enabled && !settings.early) || _scheduledExact == null) {
+      return;
+    }
     final exact = await NotificationScheduler.canScheduleExact();
     if (exact != _scheduledExact) await reschedule(city, settings);
   }
@@ -88,15 +90,31 @@ class AdhanService {
     await NotificationScheduler.cancelRanges(const [
       NotificationIds.adhan,
       NotificationIds.legacyAdhan,
+      NotificationIds.preAdhan,
     ]);
-    if (!settings.enabled) {
+    if (!settings.enabled && !settings.early) {
       _scheduledExact = null;
       return;
     }
 
-    final alerts = AdhanPlan.plan(city, AppClock.now(), settings);
+    final now = AppClock.now();
+    final alerts = AdhanPlan.plan(city, now, settings);
     final exact = await NotificationScheduler.canScheduleExact();
     _scheduledExact = exact;
+
+    final minutes = settings.earlyMinutes;
+    final unit = minutes > 10 ? 'دقيقة' : 'دقايق';
+    for (final alert in AdhanPlan.planEarly(city, now, settings)) {
+      final p = alert.prayer;
+      await NotificationScheduler.schedule(
+        id: NotificationIds.preAdhan.id(alert.id),
+        title: 'باقي $minutes $unit على أذان ${p.name}',
+        body: '${city.name} · ${PrayerTimingData.format(p.time)}',
+        at: p.time.subtract(Duration(minutes: minutes)),
+        details: _earlyDetails,
+        exact: exact,
+      );
+    }
 
     for (final alert in alerts) {
       final p = alert.prayer;
@@ -131,6 +149,22 @@ class AdhanService {
     if (asAlarm) return fajr ? _fajrAlarmDetails : _alarmDetails;
     return fajr ? _fajrDetails : _details;
   }
+
+  /// The reminder before a prayer: the phone's normal notification sound.
+  static const _earlyDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'adhan_early_v1',
+      'تنبيه قبل الأذان',
+      channelDescription: 'إشعار قبل كل صلاة بـ 5 أو 10 أو 15 دقيقة',
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+    ),
+  );
 
   // The short adhans: Android only for now (iOS is on hold), so iOS keeps
   // the regular sound.

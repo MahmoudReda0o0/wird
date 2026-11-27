@@ -165,7 +165,110 @@ class _PrayerTimingScreenState extends State<PrayerTimingScreen> {
               subtitle: adhan.asAlarm ? "تشغيل صوت الأذان" : "تم إيقاف الأذان",
             ),
           ],
+          const SizedBox(height: AppSpace.s3),
+          _EarlyReminderCard(adhan: adhan, onChanged: _setEarly),
         ],
+      ),
+    );
+  }
+
+  Future<void> _setEarly(bool on) async {
+    final allowed = await context.read<AdhanCubit>().setEarly(on);
+    if (allowed || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'اسمح لوِرْد بالإشعارات من إعدادات الموبايل عشان التنبيه يشتغل.',
+        ),
+      ),
+    );
+  }
+}
+
+/// The reminder before each prayer: a switch, and under it how many
+/// minutes before (5, 10, 15) while it's on.
+class _EarlyReminderCard extends StatelessWidget {
+  const _EarlyReminderCard({required this.adhan, required this.onChanged});
+
+  final AdhanSettings adhan;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.wird;
+    final minutes = adhan.earlyMinutes;
+    final unit = minutes > 10 ? 'دقيقة' : 'دقايق';
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: c.cardShadow,
+      ),
+      child: Material(
+        color: c.surfaceRaised,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            SwitchListTile(
+              value: adhan.early,
+              onChanged: onChanged,
+              activeThumbColor: c.onPrimary,
+              activeTrackColor: c.primary,
+              secondary: Icon(Icons.notifications_paused_rounded,
+                  color: c.primary),
+              title: Text(
+                'تنبيه قبل الأذان',
+                style: AppText.heading.copyWith(color: c.ink),
+              ),
+              subtitle: Text(
+                adhan.early
+                    ? 'إشعار قبل كل صلاة بـ $minutes $unit'
+                    : 'إشعار قبل الصلاة عشان تلحق تتوضّى',
+                style: AppText.body.copyWith(color: c.inkMuted),
+              ),
+            ),
+            if (adhan.early)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpace.s4,
+                  0,
+                  AppSpace.s4,
+                  AppSpace.s4,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<int>(
+                    showSelectedIcon: false,
+                    segments: [
+                      for (final m in AdhanSettings.earlyChoices)
+                        ButtonSegment(
+                          value: m,
+                          label: Text('$m د'),
+                          tooltip: 'قبل الأذان بـ $m ${m > 10 ? 'دقيقة' : 'دقايق'}',
+                        ),
+                    ],
+                    selected: {minutes},
+                    onSelectionChanged: (picked) => context
+                        .read<AdhanCubit>()
+                        .setEarlyMinutes(picked.first),
+                    style: ButtonStyle(
+                      foregroundColor: WidgetStateProperty.resolveWith(
+                        (states) => states.contains(WidgetState.selected)
+                            ? c.onPrimary
+                            : c.ink,
+                      ),
+                      backgroundColor: WidgetStateProperty.resolveWith(
+                        (states) => states.contains(WidgetState.selected)
+                            ? c.primary
+                            : c.surfaceRaised,
+                      ),
+                      side: WidgetStatePropertyAll(BorderSide(color: c.line)),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

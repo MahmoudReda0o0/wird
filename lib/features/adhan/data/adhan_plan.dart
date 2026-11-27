@@ -44,4 +44,29 @@ class AdhanPlan {
     }
     return alerts;
   }
+
+  /// The reminders [AdhanSettings.earlyMinutes] before every prayer of the
+  /// next [days] days, whatever each prayer's adhan sound is. Same ids as
+  /// [plan] (day offset × 10 + row), in their own range.
+  static List<AdhanAlert> planEarly(
+    PrayerCity city,
+    tz.TZDateTime now,
+    AdhanSettings settings, {
+    int days = AdhanPlan.days,
+  }) {
+    if (!settings.early) return const [];
+    final before = Duration(minutes: settings.earlyMinutes);
+    final alerts = <AdhanAlert>[];
+    for (var d = 0; d < days; d++) {
+      final day = DateTime(now.year, now.month, now.day + d);
+      final prayers = PrayerTimingData.forDay(city, day);
+      for (var i = 0; i < prayers.length; i++) {
+        final p = prayers[i];
+        if (!p.isPrayer) continue;
+        if (!p.time.subtract(before).isAfter(now)) continue;
+        alerts.add(AdhanAlert(d * 10 + i, p));
+      }
+    }
+    return alerts;
+  }
 }

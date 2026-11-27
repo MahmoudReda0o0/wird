@@ -90,10 +90,11 @@ flutter pub get && flutter analyze && flutter test
    - channels جديدة: `adhan_short_v1`، `adhan_fajr_short_v1`، `adhan_alarm_short_v1`، `adhan_fajr_alarm_short_v1`. `AdhanService.detailsFor(fajr:, asAlarm:, short:)`.
    - **التيستات القديمة اللي هتحتاج تتعدّل:** `prayer_times_screen_test` بتدوّر على tooltip «إيقاف/تشغيل أذان الفجر» (الـ tooltip بقى «أذان الفجر: الأذان كامل»).
    - iOS مؤجل (بيشغّل الأذان الكامل).
-7. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر، وتنبيه قبل الأذان بـ 10 دقايق. ده بيستخدم نفس الـ notifications.
-8. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
-9. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
-10. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
+7. ~~**تنبيه قبل الأذان**~~ ✅ (من غير تيستات): كارت «تنبيه قبل الأذان» في شاشة المواقيت تحت «الأذان في الوضع الصامت»: switch، وتحته `SegmentedButton` بـ 5 و10 و15 د. `AdhanSettings.early` و`earlyMinutes` (keys: `adhan_early`، `adhan_early_minutes`)، و`AdhanCubit.setEarly` (بيطلب الإذن) و`setEarlyMinutes`. منفصل عن الأذان: بيشتغل حتى لو الأذان مقفول أو صامت، لكل الصلوات الخمسة. `AdhanPlan.planEarly`، والـ ids في `NotificationIds.preAdhan` (3000–3999)، والـ channel `adhan_early_v1` بصوت الإشعار العادي.
+8. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر. ده بيستخدم نفس الـ notifications (ids 2000–2999).
+9. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
+10. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
+11. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
 
 ## حاجات Manual على Mahmoud
 - امسح الـ branches القديمة: `feature/light-dark-theme`، `fix/review-issues`، `sabha`، `feature/new-home`، `feature/adhan`، `refactor/bloc`، `feature/app-version`.

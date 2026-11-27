@@ -20,6 +20,8 @@ class AdhanCubit extends Cubit<AdhanSettings> {
   static const _enabledKey = 'adhan_enabled';
   static const _prayersKey = 'adhan_prayers';
   static const _asAlarmKey = 'adhan_as_alarm';
+  static const _earlyKey = 'adhan_early';
+  static const _earlyMinutesKey = 'adhan_early_minutes';
 
   /// Prayers that play only the opening takbir. Older installs don't have
   /// it: everything that's on stays the full adhan.
@@ -43,6 +45,11 @@ class AdhanCubit extends Cubit<AdhanSettings> {
           if (short.contains(k)) k,
       ],
       asAlarm: prefs.getBool(_asAlarmKey) ?? false,
+      early: prefs.getBool(_earlyKey) ?? false,
+      earlyMinutes: switch (prefs.getInt(_earlyMinutesKey)) {
+        final m? when AdhanSettings.earlyChoices.contains(m) => m,
+        _ => 10,
+      },
     );
   }
 
@@ -58,6 +65,20 @@ class AdhanCubit extends Cubit<AdhanSettings> {
   /// silent too.
   Future<void> setAsAlarm(bool on) => _save(state.copyWith(asAlarm: on));
 
+  /// Turns the reminder before each prayer on (asking for permission
+  /// first) or off. Returns false when the user refused notifications.
+  Future<bool> setEarly(bool on) async {
+    if (on && !await _requestPermission()) return false;
+    await _save(state.copyWith(early: on));
+    return true;
+  }
+
+  /// How many minutes before the prayer the reminder comes (5, 10 or 15).
+  Future<void> setEarlyMinutes(int minutes) async {
+    if (!AdhanSettings.earlyChoices.contains(minutes)) return;
+    await _save(state.copyWith(earlyMinutes: minutes));
+  }
+
   /// Full adhan, opening takbir only, or silent for one prayer.
   Future<void> setSound(String prayerKey, AdhanSound sound) =>
       _save(state.withSound(prayerKey, sound));
@@ -72,5 +93,7 @@ class AdhanCubit extends Cubit<AdhanSettings> {
     await _prefs.setStringList(_prayersKey, value.prayers);
     await _prefs.setStringList(_shortKey, value.shortPrayers);
     await _prefs.setBool(_asAlarmKey, value.asAlarm);
+    await _prefs.setBool(_earlyKey, value.early);
+    await _prefs.setInt(_earlyMinutesKey, value.earlyMinutes);
   }
 }

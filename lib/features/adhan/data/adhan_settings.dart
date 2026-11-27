@@ -20,6 +20,8 @@ class AdhanSettings {
     required this.prayers,
     this.shortPrayers = const [],
     this.asAlarm = false,
+    this.early = false,
+    this.earlyMinutes = 10,
   });
 
   /// The five prayers that can have an adhan, in order.
@@ -40,6 +42,16 @@ class AdhanSettings {
   /// the phone is on silent or vibrate. Off by default.
   final bool asAlarm;
 
+  /// A reminder notification [earlyMinutes] before every prayer. Separate
+  /// from the adhan: it works with the adhan off or silent.
+  final bool early;
+
+  /// One of [earlyChoices].
+  final int earlyMinutes;
+
+  /// The minutes the early reminder can be set to.
+  static const earlyChoices = [5, 10, 15];
+
   bool isOn(String prayerKey) => enabled && prayers.contains(prayerKey);
 
   /// This prayer's choice, kept even while the master switch is off.
@@ -54,11 +66,15 @@ class AdhanSettings {
     List<String>? prayers,
     List<String>? shortPrayers,
     bool? asAlarm,
+    bool? early,
+    int? earlyMinutes,
   }) => AdhanSettings(
     enabled: enabled ?? this.enabled,
     prayers: prayers ?? this.prayers,
     shortPrayers: shortPrayers ?? this.shortPrayers,
     asAlarm: asAlarm ?? this.asAlarm,
+    early: early ?? this.early,
+    earlyMinutes: earlyMinutes ?? this.earlyMinutes,
   );
 
   /// Sets one prayer to [sound], keeping [allPrayers] order.
