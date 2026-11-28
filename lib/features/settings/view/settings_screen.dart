@@ -7,6 +7,7 @@ import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/core/widgets/custom_appbar.dart';
 import 'package:my_guide/core/widgets/custom_screen.dart';
 import 'package:my_guide/features/about/data/app_info.dart';
+import 'package:my_guide/features/about/widgets/version_card.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
@@ -122,13 +123,6 @@ class SettingsScreen extends StatelessWidget {
           _Card(
             children: [
               _LinkRow(
-                icon: Icons.info_outline_rounded,
-                title: 'عن التطبيق',
-                subtitle: 'النسخة والجديد فيها',
-                onTap: () => Navigator.pushNamed(context, AppRoutes.appVersion),
-              ),
-              const _Divider(),
-              _LinkRow(
                 icon: Icons.share_rounded,
                 title: 'شارك وِرْد على واتساب',
                 subtitle: 'ابعت لينك التحميل لحد',
@@ -142,6 +136,10 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: AppSpace.s5),
+          // The installed version, with the badge's cycle (تحديث / جديد);
+          // opens «عن التطبيق» with the details and the QR.
+          const VersionCard(),
         ],
       ),
     );
