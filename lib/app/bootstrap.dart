@@ -9,6 +9,7 @@ import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/about/cubit/update_checker.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
+import 'package:my_guide/features/calendar/data/fasting_reminders.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/seasons/cubit/season_cubit.dart';
@@ -72,6 +73,7 @@ Future<void> bootstrap() async {
   // Android also keeps both going while the app is closed (BackgroundRefresh).
   await Future.wait([
     AdhanService.reschedule(city.state, adhan.state),
+    FastingReminders.rescheduleFrom(prefs),
     updates.check(),
     season.refresh(),
     BackgroundRefresh.register(),

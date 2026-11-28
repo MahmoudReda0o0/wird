@@ -11,6 +11,7 @@ import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/about/widgets/version_badge.dart';
+import 'package:my_guide/features/calendar/data/hijri_calendar.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/home/widgets/home_grid_tile.dart';
 import 'package:my_guide/features/home/widgets/next_prayer_card.dart';
@@ -71,6 +72,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  /// «الأيام البيض بعد 5 أيام» for the calendar tile.
+  static String _nextOccasion(DateTime now, int offset) {
+    final next = HijriCalendarData.upcoming(now, offset: offset, count: 1);
+    if (next.isEmpty) return 'المناسبات والصيام';
+    final u = next.first;
+    return '${u.occasion.name} ${HijriCalendarData.daysLeftLabel(u.daysLeft)}';
   }
 
   bool _noteOpen = false;
@@ -174,6 +183,12 @@ class _HomeScreenState extends State<HomeScreen> {
         subtitle: 'اتجاه الكعبة',
         route: AppRoutes.qibla,
       ),
+      (
+        icon: Icons.calendar_month_outlined,
+        title: 'التقويم الهجري',
+        subtitle: _nextOccasion(now, season.hijriOffset),
+        route: AppRoutes.hijriCalendar,
+      ),
     ];
 
     return ListView(
@@ -190,9 +205,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     PrayerTimingData.dateLabel(now),
                     style: AppText.body.copyWith(color: c.inkMuted),
                   ),
-                  Text(
-                    HijriDate.of(now, offset: season.hijriOffset).label,
-                    style: AppText.caption.copyWith(color: c.inkMuted),
+                  // Opens the Hijri calendar.
+                  InkWell(
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.hijriCalendar),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    child: Text(
+                      HijriDate.of(now, offset: season.hijriOffset).label,
+                      style: AppText.caption.copyWith(
+                        color: c.primary,
+                        decoration: TextDecoration.underline,
+                        decorationColor: c.primary.withValues(alpha: 0.4),
+                      ),
+                    ),
                   ),
                 ],
               ),

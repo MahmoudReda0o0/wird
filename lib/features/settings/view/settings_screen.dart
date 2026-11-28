@@ -72,6 +72,18 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const _SectionTitle('الصيام'),
+          _Card(
+            children: [
+              _LinkRow(
+                icon: Icons.calendar_month_outlined,
+                title: 'التقويم الهجري وتذكير الصيام',
+                subtitle: _fastingSummary(prefs),
+                onTap: () =>
+                    Navigator.pushNamed(context, AppRoutes.hijriCalendar),
+              ),
+            ],
+          ),
           const _SectionTitle('المدينة'),
           _Card(
             children: [
@@ -152,6 +164,14 @@ class SettingsScreen extends StatelessWidget {
       if (a.early) 'تنبيه قبل الأذان بـ ${a.earlyMinutes} د',
     ];
     return parts.join(' · ');
+  }
+
+  static String _fastingSummary(AppPreferences p) {
+    final on = [
+      if (p.fastSpecial) 'الأيام البيض وعرفة وعاشوراء',
+      if (p.fastWeekly) 'الإتنين والخميس',
+    ];
+    return on.isEmpty ? 'التذكير مقفول' : 'بيفكّرك بـ: ${on.join(' و')}';
   }
 
   static Future<void> _setNotifications(BuildContext context, bool on) async {

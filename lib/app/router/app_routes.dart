@@ -7,4 +7,5 @@ class AppRoutes {
   static const String qibla = '/Qibla';
   static const String qiblaCompare = '/QiblaCompare';
   static const String settings = '/Settings';
+  static const String hijriCalendar = '/HijriCalendar';
 }

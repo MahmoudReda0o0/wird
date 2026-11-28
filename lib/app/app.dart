@@ -10,6 +10,7 @@ import 'package:my_guide/core/theme/theme_cubit.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/about/cubit/update_checker.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
+import 'package:my_guide/features/calendar/data/fasting_reminders.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
@@ -69,10 +70,20 @@ class _MyAppState extends State<MyApp> {
         );
         widget.updates.onResume();
         unawaited(widget.season.refresh());
+        // The 30 days ahead move with the date.
+        unawaited(_rescheduleFasting());
       },
       onPause: widget.updates.onPause,
     );
   }
+
+  /// «بكرة صيام» from the current city, switches and Hijri offset.
+  Future<void> _rescheduleFasting() => FastingReminders.reschedule(
+    city: widget.city.state,
+    prefs: widget.settings.state,
+    allowed: widget.adhan.state.appNotifications,
+    offset: widget.season.state.hijriOffset,
+  );
 
   @override
   void dispose() {
@@ -97,12 +108,26 @@ class _MyAppState extends State<MyApp> {
         child: MultiBlocListener(
           listeners: [
             BlocListener<CityCubit, PrayerCity>(
-              listener: (_, city) =>
-                  AdhanService.reschedule(city, widget.adhan.state),
+              listener: (_, city) {
+                unawaited(AdhanService.reschedule(city, widget.adhan.state));
+                unawaited(_rescheduleFasting());
+              },
             ),
             BlocListener<AdhanCubit, AdhanSettings>(
-              listener: (_, settings) =>
-                  AdhanService.reschedule(widget.city.state, settings),
+              listener: (_, settings) {
+                unawaited(AdhanService.reschedule(widget.city.state, settings));
+                unawaited(_rescheduleFasting());
+              },
+            ),
+            BlocListener<SettingsCubit, AppPreferences>(
+              listenWhen: (a, b) =>
+                  a.fastSpecial != b.fastSpecial ||
+                  a.fastWeekly != b.fastWeekly,
+              listener: (_, _) => _rescheduleFasting(),
+            ),
+            BlocListener<SeasonCubit, SeasonState>(
+              listenWhen: (a, b) => a.hijriOffset != b.hijriOffset,
+              listener: (_, _) => _rescheduleFasting(),
             ),
           ],
           child: _buildApp(),

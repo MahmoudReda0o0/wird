@@ -31,6 +31,10 @@ class NotificationIds {
   /// [adhan], see `AdhanPlan.planEarly`).
   static const preAdhan = NotificationIdRange(3000, 4000);
 
+  /// «بكرة صيام» the night before a recommended fast (one per day ahead,
+  /// see `FastingReminders`).
+  static const fasting = NotificationIdRange(4000, 5000);
+
   /// «نسخة جديدة» from the background update check. One at a time.
   static const update = NotificationIdRange(9000, 9001);
 

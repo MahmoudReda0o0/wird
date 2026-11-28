@@ -10,6 +10,7 @@ import 'package:my_guide/features/about/data/release_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
+import 'package:my_guide/features/calendar/data/fasting_reminders.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/seasons/data/season_store.dart';
 import 'package:my_guide/features/seasons/data/season_theme.dart';
@@ -67,6 +68,7 @@ class BackgroundRefresh {
           CityCubit.readSaved(prefs),
           AdhanCubit.readSaved(prefs),
         );
+        await FastingReminders.rescheduleFrom(prefs);
         return true;
       case updateTask:
         // Seasonal themes (and their images) are saved before they start,
