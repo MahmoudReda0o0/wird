@@ -22,6 +22,7 @@ class AdhanSettings {
     this.asAlarm = false,
     this.early = false,
     this.earlyMinutes = 10,
+    this.appNotifications = true,
   });
 
   /// The five prayers that can have an adhan, in order.
@@ -49,6 +50,11 @@ class AdhanSettings {
   /// One of [earlyChoices].
   final int earlyMinutes;
 
+  /// The «إشعارات التطبيق» switch in Settings: off silences every
+  /// notification the app sends (adhans, reminders, «نسخة جديدة»), and
+  /// keeps the other switches as they are for when it's back on.
+  final bool appNotifications;
+
   /// The minutes the early reminder can be set to.
   static const earlyChoices = [5, 10, 15];
 
@@ -68,6 +74,7 @@ class AdhanSettings {
     bool? asAlarm,
     bool? early,
     int? earlyMinutes,
+    bool? appNotifications,
   }) => AdhanSettings(
     enabled: enabled ?? this.enabled,
     prayers: prayers ?? this.prayers,
@@ -75,6 +82,7 @@ class AdhanSettings {
     asAlarm: asAlarm ?? this.asAlarm,
     early: early ?? this.early,
     earlyMinutes: earlyMinutes ?? this.earlyMinutes,
+    appNotifications: appNotifications ?? this.appNotifications,
   );
 
   /// Sets one prayer to [sound], keeping [allPrayers] order.

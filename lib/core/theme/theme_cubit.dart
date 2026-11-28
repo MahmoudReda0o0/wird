@@ -25,4 +25,10 @@ class ThemeCubit extends Cubit<ThemeMode> {
     emit(mode);
     await _prefs.setString(_prefsKey, mode.name);
   }
+
+  /// Light, dark, or follow the device ([ThemeMode.system]), saved.
+  Future<void> setMode(ThemeMode mode) async {
+    emit(mode);
+    await _prefs.setString(_prefsKey, mode.name);
+  }
 }

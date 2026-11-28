@@ -22,6 +22,7 @@ class AdhanCubit extends Cubit<AdhanSettings> {
   static const _asAlarmKey = 'adhan_as_alarm';
   static const _earlyKey = 'adhan_early';
   static const _earlyMinutesKey = 'adhan_early_minutes';
+  static const _appNotificationsKey = 'notifications_on';
 
   /// Prayers that play only the opening takbir. Older installs don't have
   /// it: everything that's on stays the full adhan.
@@ -50,6 +51,7 @@ class AdhanCubit extends Cubit<AdhanSettings> {
         final m? when AdhanSettings.earlyChoices.contains(m) => m,
         _ => 10,
       },
+      appNotifications: prefs.getBool(_appNotificationsKey) ?? true,
     );
   }
 
@@ -70,6 +72,16 @@ class AdhanCubit extends Cubit<AdhanSettings> {
   Future<bool> setEarly(bool on) async {
     if (on && !await _requestPermission()) return false;
     await _save(state.copyWith(early: on));
+    return true;
+  }
+
+  /// The app-wide notifications switch (Settings). Turning it on asks for
+  /// permission when something is set to notify. False when refused.
+  Future<bool> setAppNotifications(bool on) async {
+    if (on && (state.enabled || state.early) && !await _requestPermission()) {
+      return false;
+    }
+    await _save(state.copyWith(appNotifications: on));
     return true;
   }
 
@@ -95,5 +107,6 @@ class AdhanCubit extends Cubit<AdhanSettings> {
     await _prefs.setBool(_asAlarmKey, value.asAlarm);
     await _prefs.setBool(_earlyKey, value.early);
     await _prefs.setInt(_earlyMinutesKey, value.earlyMinutes);
+    await _prefs.setBool(_appNotificationsKey, value.appNotifications);
   }
 }

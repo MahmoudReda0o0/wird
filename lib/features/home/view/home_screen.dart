@@ -122,6 +122,13 @@ class _HomeScreenState extends State<HomeScreen> {
         // «جديد» right after updating. Opens «عن التطبيق».
         leadingWidget: const VersionBadge(),
         leadingWidth: 112,
+        actions: [
+          IconButton(
+            tooltip: 'الإعدادات',
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.settings),
+            icon: Icon(Icons.settings_outlined, color: context.wird.primary),
+          ),
+        ],
       ),
       body: Builder(
         builder: (context) => _buildBody(

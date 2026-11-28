@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_guide/core/notifications/notification_ids.dart';
 import 'package:my_guide/core/notifications/notification_scheduler.dart';
+import 'package:my_guide/core/time/app_clock.dart';
 import 'package:my_guide/features/about/cubit/app_version_cubit.dart';
 import 'package:my_guide/features/about/data/release_info.dart';
 import 'package:my_guide/features/about/data/release_source.dart';
 import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
-import 'package:my_guide/core/time/app_clock.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/seasons/data/season_store.dart';
 import 'package:my_guide/features/seasons/data/season_theme.dart';
@@ -78,7 +78,12 @@ class BackgroundRefresh {
           version: package.version,
           buildNumber: package.buildNumber,
           source: appReleaseSource,
-          notify: showUpdateNotice,
+          // The app-wide «إشعارات التطبيق» switch can silence it.
+          notify: (update) async {
+            if (AdhanCubit.readSaved(prefs).appNotifications) {
+              await showUpdateNotice(update);
+            }
+          },
         );
       default:
         return true;

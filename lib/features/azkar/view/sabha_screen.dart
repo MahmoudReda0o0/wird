@@ -8,6 +8,7 @@ import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
 import 'package:my_guide/features/azkar/cubit/azkar_progress_cubit.dart';
 import 'package:my_guide/features/azkar/cubit/sabha_cubit.dart';
+import 'package:my_guide/features/settings/cubit/settings_cubit.dart';
 
 /// The calm palette used only on the sabha screen: low contrast around a
 /// single clear accent, so the zikr and the count button stand out.
@@ -128,6 +129,7 @@ class _SabhaScreenState extends State<SabhaScreen> {
 
   void _increment() {
     final finished = context.read<SabhaCubit>().increment();
+    if (!context.read<SettingsCubit>().state.sabhaHaptics) return;
     if (finished) {
       HapticFeedback.mediumImpact();
     } else {
@@ -231,7 +233,8 @@ class _SabhaScreenState extends State<SabhaScreen> {
                       zikr.content,
                       textAlign: TextAlign.center,
                       style: AppText.zikr.copyWith(
-                        fontSize: 26,
+                        fontSize:
+                            26 * context.watch<SettingsCubit>().state.zikrScale,
                         height: 48 / 26,
                         // Medium: clear at a distance, lighter on the eye
                         // than Bold for long azkar.

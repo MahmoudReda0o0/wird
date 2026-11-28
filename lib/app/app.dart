@@ -15,6 +15,7 @@ import 'package:my_guide/features/adhan/data/adhan_settings.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/prayer_times/data/prayer_city.dart';
 import 'package:my_guide/features/seasons/cubit/season_cubit.dart';
+import 'package:my_guide/features/settings/cubit/settings_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The app root. Provides the app-wide Cubits, and [SharedPreferences] for
@@ -29,6 +30,7 @@ class MyApp extends StatefulWidget {
     required this.appVersion,
     required this.updates,
     required this.season,
+    required this.settings,
   });
 
   final SharedPreferences prefs;
@@ -43,6 +45,9 @@ class MyApp extends StatefulWidget {
   /// Today's seasonal theme (Ramadan, Eid...), refreshed when the app
   /// comes back.
   final SeasonCubit season;
+
+  /// Reading and counting preferences from Settings.
+  final SettingsCubit settings;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -87,6 +92,7 @@ class _MyAppState extends State<MyApp> {
           BlocProvider.value(value: widget.adhan),
           BlocProvider.value(value: widget.appVersion),
           BlocProvider.value(value: widget.season),
+          BlocProvider.value(value: widget.settings),
         ],
         child: MultiBlocListener(
           listeners: [

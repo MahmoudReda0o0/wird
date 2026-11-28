@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_guide/core/theme/app_theme.dart';
 import 'package:my_guide/features/azkar/data/models/azkar_model.dart';
+import 'package:my_guide/features/settings/cubit/settings_cubit.dart';
 
 /// "مرة واحدة"، "مرتان"، "3 مرات"، "11 مرة" — Arabic counting rules.
 String azkarCounterLabel(int count) {
@@ -45,7 +47,9 @@ class _AzkarCardState extends State<AzkarCard> {
 
   void _count() {
     if (done) return;
-    HapticFeedback.lightImpact();
+    if (context.read<SettingsCubit>().state.sabhaHaptics) {
+      HapticFeedback.lightImpact();
+    }
     widget.onCount();
   }
 
@@ -98,7 +102,14 @@ class _AzkarCardState extends State<AzkarCard> {
                       textAlign: TextAlign.center,
                       style: AppText.zikrLead.copyWith(color: c.goldInk),
                     ),
-                  Text(model.content, style: AppText.zikr.copyWith(color: c.ink)),
+                  Text(
+                    model.content,
+                    style: AppText.zikr.copyWith(
+                      color: c.ink,
+                      fontSize: AppText.zikr.fontSize! *
+                          context.watch<SettingsCubit>().state.zikrScale,
+                    ),
+                  ),
                   if (model.fadl != null) ...[
                     const SizedBox(height: AppSpace.s2),
                     Align(

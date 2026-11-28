@@ -6,4 +6,5 @@ class AppRoutes {
   static const String appVersion = '/AppVersion';
   static const String qibla = '/Qibla';
   static const String qiblaCompare = '/QiblaCompare';
+  static const String settings = '/Settings';
 }

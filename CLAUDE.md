@@ -91,10 +91,11 @@ flutter pub get && flutter analyze && flutter test
    - **التيستات القديمة اللي هتحتاج تتعدّل:** `prayer_times_screen_test` بتدوّر على tooltip «إيقاف/تشغيل أذان الفجر» (الـ tooltip بقى «أذان الفجر: الأذان كامل»).
    - iOS مؤجل (بيشغّل الأذان الكامل).
 7. ~~**تنبيه قبل الأذان**~~ ✅ (من غير تيستات): كارت «تنبيه قبل الأذان» في شاشة المواقيت تحت «الأذان في الوضع الصامت»: switch، وتحته `SegmentedButton` بـ 5 و10 و15 د. `AdhanSettings.early` و`earlyMinutes` (keys: `adhan_early`، `adhan_early_minutes`)، و`AdhanCubit.setEarly` (بيطلب الإذن) و`setEarlyMinutes`. منفصل عن الأذان: بيشتغل حتى لو الأذان مقفول أو صامت، لكل الصلوات الخمسة. `AdhanPlan.planEarly`، والـ ids في `NotificationIds.preAdhan` (3000–3999)، والـ channel `adhan_early_v1` بصوت الإشعار العادي.
-8. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر. ده بيستخدم نفس الـ notifications (ids 2000–2999).
-9. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
-10. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
-11. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
+8. ~~**صفحة الإعدادات**~~ ✅ (من غير تيستات): `/Settings` (زرار ⚙ في الهوم)، `features/settings/`. فيها: الثيم (فاتح / غامق / زي الموبايل، `ThemeCubit.setMode`)، و«إشعارات التطبيق» (`AdhanSettings.appNotifications`، key: `notifications_on`): زرار واحد بيقفل كل إشعارات وِرْد (الأذان، والتنبيه قبل الأذان، وإشعار النسخة الجديدة) ويسيب باقي الزراير زي ما هي؛ `AdhanService` ما بيجدولش حاجة وهو مقفول، والـ background ما بيطلّعش إشعار النسخة. ولينك لإعدادات الأذان، والمدينة، وحجم خط الأذكار (`SettingsCubit`، key: `zikr_scale`: 0.85 / 1.0 / 1.2، بيتطبّق في `AzkarCard` والسبحة)، واهتزاز السبحة (key: `sabha_haptics`)، و«عن التطبيق»، والمشاركة على واتساب (`wa.me` بـ `url_launcher`)، ونسخ لينك التحميل. أي تذكير جديد لازم يحترم `appNotifications`.
+9. **تذكير بالأذكار:** الصباح بعد الفجر، والمساء بعد العصر. ده بيستخدم نفس الـ notifications (ids 2000–2999).
+10. **وضع رمضان والتاريخ الهجري** قبل رمضان، حوالي أوائل فبراير 2027: الإمساك، والعدّ للسحور والإفطار.
+11. **النشر على Google Play:** keystore و`key.properties` (مش في git)، و`signingConfig` للـ release، والأيقونة، والـ screenshots، والـ privacy policy.
+12. **بعد النشر:** Home widget لأقرب صلاة (`home_widget`)، وتحديد المكان بالـ GPS، وإحصائيات وأيام متتالية للأذكار، ومفضلة وبحث.
 
 ## حاجات Manual على Mahmoud
 - امسح الـ branches القديمة: `feature/light-dark-theme`، `fix/review-issues`، `sabha`، `feature/new-home`، `feature/adhan`، `refactor/bloc`، `feature/app-version`.

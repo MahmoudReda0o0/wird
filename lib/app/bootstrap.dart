@@ -12,6 +12,7 @@ import 'package:my_guide/features/adhan/adhan_service.dart';
 import 'package:my_guide/features/adhan/cubit/adhan_cubit.dart';
 import 'package:my_guide/features/prayer_times/cubit/city_cubit.dart';
 import 'package:my_guide/features/seasons/cubit/season_cubit.dart';
+import 'package:my_guide/features/settings/cubit/settings_cubit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,6 +48,7 @@ Future<void> bootstrap() async {
 
   // Seasonal themes saved on the phone apply from the first frame.
   final season = SeasonCubit(prefs);
+  final settings = SettingsCubit(prefs);
 
   runApp(
     MyApp(
@@ -57,6 +59,7 @@ Future<void> bootstrap() async {
       appVersion: appVersion,
       updates: updates,
       season: season,
+      settings: settings,
     ),
   );
 

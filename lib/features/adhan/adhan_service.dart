@@ -76,7 +76,9 @@ class AdhanService {
   /// allowed or taken away since the last schedule (the user went to the
   /// Android settings screen), schedules again so the adhan is on time.
   static Future<void> onResume(PrayerCity city, AdhanSettings settings) async {
-    if ((!settings.enabled && !settings.early) || _scheduledExact == null) {
+    if (!settings.appNotifications ||
+        (!settings.enabled && !settings.early) ||
+        _scheduledExact == null) {
       return;
     }
     final exact = await NotificationScheduler.canScheduleExact();
@@ -92,7 +94,8 @@ class AdhanService {
       NotificationIds.legacyAdhan,
       NotificationIds.preAdhan,
     ]);
-    if (!settings.enabled && !settings.early) {
+    if (!settings.appNotifications ||
+        (!settings.enabled && !settings.early)) {
       _scheduledExact = null;
       return;
     }
